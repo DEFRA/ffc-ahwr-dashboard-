@@ -1,13 +1,25 @@
-const server = require('./server')
+require('./insights').setup()
+const createServer = require('./server')
 
-const init = async () => {
-  await server.start()
-  console.log('Server running on %s', server.info.uri)
-}
+let server
 
-process.on('unhandledRejection', (err) => {
-  console.log(err)
-  process.exit(1)
+createServer()
+  .then(_server => {
+    server = _server
+    server.start()
+  })
+  .catch(err => {
+    console.error(err)
+    process.exit(1)
+  })
+
+process.on('SIGINT', () => {
+  server.stop()
+    .then(() => {
+      process.exit(0)
+    })
+    .catch(err => {
+      console.error(err)
+      process.exit(1)
+    })
 })
-
-init()
