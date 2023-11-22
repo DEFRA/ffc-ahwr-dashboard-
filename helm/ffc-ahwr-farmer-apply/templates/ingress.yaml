@@ -1,0 +1,3 @@
+{{- include "ffc-helm-library.azure-ingress" (list . "ffc-ahwr-dashboard.ingress") -}}
+{{- define "ffc-ahwr-dashboard.ingress" -}}
+{{- end -}}

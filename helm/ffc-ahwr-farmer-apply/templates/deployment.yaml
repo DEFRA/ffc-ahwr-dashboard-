@@ -1,0 +1,8 @@
+{{- include "ffc-helm-library.deployment" (list . "ffc-ahwr-dashboard.deployment") -}}
+{{- define "ffc-ahwr-dashboard.deployment" -}}
+spec:
+  template:
+    spec:
+      containers:
+      - {{ include "ffc-helm-library.container" (list . "ffc-ahwr-dashboard.container") }}
+{{- end -}}

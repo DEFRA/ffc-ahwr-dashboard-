@@ -1,0 +1,105 @@
+environment: development
+name: ffc-ahwr-dashboard
+namespace: ffc-ahwr
+workstream: ffc-ahwr
+image: ffc-ahwr-dashboard
+
+labels: {}
+
+aadPodIdentity: true
+
+appInsights:
+  connectionString:
+
+azureIdentity:
+  clientID:
+  resourceID:
+
+containerConfigMap:
+  name: ffc-ahwr-dashboard-config-map
+
+containerSecret:
+  name: ffc-ahwr-dashboard-container-secret
+  type: Opaque
+
+deployment:
+  cpuThreshold: 80
+  memoryThreshold: 80
+  minReadySeconds: 0
+  minReplicas: 2
+  maxReplicas: 4
+  priorityClassName: high
+  replicas: 2
+  restartPolicy: Always
+
+container:
+  requestMemory: 120Mi
+  requestCpu: 120m
+  limitMemory: 400Mi
+  limitCpu: 400m
+  cookiePassword: who-likes-cookies-i-like-cookies-everybody-likes-cookies
+  eventQueueAddress: ffc-ahwr-event
+  googleTagManagerKey:
+  imagePullPolicy: IfNotPresent
+  messageQueueHost: namespace.servicebus.windows.net
+  notifyApiKey:
+  port: 3000
+  redisHostname: redis-hostname.default
+  redisPartition: ffc-ahwr-dashboard
+  redisPassword: redis
+  redisPort: 6379
+  serviceUri:
+  claimServiceUri:
+  applyServiceUri:
+  urlPrefix: /dashboard
+  termsAndConditionsUrl:
+  eligibilityApiUri:
+  applicationApiUri:
+  defraIdTenant:
+  defraIdRedirectUri:
+  defraIdJwtIssuerId:
+  defraIdClientId:
+  defraIdClientSecret:
+  defraIdServiceId:
+  defraIdPolicy:
+  rpaHostname:
+  rpaGetPersonSummaryUrl:
+  rpaGetOrganisationPermissionsUrl:
+  rpaGetOrganisationUrl:
+  rpaGetCphNumbersUrl:
+  apimOcpSubscriptionKey:
+  apimHostname:
+  apimOAuthPath:
+  apimClientId:
+  apimClientSecret:
+  apimScope:
+ 
+ingress:
+  class: nginx
+  endpoint: ffc-ahwr-farmer
+  server: value.replaced.from.app.config
+  path: /dashboard
+  type: minion
+
+livenessProbe:
+  path: /healthz
+  port: 3000
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  failureThreshold: 5
+  timeoutSeconds: 5
+
+readinessProbe:
+  path: /healthy
+  port: 3000
+  initialDelaySeconds: 20
+  periodSeconds: 30
+  failureThreshold: 5
+  timeoutSeconds: 5
+
+service:
+  port: 80
+  type: ClusterIP
+
+wreckHttp:
+  timeoutMilliseconds: 10000
