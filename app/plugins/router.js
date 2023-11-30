@@ -1,5 +1,6 @@
 const routes = [].concat(
   require('../routes/accessibility'),
+  require('../routes/applications'),
   require('../routes/assets'),
   require('../routes/cookies'),
   require('../routes/healthy'),
@@ -8,7 +9,7 @@ const routes = [].concat(
   require('../routes/org-review'),
   require('../routes/privacy-policy'),
   require('../routes/terms-and-conditions'),
-  require('../routes/signin-oidc')
+  // require('../routes/signin-oidc')
 )
 
 module.exports = {
