@@ -27,7 +27,7 @@ function setOrganisationSessionData (request, personSummary, organisationSummary
 
 module.exports = [{
   method: 'GET',
-  path: `${config.urlPrefix}/signin-oidc`,
+  path: '/signin-oidc',
   options: {
     auth: false,
     validate: {
@@ -73,7 +73,7 @@ module.exports = [{
             email: personSummary.email
           }
         })
-        return h.redirect(`${config.urlPrefix}/org-review`)
+        return h.redirect('/org-review')
       } catch (err) {
         console.error(`Received error with name ${err.name} and message ${err.message}.`)
         const attachedToMultipleBusinesses = session.getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses)

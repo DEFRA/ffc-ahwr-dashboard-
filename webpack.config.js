@@ -5,7 +5,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
-const urlPrefix = '/dashboard'
 console.log(`Running webpack in ${isDev ? 'development' : 'production'} mode`)
 
 module.exports = {
@@ -55,15 +54,14 @@ module.exports = {
   output: {
     filename: 'js/[contenthash].js',
     path: path.resolve(__dirname, 'app/frontend/dist'),
-    publicPath: `${urlPrefix}/assets/`
+    publicPath: '/assets/'
   },
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       inject: false,
       filename: '../../views/layouts/layout.njk',
-      template: 'app/views/layouts/_layout.njk',
-      metadata: { urlPrefix }
+      template: 'app/views/layouts/_layout.njk'
     }),
     new MiniCssExtractPlugin({
       filename: 'css/[contenthash].css'

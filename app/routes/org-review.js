@@ -8,7 +8,7 @@ const config = require('../config')
 
 module.exports = [{
   method: 'GET',
-  path: `${config.urlPrefix}/org-review`,
+  path: '/org-review',
   options: {
     handler: async (request, h) => {
       const organisation = session.getFarmerApplyData(request, organisationKey)
@@ -21,7 +21,7 @@ module.exports = [{
 },
 {
   method: 'POST',
-  path: `${config.urlPrefix}/org-review`,
+  path: '/org-review',
   options: {
     validate: {
       payload: Joi.object({
@@ -43,7 +43,7 @@ module.exports = [{
           confirmCheckDetails,
           request.payload[confirmCheckDetails]
         )
-        return h.redirect(`${config.urlPrefix}/which-review`)
+        return h.redirect('/which-review')
       }
       return h.view('update-details', {
         ruralPaymentsAgency: config.ruralPaymentsAgency

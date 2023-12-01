@@ -1,10 +1,10 @@
-const config = require('../config')
 const session = require('../session')
 const { requestAuthorizationCodeUrl } = require('../auth')
+const config = require('../config')
 
 module.exports = {
   method: 'GET',
-  path: `${config.urlPrefix}`,
+  path: '/',
   options: {
     auth: false,
     handler: async (request, h) => {

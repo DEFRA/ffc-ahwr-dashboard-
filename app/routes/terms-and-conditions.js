@@ -1,9 +1,9 @@
-const { urlPrefix, serviceUri } = require('../config/index')
+const { serviceUri } = require('../config/index')
 
 module.exports = [
   {
     method: 'GET',
-    path: `${urlPrefix}/terms`,
+    path: '/terms',
     options: {
       auth: false,
       handler: async (request, h) => {
@@ -13,7 +13,7 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: `${urlPrefix}/terms/v1`,
+    path: '/terms/v1',
     options: {
       auth: false,
       handler: async (request, h) => {
@@ -23,7 +23,7 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: `${urlPrefix}/terms/v2`,
+    path: '/terms/v2',
     options: {
       auth: false,
       handler: async (request, h) => {
@@ -33,7 +33,7 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: `${urlPrefix}/terms/v3`,
+    path: '/terms/v3',
     options: {
       auth: false,
       handler: async (request, h) => {
