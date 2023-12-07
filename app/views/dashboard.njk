@@ -2,7 +2,7 @@
 {% from "./macros/applications-table.njk" import applicationsTable %}
 
 {% block pageTitle %}
-  {{ siteTitle }}: AHWR Applications
+  AHWR Dashboard
 {% endblock %}
 
 {% block beforeContent %}
@@ -29,12 +29,7 @@
                   firstCellIsHeader: false,
                   head: model.header,
                   rows: model.applications
-                }) }}
-                {{ govukPagination({
-                  previous: model.previous,
-                  next: model.next,
-                  items: model.pages
-                }) 
+                })
               }}
             </div>
         </div>

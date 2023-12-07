@@ -1,5 +1,4 @@
 const { getApplications } = require('../../api/applications')
-const { getPagination, getPagingData } = require('../../pagination')
 const { getAppSearch } = require('../../session')
 const getStyleClassByStatus = require('../../constants/status')
 const keys = require('../../session/keys')
@@ -52,17 +51,15 @@ const getApplicationTableHeader = (sortField) => {
   return headerColumns
 }
 
-async function createModel (request, page) {
+async function createModel (request) {
   const viewTemplate = 'applications'
   const currentPath = `/${viewTemplate}`
-  page = page ?? request.query.page ?? 1
-  const { limit, offset } = getPagination(page)
   const path = request.headers.path ?? ''
   const searchText = getAppSearch(request, keys?.appSearch?.searchText)
   const searchType = getAppSearch(request, keys.appSearch.searchType)
   const filterStatus = getAppSearch(request, keys.appSearch.filterStatus) ?? []
   const sortField = getAppSearch(request, keys.appSearch.sort) ?? undefined
-  const apps = await getApplications(searchType, searchText, limit, offset, filterStatus, sortField)
+  const apps = await getApplications(searchType, searchText, 5, 0, filterStatus, sortField)
   if (apps.total > 0) {
     let statusClass
     const applications = apps.applications.map(n => {
@@ -90,10 +87,9 @@ async function createModel (request, page) {
             'data-sort-value': `${n.status.status}`
           }
         },
-        { html: `<a href="${serviceUri}/view-application/${n.reference}?page=${page}">View details</a>` }
+        { html: `<a href="${serviceUri}/view-application/${n.reference}">View details</a>` }
       ]
     })
-    const pagingData = getPagingData(apps.total ?? 0, limit, page, path)
     const groupByStatus = apps.applicationStatus.map(s => {
       return {
         status: s.status,
@@ -105,7 +101,6 @@ async function createModel (request, page) {
     return {
       applications,
       header: getApplicationTableHeader(getAppSearch(request, keys.appSearch.sort)),
-      ...pagingData,
       searchText,
       availableStatus: groupByStatus,
       selectedStatus: groupByStatus.filter(s => s.selected === true).map(s => {

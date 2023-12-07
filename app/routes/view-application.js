@@ -18,7 +18,6 @@ module.exports = {
         reference: Joi.string().valid()
       }),
       query: Joi.object({
-        page: Joi.number().greater(0).default(1),
         errors: Joi.string().allow(null),
       })
     },
@@ -55,7 +54,6 @@ module.exports = {
         claimed: application?.claimed,
         payment: application?.payment,
         ...new ViewModel(application, applicationHistory, applicationEvents),
-        page: request.query.page,
         errors
       })
     }
