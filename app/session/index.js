@@ -92,6 +92,14 @@ const getCustomer = (request, key) => {
   return get(request, entries.customer, key)
 }
 
+function setAppSearch (request, key, value) {
+  set(request, entries.appSearch, key, value)
+}
+
+function getAppSearch (request, key) {
+  return get(request, entries.appSearch, key)
+}
+
 module.exports = {
   entries,
   lacksAny,
@@ -107,5 +115,7 @@ module.exports = {
   getPkcecodes,
   setPkcecodes,
   setCustomer,
-  getCustomer
+  getCustomer,
+  setAppSearch,
+  getAppSearch
 }

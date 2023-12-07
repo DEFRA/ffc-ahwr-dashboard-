@@ -1,0 +1,8 @@
+{% macro pager(page, totalPages, count, total, url) %}
+    {{ govukPagination({
+        previous: previous,
+        next: next,
+        items: pages
+        }) 
+        }}
+{% endmacro %}

@@ -34,5 +34,11 @@ module.exports = {
     crn: 'crn',
     organisationId: 'organisationId',
     attachedToMultipleBusinesses: 'attachedToMultipleBusinesses'
+  },
+  appSearch: {
+    searchText: 'searchText',
+    searchType: 'searchType',
+    filterStatus: 'status',
+    sort: 'sort'
   }
 }
