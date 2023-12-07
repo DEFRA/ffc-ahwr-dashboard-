@@ -1,0 +1,40 @@
+{% extends './layouts/layout.njk' %}
+{% from "./macros/applications-table.njk" import applicationsTable %}
+
+{% block pageTitle %}
+  AHWR Dashboard
+{% endblock %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+        text: "Back",
+        href: "/dashboard"
+      }) }}
+{% endblock %}
+
+{% block content %}
+    {% if model.error or error %}
+      <div class="govuk-grid-row">
+        <p class="govuk-error-message">{{model.error}}{{error}}</p>
+      </div>
+    {% else %}
+      <div class="govuk-grid-row govuk-!-margin-bottom-5">
+        {{ govukTable({
+            attributes: {
+              'data-module': 'moj-sortable-table'
+            },
+            firstCellIsHeader: false,
+            head: model.header,
+            rows: model.applications
+          })
+        }}
+        {{ govukPagination({
+            previous: model.previous,
+            next: model.next,
+            items: model.pages
+          }) 
+        }}
+      </div>
+    {% endif %}
+  </form>
+{% endblock %}

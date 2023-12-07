@@ -8,7 +8,7 @@
 {% block beforeContent %}
   {{ govukBackLink({
         text: "Back",
-        href: "/"
+        href: "/dashboard"
       }) }}
 {% endblock %}
 
@@ -18,21 +18,43 @@
         <p class="govuk-error-message">{{model.error}}{{error}}</p>
       </div>
     {% else %}
-      <div class="govuk-grid-row">
-        <div class="moj-scrollable-pane">
-
-            <div class="moj-scrollable-pane__wrapper">
-              {{ govukTable({
-                  attributes: {
-                    'data-module': 'moj-sortable-table'
-                  },
-                  firstCellIsHeader: false,
-                  head: model.header,
-                  rows: model.applications
-                })
-              }}
-            </div>
-        </div>
+      <div class="govuk-grid-row govuk-!-margin-bottom-5">
+        <h2 class="govuk-heading-m">Useful information</h2>
+          <ol class="gem-c-contents-list__list">
+            <li class="gem-c-contents-list__list-item gem-c-contents-list__list-item">
+              <a class="gem-c-contents-list__link govuk-link govuk-link--no-underline" href="#information">Information ...</a>
+            </li>
+            <li class="gem-c-contents-list__list-item gem-c-contents-list__list-item">
+              <a class="gem-c-contents-list__link govuk-link govuk-link--no-underline" href="#information">Information ...</a>
+            </li>
+            <li class="gem-c-contents-list__list-item gem-c-contents-list__list-item">
+              <a class="gem-c-contents-list__link govuk-link govuk-link--no-underline" href="#information">Information ...</a>
+            </li>
+            <li class="gem-c-contents-list__list-item gem-c-contents-list__list-item">
+              <a class="gem-c-contents-list__link govuk-link govuk-link--no-underline" href="#information">Information ...</a>
+            </li>
+          </ol>
+      </div>
+      <div class="govuk-grid-row govuk-!-margin-bottom-5">
+        <h2 class="govuk-heading-m">Terms and conditions</h2>
+          <ol class="gem-c-contents-list__list">
+            <li class="gem-c-contents-list__list-item gem-c-contents-list__list-item">
+              <a class="gem-c-contents-list__link govuk-link govuk-link--no-underline" href="#terms-and-conditions">Terms and conditions ...</a>
+            </li>
+          </ol>
+      </div>
+      <div class="govuk-grid-row govuk-!-margin-bottom-5">
+        <h2 class="govuk-heading-m">Your claims</h2>
+        <a  href="/dashboard/view-all">View All</a>
+          {{ govukTable({
+              attributes: {
+                'data-module': 'moj-sortable-table'
+              },
+              firstCellIsHeader: false,
+              head: model.header,
+              rows: model.applications
+            })
+          }}
       </div>
     {% endif %}
   </form>

@@ -13,7 +13,7 @@ class ViewModel {
   }
 }
 
-const getApplicationTableHeader = (sortField) => {
+const getApplicationTableHeader = (sortField, viewTemplate) => {
   const direction = sortField && sortField.direction === 'DESC' ? 'descending' : 'ascending'
   const headerColumns = [{
     text: 'Agreement number'
@@ -25,7 +25,7 @@ const getApplicationTableHeader = (sortField) => {
     text: 'SBI number',
     attributes: {
       'aria-sort': sortField && sortField.field === 'SBI' ? direction : 'none',
-      'data-url': '/applications/sort/SBI'
+      'data-url': `/${viewTemplate}/sort/SBI`
     },
     format: 'numeric'
   })
@@ -33,7 +33,7 @@ const getApplicationTableHeader = (sortField) => {
     text: 'Apply date',
     attributes: {
       'aria-sort': sortField && sortField.field === 'Apply date' ? direction : 'none',
-      'data-url': '/applications/sort/Apply date'
+      'data-url': `/${viewTemplate}/sort/Apply date`
     },
     format: 'date'
   })
@@ -41,7 +41,7 @@ const getApplicationTableHeader = (sortField) => {
     text: 'Status',
     attributes: {
       'aria-sort': sortField && sortField.field === 'Status' ? direction : 'none',
-      'data-url': '/applications/sort/Status'
+      'data-url': `/${viewTemplate}/sort/Status`
     }
   })
   headerColumns.push({
@@ -51,15 +51,14 @@ const getApplicationTableHeader = (sortField) => {
   return headerColumns
 }
 
-async function createModel (request) {
-  const viewTemplate = 'applications'
+async function createModel (request, viewTemplate) {
   const currentPath = `/${viewTemplate}`
-  const path = request.headers.path ?? ''
   const searchText = getAppSearch(request, keys?.appSearch?.searchText)
   const searchType = getAppSearch(request, keys.appSearch.searchType)
   const filterStatus = getAppSearch(request, keys.appSearch.filterStatus) ?? []
   const sortField = getAppSearch(request, keys.appSearch.sort) ?? undefined
-  const apps = await getApplications(searchType, searchText, 5, 0, filterStatus, sortField)
+  const limit = viewTemplate === 'dashboard' ? 5 : 100
+  const apps = await getApplications(searchType, searchText, limit, 0, filterStatus, sortField)
   if (apps.total > 0) {
     let statusClass
     const applications = apps.applications.map(n => {
