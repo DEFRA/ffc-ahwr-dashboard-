@@ -1,7 +1,6 @@
 const Joi = require('joi')
 const authConfig = require('./auth')
 const mqConfig = require('./messaging')
-const urlPrefix = '/dashboard'
 
 const schema = Joi.object({
   appInsights: Joi.object(),
@@ -47,7 +46,6 @@ const schema = Joi.object({
   applyServiceUri: Joi.string().uri(),
   serviceName: Joi.string().default('Annual health and welfare review of livestock'),
   useRedis: Joi.boolean().default(false),
-  urlPrefix: Joi.string().default(urlPrefix),
   ruralPaymentsAgency: {
     loginUri: Joi.string().uri().default('https://www.ruralpayments.service.gov.uk'),
     callChargesUri: Joi.string().uri().default('https://www.gov.uk/call-charges'),
@@ -100,7 +98,6 @@ const config = {
   claimServiceUri: process.env.CLAIM_SERVICE_URI,
   applyServiceUri: process.env.APPLY_SERVICE_URI,
   useRedis: process.env.NODE_ENV !== 'test',
-  urlPrefix: process.env.URL_PREFIX,
   ruralPaymentsAgency: {
     loginUri: 'https://www.ruralpayments.service.gov.uk',
     callChargesUri: 'https://www.gov.uk/call-charges',

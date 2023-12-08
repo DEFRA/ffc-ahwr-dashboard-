@@ -22,7 +22,6 @@
 {% from "../macros/rpa-contact-details.njk"              import rpaContactDetails %}
 
 {% block pageTitle %}{{ serviceName }} - GOV.UK{% endblock %}
-{% set urlPrefix = "<%= htmlWebpackPlugin.options.metadata.urlPrefix %>" %}
 
 {% block head %}
   {% if cookiesPolicy.analytics %}
@@ -73,13 +72,13 @@
 <ul class="govuk-footer__inline-list">
      
   <li class="govuk-footer__inline-list-item">
-    <a class="govuk-footer__link" href="<%= htmlWebpackPlugin.options.metadata.urlPrefix %>/accessibility">
+    <a class="govuk-footer__link" href="/accessibility">
       Accessibility
     </a>
   </li>
 
   <li class="govuk-footer__inline-list-item">
-    <a class="govuk-footer__link" href="<%= htmlWebpackPlugin.options.metadata.urlPrefix %>/cookies">
+    <a class="govuk-footer__link" href="/cookies">
       Cookies
     </a>
   </li>

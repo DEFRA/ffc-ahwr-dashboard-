@@ -1,12 +1,10 @@
-const Joi = require('joi')
-const config = require('../config')
 const viewTemplate = 'dashboard'
 const { ViewModel } = require('./models/application-list')
 const crumbCache = require('./utils/crumb-cache')
 
 module.exports = {
   method: 'GET',
-  path: `${config.urlPrefix}`,
+  path: '/',
   options: {
     auth: false,
     handler: async (request, h) => {

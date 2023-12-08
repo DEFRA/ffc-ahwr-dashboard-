@@ -2,11 +2,10 @@ const Joi = require('joi')
 const ViewModel = require('./models/cookies-policy')
 const { updatePolicy } = require('../cookies')
 const { cookie: { cookieNameCookiePolicy } } = require('../config')
-const urlPrefix = require('../config/index').urlPrefix
 
 module.exports = [{
   method: 'GET',
-  path: `${urlPrefix}/cookies`,
+  path: '/cookies',
   options: {
     auth: false,
     handler: async (request, h) => {
@@ -15,7 +14,7 @@ module.exports = [{
   }
 }, {
   method: 'POST',
-  path: `${urlPrefix}/cookies`,
+  path: '/cookies',
   options: {
     auth: false,
     plugins: {
@@ -32,7 +31,7 @@ module.exports = [{
       if (request.payload.async) {
         return h.response('ok')
       }
-      return h.redirect(`${urlPrefix}/cookies?updated=true`)
+      return h.redirect('/cookies?updated=true')
     }
   }
 }]
