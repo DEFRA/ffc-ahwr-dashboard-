@@ -1,6 +1,5 @@
 describe('Auth plugin test', () => {
   describe('Aceessing secured route without auth cookie redirects to DEFRA ID login', () => {
-    let urlPrefix
     let url
     let authMock
 
