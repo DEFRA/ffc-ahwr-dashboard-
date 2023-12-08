@@ -2,7 +2,6 @@ const { getApplications } = require('../../api/applications')
 const { getAppSearch } = require('../../session')
 const getStyleClassByStatus = require('../../constants/status')
 const keys = require('../../session/keys')
-const { serviceUri } = require('../../config')
 
 class ViewModel {
   constructor (request, page) {
@@ -86,7 +85,7 @@ async function createModel (request, viewTemplate) {
             'data-sort-value': `${n.status.status}`
           }
         },
-        { html: `<a href="${serviceUri}/view-application/${n.reference}">View details</a>` }
+        { html: `<a href="/view-application/${n.reference}">View details</a>` }
       ]
     })
     const groupByStatus = apps.applicationStatus.map(s => {
