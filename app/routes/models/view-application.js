@@ -4,7 +4,7 @@ const getOrganisationRows = require('./application-organisation')
 function ViewModel (application) {
   this.model = {
     applicationData: getFarmerApplication(application),
-    listData: { rows: getOrganisationRows(application?.data?.organisation) },
+    listData: { rows: getOrganisationRows(application?.data?.organisation) }
   }
 }
 

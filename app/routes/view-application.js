@@ -17,7 +17,7 @@ module.exports = {
         reference: Joi.string().valid()
       }),
       query: Joi.object({
-        errors: Joi.string().allow(null),
+        errors: Joi.string().allow(null)
       })
     },
     handler: async (request, h) => {
@@ -38,7 +38,6 @@ module.exports = {
 
       const status = upperFirstLetter(application.status.status.toLowerCase())
       const statusClass = getStyleClassByStatus(application.status.status)
-
 
       const errors = request.query.errors
         ? JSON.parse(Buffer.from(request.query.errors, 'base64').toString('utf8'))
