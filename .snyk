@@ -9,4 +9,8 @@ ignore:
       '@hapi/yar > @hapi/statehood':
         reason: None given
         expires: '2022-09-14T09:45:19.435Z'
+  SNYK-JS-INFLIGHT-6095116:
+    - '*':
+        reason: None given
+        expires: '2024-09-08T11:46:11.839Z'
 patch: {}
