@@ -1,7 +1,7 @@
 const { Buffer } = require('buffer')
 const Joi = require('joi')
 const boom = require('@hapi/boom')
-const { getApplication, getApplicationHistory, getApplicationEvents } = require('../api/applications')
+const { getApplication, getApplicationEvents } = require('../api/applications')
 const getStyleClassByStatus = require('../constants/status')
 const ViewModel = require('./models/view-application')
 const { upperFirstLetter } = require('../lib/display-helper')
@@ -25,7 +25,6 @@ module.exports = {
       if (!application) {
         throw boom.badRequest()
       }
-      const applicationHistory = await getApplicationHistory(request.params.reference)
 
       let applicationEvents
       if ((application?.claimed ||
@@ -51,7 +50,7 @@ module.exports = {
         vetVisit: application?.vetVisit,
         claimed: application?.claimed,
         payment: application?.payment,
-        ...new ViewModel(application, applicationHistory, applicationEvents),
+        ...new ViewModel(application, applicationEvents),
         errors
       })
     }

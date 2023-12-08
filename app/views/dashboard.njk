@@ -44,7 +44,7 @@
           </ol>
       </div>
       <div class="govuk-grid-row govuk-!-margin-bottom-5">
-        <h2 class="govuk-heading-m">Your claims</h2>
+        <h2 class="govuk-heading-m">Applications</h2>
         <a  href="/view-all">View All</a>
           {{ govukTable({
               attributes: {
@@ -53,6 +53,19 @@
               firstCellIsHeader: false,
               head: model.header,
               rows: model.applications
+            })
+          }}
+      </div>
+      <div class="govuk-grid-row govuk-!-margin-bottom-5">
+        <h2 class="govuk-heading-m">Claims</h2>
+        <a  href="/view-all">View All</a>
+          {{ govukTable({
+              attributes: {
+                'data-module': 'moj-sortable-table'
+              },
+              firstCellIsHeader: false,
+              head: model.claimHeader,
+              rows: model.claims
             })
           }}
       </div>

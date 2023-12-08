@@ -30,7 +30,11 @@
       {{ govukSummaryList({
         rows: model.listData.rows
       }) }}
+      <h2 class="govuk-fieldset__legend--m">Application</h2>
       {{ govukTable(model.applicationData) }}
+
+      <h2 class="govuk-fieldset__legend--m">Claim</h2>
+      {{ govukTable(model.claimData) }}
     </div>
   </div>
 {% endblock %}
