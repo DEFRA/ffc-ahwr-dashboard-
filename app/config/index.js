@@ -58,6 +58,9 @@ const schema = Joi.object({
   dateOfTesting: {
     enabled: Joi.bool().default(false)
   },
+  tenMonthRule: {
+    enabled: Joi.bool().default(false)
+  },
   applicationApi: require('../api-requests/application-api.config.schema'),
   wreckHttp: {
     timeoutMilliseconds: Joi.number().default(10000)
@@ -113,6 +116,9 @@ const config = {
   applicationApi: require('../api-requests/application-api.config'),
   dateOfTesting: {
     enabled: process.env.DATE_OF_TESTING_ENABLED
+  },
+  tenMonthRule: {
+    enabled: process.env.TEN_MONTH_RULE_ENABLED
   },
   wreckHttp: {
     timeoutMilliseconds: process.env.WRECK_HTTP_TIMEOUT_MILLISECONDS
