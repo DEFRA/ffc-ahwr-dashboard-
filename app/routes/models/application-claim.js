@@ -6,8 +6,6 @@ module.exports = (application, applicationEvents) => {
   const { data } = application
   let formatedDate = ''
 
-  // console.log('GET THE CLAIM', application)
-
   if (data?.dateOfClaim) {
     formatedDate = formatedDateToUk(data?.dateOfClaim)
   } else {
