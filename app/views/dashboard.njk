@@ -8,7 +8,7 @@
 {% block beforeContent %}
   {{ govukBackLink({
         text: "Back",
-        href: "/dashboard"
+        href: "/"
       }) }}
 {% endblock %}
 
@@ -45,7 +45,7 @@
       </div>
       <div class="govuk-grid-row govuk-!-margin-bottom-5">
         <h2 class="govuk-heading-m">Your claims</h2>
-        <a  href="/dashboard/view-all">View All</a>
+        <a  href="/view-all">View All</a>
           {{ govukTable({
               attributes: {
                 'data-module': 'moj-sortable-table'

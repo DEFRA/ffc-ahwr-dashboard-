@@ -1,4 +1,3 @@
-const urlPrefix = require('../config/index').urlPrefix
 const { Buffer } = require('buffer')
 const Joi = require('joi')
 const boom = require('@hapi/boom')
@@ -10,7 +9,7 @@ const applicationStatus = require('../constants/application-status')
 
 module.exports = {
   method: 'GET',
-  path: `${urlPrefix}/view-application/{reference}`,
+  path: '/view-application/{reference}',
   options: {
     auth: false,
     validate: {

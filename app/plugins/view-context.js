@@ -12,10 +12,10 @@ module.exports = {
 
           const { path } = request
 
-          let serviceUrl = '/dashboard'
+          let serviceUrl = '/'
 
-          if (path.startsWith('/dashboard/cookies')) {
-            serviceUrl = '/dashboard/cookies'
+          if (path.startsWith('/cookies')) {
+            serviceUrl = '/cookies'
           }
           ctx.serviceName = serviceName
           ctx.serviceUrl = serviceUrl

@@ -75,7 +75,7 @@ ingress:
   class: nginx
   endpoint: ffc-ahwr-farmer
   server: value.replaced.from.app.config
-  path: /dashboard
+  path: /
   type: minion
 
 livenessProbe:
