@@ -38,7 +38,7 @@ describe('App Insight', () => {
     const appName = 'test-app'
     process.env.APPINSIGHTS_CLOUDROLE = appName
     process.env.APPLICATIONINSIGHTS_CONNECTION_STRING = 'something'
-    const insights = require('../../app/insights')
+    const insights = require('../../../app/insights')
 
     insights.setup()
 
@@ -50,7 +50,7 @@ describe('App Insight', () => {
   })
 
   test('logs not running when env var does not exist', () => {
-    const insights = require('../../app/insights')
+    const insights = require('../../../app/insights')
 
     insights.setup()
 
@@ -59,7 +59,7 @@ describe('App Insight', () => {
   })
 
   test('logException', () => {
-    const { logException } = require('../../app/insights')
+    const { logException } = require('../../../app/insights')
 
     expect(logException).toBeDefined()
 
