@@ -4,8 +4,6 @@ const status = {
   NOT_AGREED: 7
 }
 
-module.exports = status
-
 const statusClass = {
   APPLIED: {
     styleClass: 'govuk-tag--green'
@@ -53,4 +51,4 @@ const getStyleClassByStatus = (value) => {
   } else { return 'govuk-tag--grey' }
 }
 
-module.exports = getStyleClassByStatus
+module.exports = { status, getStyleClassByStatus }

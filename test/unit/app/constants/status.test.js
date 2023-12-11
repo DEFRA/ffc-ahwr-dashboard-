@@ -1,4 +1,4 @@
-const getStyleClassByStatus = require('../../../../app/constants/status')
+const { getStyleClassByStatus } = require('../../../../app/constants/status')
 
 describe('Constants - Status tests', () => {
   test('getStyleClassByStatus - empty string', async () => {
