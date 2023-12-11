@@ -1,6 +1,6 @@
 const { getApplications, getApplication, getApplicationEvents } = require('../../api/applications')
 const { getAppSearch } = require('../../session')
-const getStyleClassByStatus = require('../../constants/status')
+const { getStyleClassByStatus } = require('../../constants/status')
 const keys = require('../../session/keys')
 const getClaimData = require('./application-claim')
 class ViewModel {
@@ -88,6 +88,7 @@ async function createModel (request, viewTemplate) {
   const sortField = getAppSearch(request, keys.appSearch.sort) ?? undefined
   const limit = viewTemplate === 'dashboard' ? 5 : 100
   const apps = await getApplications(searchType, searchText, limit, 0, filterStatus, sortField)
+
   if (apps.total > 0) {
     let statusClass
     const applications = apps.applications.map(n => {
@@ -188,4 +189,4 @@ async function createModel (request, viewTemplate) {
   }
 }
 
-module.exports = { ViewModel, getApplicationTableHeader }
+module.exports = { ViewModel }
