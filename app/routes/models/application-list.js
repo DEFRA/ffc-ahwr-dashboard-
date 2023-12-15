@@ -1,8 +1,8 @@
-const { getApplications, getApplication, getApplicationEvents } = require('../../api/applications')
+const { getApplications } = require('../../api/applications')
+const { getClaims } = require('../../api/claims')
 const { getAppSearch } = require('../../session')
 const { getStyleClassByStatus } = require('../../constants/status')
 const keys = require('../../session/keys')
-const getClaimData = require('./application-claim')
 class ViewModel {
   constructor (request, page) {
     return (async () => {
@@ -60,10 +60,10 @@ const getClaimTableHeader = (sortField, viewTemplate) => {
       text: 'SBI number'
     },
     {
-      text: 'Date of review'
+      text: 'Date of claim'
     },
     {
-      text: 'Date of claim'
+      text: 'Date of visit'
     },
     {
       text: 'Status',
@@ -120,30 +120,23 @@ async function createModel (request, viewTemplate) {
       ]
     })
 
-    const claimDataStatus = ['IN CHECK', 'REJECTED', 'READY TO PAY', 'ON HOLD']
-    const claims = await Promise.all(applications.map(async (a) => {
-      const application = await getApplication(a[0].text)
-      const applicationEvents = await getApplicationEvents(application.data.organisation.sbi)
-      const claimData = claimDataStatus.includes(application.status.status) ? getClaimData(application, applicationEvents) : false
-      if (claimData) {
-        const statusClass = getStyleClassByStatus(application.status.status)
-        return [
-          { text: application.data.organisation.name },
-          { text: application.data.organisation.sbi },
-          { text: claimData.rows[0][1].text },
-          { text: claimData.rows[1][1].text },
-          {
-            html: `<span class="govuk-tag ${statusClass}">${application.status.status}</span>`,
-            attributes: {
-              'data-sort-value': `${application.status.status}`
-            }
-          },
-          { html: `<a href="/view-application/${application.reference}">View details</a>` }
-        ]
-      }
-
-      return []
-    }))
+    const claims = await getClaims()
+    const claimsData = claims.claims.map((claim) => {
+      const statusClass = getStyleClassByStatus(claim.status.status)
+      return [
+        { text: claim.data.organisation.name },
+        { text: claim.data.organisation.sbi },
+        { text: new Date(claim.data.dateOfClaim).toLocaleDateString('en-GB') },
+        { text: new Date(claim.data.visitDate).toLocaleDateString('en-GB') },
+        {
+          html: `<span class="govuk-tag ${statusClass}">${claim.status.status}</span>`,
+          attributes: {
+            'data-sort-value': `${claim.status.status}`
+          }
+        },
+        { html: `<a href="/view-application/${claim.reference}">View details</a>` }
+      ]
+    })
 
     const groupByStatus = apps.applicationStatus.map(s => {
       return {
@@ -156,7 +149,7 @@ async function createModel (request, viewTemplate) {
 
     return {
       applications,
-      claims,
+      claims: claimsData,
       header: getApplicationTableHeader(getAppSearch(request, keys.appSearch.sort)),
       claimHeader: getClaimTableHeader(getAppSearch(request, keys.appSearch.sort)),
       searchText,

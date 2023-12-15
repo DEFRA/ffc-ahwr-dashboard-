@@ -1,8 +1,18 @@
 const status = {
   AGREED: 1,
   WITHDRAWN: 2,
-  NOT_AGREED: 7
+  IN_CHECK: 5,
+  'IN CHECK': 5,
+  NOT_AGREED: 7,
+  'NOT AGREED': 7,
+  READY_TO_PAY: 9,
+  'READY TO PAY': 9,
+  REJECTED: 10,
+  ON_HOLD: 11,
+  'ON HOLD': 11
 }
+
+const claimStatus = [status.IN_CHECK, status.REJECTED, status.READY_TO_PAY, status.ON_HOLD]
 
 const statusClass = {
   APPLIED: {
@@ -51,4 +61,4 @@ const getStyleClassByStatus = (value) => {
   } else { return 'govuk-tag--grey' }
 }
 
-module.exports = { status, getStyleClassByStatus }
+module.exports = { status, claimStatus, getStyleClassByStatus }
