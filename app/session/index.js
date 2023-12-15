@@ -13,7 +13,7 @@ const entries = {
 
 function lacksAny (request, entryKey, keys) {
   let result = false
-  keys.forEach(key => {
+  keys.forEach((key) => {
     if (!get(request, entryKey, key)) {
       result = true
     }
@@ -23,11 +23,13 @@ function lacksAny (request, entryKey, keys) {
 
 function set (request, entryKey, key, value) {
   const entryValue = request.yar?.get(entryKey) || {}
-  entryValue[key] = typeof (value) === 'string' ? value.trim() : value
+  entryValue[key] = typeof value === 'string' ? value.trim() : value
   request.yar.set(entryKey, entryValue)
   const organisation = getFarmerApplyData(request, entries.organisation)
   const xForwardedForHeader = request.headers['x-forwarded-for']
-  const ip = xForwardedForHeader ? xForwardedForHeader.split(',')[0] : request.info.remoteAddress
+  const ip = xForwardedForHeader
+    ? xForwardedForHeader.split(',')[0]
+    : request.info.remoteAddress
   sendSessionEvent(organisation, request.yar.id, entryKey, key, value, ip)
 }
 
@@ -92,6 +94,14 @@ const getCustomer = (request, key) => {
   return get(request, entries.customer, key)
 }
 
+function setAppSearch (request, key, value) {
+  set(request, entries.appSearch, key, value)
+}
+
+function getAppSearch (request, key) {
+  return get(request, entries.appSearch, key)
+}
+
 module.exports = {
   entries,
   lacksAny,
@@ -107,5 +117,7 @@ module.exports = {
   getPkcecodes,
   setPkcecodes,
   setCustomer,
-  getCustomer
+  getCustomer,
+  setAppSearch,
+  getAppSearch
 }

@@ -1,6 +1,6 @@
 const applicationApi = require('./application-api')
 const config = require('../config')
-const status = require('../constants/status')
+const { status } = require('../constants/status')
 const validStatusForApplication = [status.NOT_AGREED, status.WITHDRAWN]
 const { CannotReapplyTimeLimitError, OutstandingAgreementError, AlreadyAppliedError } = require('../exceptions')
 
@@ -28,6 +28,7 @@ function applicationForBusinessInStateToApply (latestApplicationsForSbi) {
   } else if (config.tenMonthRule.enabled) {
     const dates = timeLimitDates(latestApplication)
     const { startDate, endDate } = dates
+    console.log(latestApplication, dates)
     if (latestApplication.statusId === status.AGREED) {
       // if agreement is still AGREED customer must claim or withdraw
       throw new OutstandingAgreementError(`Business with SBI ${latestApplication.data.organisation.sbi} must claim or withdraw agreement before creating another.`, formatDate(startDate), formatDate(endDate))

@@ -1,6 +1,6 @@
-const session = require('../session')
-const { requestAuthorizationCodeUrl } = require('../auth')
-const config = require('../config')
+const viewTemplate = 'dashboard'
+const { ViewModel } = require('./models/application-list')
+const crumbCache = require('./utils/crumb-cache')
 
 module.exports = {
   method: 'GET',
@@ -8,10 +8,8 @@ module.exports = {
   options: {
     auth: false,
     handler: async (request, h) => {
-      return h.view('index', {
-        defraIdLogin: requestAuthorizationCodeUrl(session, request),
-        ruralPaymentsAgency: config.ruralPaymentsAgency
-      })
+      await crumbCache.generateNewCrumb(request, h)
+      return h.view(viewTemplate, await new ViewModel(request, viewTemplate)) // NOSONAR
     }
   }
 }

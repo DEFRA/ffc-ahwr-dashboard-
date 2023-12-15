@@ -36,8 +36,10 @@ const schema = Joi.object({
   env: Joi.string().valid('development', 'test', 'production').default(
     'development'
   ),
+  displayPageSize: Joi.number().default(20),
   googleTagManagerKey: Joi.string().allow(null, ''),
   isDev: Joi.boolean().default(false),
+  applicationApiUri: Joi.string().uri(),
   port: Joi.number().default(3000),
   serviceUri: Joi.string().uri(),
   claimServiceUri: Joi.string().uri(),
@@ -53,11 +55,18 @@ const schema = Joi.object({
   customerSurvey: {
     uri: Joi.string().uri().optional()
   },
+  dateOfTesting: {
+    enabled: Joi.bool().default(false)
+  },
+  tenMonthRule: {
+    enabled: Joi.bool().default(false)
+  },
   applicationApi: require('../api-requests/application-api.config.schema'),
   wreckHttp: {
     timeoutMilliseconds: Joi.number().default(10000)
   },
-  latestTermsAndConditionsUri: Joi.string().required()
+  latestTermsAndConditionsUri: Joi.string().required(),
+  reapplyTimeLimitMonths: Joi.number()
 })
 
 const config = {
@@ -87,8 +96,10 @@ const config = {
     password: process.env.COOKIE_PASSWORD
   },
   env: process.env.NODE_ENV,
+  displayPageSize: process.env.DISPLAY_PAGE_SIZE,
   googleTagManagerKey: process.env.GOOGLE_TAG_MANAGER_KEY,
   isDev: process.env.NODE_ENV === 'development',
+  applicationApiUri: process.env.APPLICATION_API_URI,
   port: process.env.PORT,
   serviceUri: process.env.SERVICE_URI,
   claimServiceUri: process.env.CLAIM_SERVICE_URI,
@@ -104,10 +115,17 @@ const config = {
     uri: 'https://defragroup.eu.qualtrics.com/jfe/form/SV_0lxBrd2XeDnn2hU'
   },
   applicationApi: require('../api-requests/application-api.config'),
+  dateOfTesting: {
+    enabled: process.env.DATE_OF_TESTING_ENABLED
+  },
+  tenMonthRule: {
+    enabled: process.env.TEN_MONTH_RULE_ENABLED
+  },
   wreckHttp: {
     timeoutMilliseconds: process.env.WRECK_HTTP_TIMEOUT_MILLISECONDS
   },
-  latestTermsAndConditionsUri: process.env.TERMS_AND_CONDITIONS_URL
+  latestTermsAndConditionsUri: process.env.TERMS_AND_CONDITIONS_URL,
+  reapplyTimeLimitMonths: 10
 }
 
 const result = schema.validate(config, {
