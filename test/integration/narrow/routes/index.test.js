@@ -7,6 +7,6 @@ describe('Dashboard home page test', () => {
 
     const res = await global.__SERVER__.inject(options)
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(200)
   })
 })
