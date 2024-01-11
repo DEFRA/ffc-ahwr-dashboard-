@@ -10,12 +10,3 @@ services:
       NODE_ENV: test
     volumes:
       - ./test-output/:/home/node/test-output/
-
-  zap-baseline-scan:
-    image: owasp/zap2docker-stable:2.11.1
-    command: zap-baseline.py -t http://ffc-ahwr-dashboard:${PORT:-3000} -c config/zap.conf -r test-output/zap-report.html -a -d -I
-    depends_on:
-      - ffc-ahwr-dashboard
-    volumes:
-      - ./test-output/:/zap/wrk/test-output/
-      - ./zap/:/zap/wrk/config/
