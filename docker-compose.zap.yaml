@@ -10,3 +10,12 @@ services:
       NODE_ENV: test
     volumes:
       - ./test-output/:/home/node/test-output/
+
+  zap-baseline-scan:
+    image: owasp/zap2docker-stable:2.11.1
+    command: npm run test:lint
+    depends_on:
+      - ffc-ahwr-dashboard
+    volumes:
+      - ./test-output/:/zap/wrk/test-output/
+      - ./zap/:/zap/wrk/config/
