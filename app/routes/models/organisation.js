@@ -1,11 +1,17 @@
 const session = require('../../session')
 const auth = require('../../auth')
+const { confirmCheckDetails } = require('../../session/keys').farmerApplyData
+const { getYesNoRadios } = require('./form-component/yes-no-radios')
+
+const labelText = 'Are your details correct?'
 
 const formatAddressForDisplay = (organisation) => {
   return organisation?.address?.replaceAll(',', '<br>')
 }
 
 const getOrganisation = (request, organisation, errorText) => {
+  const prevAnswer = session.getFarmerApplyData(request, confirmCheckDetails)
+
   const rows = [
     { key: { text: 'Farmer name' }, value: { text: organisation.farmerName } },
     { key: { text: 'Business name' }, value: { text: organisation.name } },
@@ -20,7 +26,12 @@ const getOrganisation = (request, organisation, errorText) => {
       href: auth.requestAuthorizationCodeUrl(session, request)
     },
     organisation,
-    listData: { rows }
+    listData: { rows },
+    ...getYesNoRadios(labelText, confirmCheckDetails, prevAnswer, errorText, {
+      isPageHeading: false,
+      legendClasses: 'govuk-fieldset__legend--m',
+      inline: false
+    })
   }
 }
 
