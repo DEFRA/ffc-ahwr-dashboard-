@@ -73,7 +73,7 @@ module.exports = [{
             email: personSummary.email
           }
         })
-        return h.redirect('/org-review')
+        return h.redirect('/check-details')
       } catch (err) {
         console.error(`Received error with name ${err.name} and message ${err.message}.`)
         const attachedToMultipleBusinesses = session.getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses)
