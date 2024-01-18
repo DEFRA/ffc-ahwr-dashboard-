@@ -1,0 +1,41 @@
+{% extends './layouts/layout.njk' %}
+{% from "./macros/applications-table.njk" import applicationsTable %}
+
+{% block pageTitle %}AHWR Dashboard - {{ serviceName }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row govuk-width-container">
+    <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
+      <h3 class="govuk-heading-m govuk-!-static-margin-bottom-1">{{name}}</h3>
+      <p class="govuk-body">Single Business Identifier (SBI): {{sbi}}</p>
+    </div>
+    <div class="govuk-grid-column-one-third govuk-!-static-padding-0">
+      <h3 class="govuk-heading-m govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{farmerName}}</h3>
+      <p class="govuk-!-text-align-right">
+        <a href="../apply/business-2.html">Apply for a different business</a>
+      </p>
+    </div>
+  </div>
+  <hr/>
+  <div class="govuk-grid-row govuk-width-container govuk-!-static-margin-top-6">
+    <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
+      <h1 class="govuk-heading-xl">Manage your claims</h1>
+      <h1 class="govuk-caption-l">Agreement number: {{reference}}</h1>
+      <div class="govuk-!-static-margin-top-4">
+        {{ govukButton({
+            text: "Start new claim"
+          }) 
+        }}
+      </div>
+      <h3 class="govuk-heading-m govuk-!-static-margin-top-2">Your previous claims</h3>
+      <hr/>
+      <p class="govuk-caption-m">Your claims will appear here when you have made them</p>
+      <hr/>
+      <h3 class="govuk-heading-m govuk-!-static-margin-top-4">More information</h3>
+      <p class="govuk-body"><a href="https://fcp-ahwr-prototype.herokuapp.com/v25/claim/terms-conditions.html" class="govuk-link">Terms and conditions for reviewing the health and welfare of your livestock</a>.</p>
+      <p class="govuk-body"><a href="https://fcp-ahwr-prototype.herokuapp.com/v25/claim/landing-page.html" class="govuk-link">Guidance for reviewing the health and welfare of your livestock</a>.</p>
+      <p class="govuk-body"><a href="https://fcp-ahwr-prototype.herokuapp.com/v25/claim/email-agreement-summary.html" class="govuk-link">Agreement summary</a>.</p>
+    </div>
+  </div>
+{% endblock %}

@@ -10,7 +10,8 @@ const routes = [].concat(
   require('../routes/terms-and-conditions'),
   require('../routes/view-application'),
   require('../routes/view-all'),
-  require('../routes/signin-oidc')
+  require('../routes/signin-oidc'),
+  require('../routes/vet-visits')
 )
 
 module.exports = {
