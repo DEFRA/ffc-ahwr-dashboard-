@@ -10,7 +10,6 @@ module.exports = {
   method: 'GET',
   path: pageUrl,
   options: {
-    auth: false,
     handler: async (request, h) => {
       const { organisation } = getFarmerApplyData(request)
       const application = (
@@ -19,7 +18,7 @@ module.exports = {
         return application.type === 'EE'
       })
 
-      return h.view('vet-visits', {
+      return h.view(vetVisits, {
         ...organisation,
         ...(application.reference && { reference: application.reference })
       })

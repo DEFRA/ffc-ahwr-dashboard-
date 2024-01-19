@@ -1,3 +1,3 @@
 module.exports = {
-  vetVisits: 'claim/vet-visits'
+  vetVisits: 'vet-visits'
 }

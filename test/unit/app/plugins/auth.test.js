@@ -20,7 +20,7 @@ describe('Auth plugin test', () => {
           }
         }
       }))
-      url = '/org-review'
+      url = '/check-details'
     })
 
     test('when not logged in redirects to defra id', async () => {
