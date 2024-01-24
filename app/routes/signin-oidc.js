@@ -78,7 +78,6 @@ module.exports = [{
           backLink: auth.requestAuthorizationCodeUrl(session, request),
           ruralPaymentsAgency: config.ruralPaymentsAgency
         }).code(400).takeover()
-
       }
     }
   }

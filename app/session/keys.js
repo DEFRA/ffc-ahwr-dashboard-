@@ -6,6 +6,7 @@ module.exports = {
     sheep: 'sheep'
   },
   claimData: {
+    organisation: 'organisation',
     vetsName: 'vetsName',
     testResult: 'testResult',
     typeOfReview: 'livestock',
@@ -14,7 +15,7 @@ module.exports = {
     vetRCVSNumber: 'vetRCVSNumber',
     laboratoryURN: 'laboratoryURN',
     numberAnimalsTested: 'numberAnimalsTested',
-    minimumNumberAnimalsRequired: 'minimumNumberAnimalsRequired',
+    minimumNumberAnimalsRequired: 'minimumNumberAnimalsRequired'
   },
   selectYourBusiness: {
     eligibleBusinesses: 'eligibleBusinesses',
