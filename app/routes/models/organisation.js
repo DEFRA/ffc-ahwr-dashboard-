@@ -1,6 +1,6 @@
 const session = require('../../session')
 const auth = require('../../auth')
-const { confirmCheckDetails } = require('../../session/keys').farmerApplyData
+const { confirmCheckDetails } = require('../../session/keys').claimData
 const { getYesNoRadios } = require('./form-component/yes-no-radios')
 
 const labelText = 'Are your details correct?'
@@ -10,7 +10,7 @@ const formatAddressForDisplay = (organisation) => {
 }
 
 const getOrganisation = (request, organisation, errorText) => {
-  const prevAnswer = session.getFarmerApplyData(request, confirmCheckDetails)
+  const prevAnswer = session.getClaimData(request, confirmCheckDetails)
 
   const rows = [
     { key: { text: 'Farmer name' }, value: { text: organisation.farmerName } },

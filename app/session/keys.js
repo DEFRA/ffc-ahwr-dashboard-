@@ -5,14 +5,17 @@ module.exports = {
     pigs: 'pigs',
     sheep: 'sheep'
   },
-  farmerApplyData: {
-    eligibleSpecies: 'eligibleSpecies',
-    declaration: 'declaration',
+  claimData: {
     organisation: 'organisation',
-    whichReview: 'whichReview',
-    confirmCheckDetails: 'confirmCheckDetails',
-    reference: 'reference',
-    offerStatus: 'offerStatus'
+    vetsName: 'vetsName',
+    testResult: 'testResult',
+    typeOfReview: 'livestock',
+    dateOfVisit: 'dateOfVisit',
+    dateOfTesting: 'dateOfTesting',
+    vetRCVSNumber: 'vetRCVSNumber',
+    laboratoryURN: 'laboratoryURN',
+    numberAnimalsTested: 'numberAnimalsTested',
+    minimumNumberAnimalsRequired: 'minimumNumberAnimalsRequired'
   },
   selectYourBusiness: {
     eligibleBusinesses: 'eligibleBusinesses',
