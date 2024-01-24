@@ -1,4 +1,4 @@
-const { getFarmerApplyData } = require('../session')
+const { getClaimData } = require('../session')
 const { vetVisits } = require('../config/routes')
 const {
   getLatestApplicationsBySbi
@@ -11,7 +11,7 @@ module.exports = {
   path: pageUrl,
   options: {
     handler: async (request, h) => {
-      const { organisation } = getFarmerApplyData(request)
+      const { organisation } = getClaimData(request)
       const application = (
         await getLatestApplicationsBySbi(organisation.sbi)
       ).find((application) => {

@@ -1,5 +1,5 @@
 const boom = require('@hapi/boom')
-const { organisation: organisationKey, confirmCheckDetails } = require('../session/keys').farmerApplyData
+const { organisation: organisationKey, confirmCheckDetails } = require('../session/keys').claimData
 const getOrganisation = require('./models/organisation')
 const session = require('../session')
 const Joi = require('joi')
@@ -10,7 +10,7 @@ module.exports = [{
   path: '/check-details',
   options: {
     handler: async (request, h) => {
-      const organisation = session.getFarmerApplyData(request, organisationKey)
+      const organisation = session.getClaimData(request, organisationKey)
       if (!organisation) {
         return boom.notFound()
       }
@@ -27,7 +27,7 @@ module.exports = [{
         [confirmCheckDetails]: Joi.string().valid('yes', 'no').required()
       }),
       failAction: (request, h, _err) => {
-        const organisation = session.getFarmerApplyData(request, organisationKey)
+        const organisation = session.getClaimData(request, organisationKey)
         if (!organisation) {
           return boom.notFound()
         }
@@ -40,7 +40,7 @@ module.exports = [{
     handler: async (request, h) => {
       const answer = request.payload[confirmCheckDetails]
       if (answer === 'yes') {
-        session.setFarmerApplyData(
+        session.setClaimData(
           request,
           confirmCheckDetails,
           request.payload[confirmCheckDetails]

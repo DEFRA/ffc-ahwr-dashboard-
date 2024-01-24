@@ -2,7 +2,7 @@ const { sendSessionEvent } = require('../event')
 
 const entries = {
   application: 'application',
-  farmerApplyData: 'farmerApplyData',
+  claimData: 'claimData',
   selectYourBusiness: 'selectYourBusiness',
   organisation: 'organisation',
   answers: 'answers',
@@ -25,7 +25,7 @@ function set (request, entryKey, key, value) {
   const entryValue = request.yar?.get(entryKey) || {}
   entryValue[key] = typeof value === 'string' ? value.trim() : value
   request.yar.set(entryKey, entryValue)
-  const organisation = getFarmerApplyData(request, entries.organisation)
+  const organisation = getClaimsData(request, entries.organisation)
   const xForwardedForHeader = request.headers['x-forwarded-for']
   const ip = xForwardedForHeader
     ? xForwardedForHeader.split(',')[0]
@@ -38,7 +38,7 @@ function get (request, entryKey, key) {
 }
 
 function clear (request) {
-  request.yar.clear(entries.farmerApplyData)
+  request.yar.clear(entries.claimsData)
   request.yar.clear(entries.application)
   request.yar.clear(entries.organisation)
   request.yar.clear(entries.answers)
@@ -50,8 +50,8 @@ function setApplication (request, key, value) {
   set(request, entries.application, key, value)
 }
 
-function setFarmerApplyData (request, key, value) {
-  set(request, entries.farmerApplyData, key, value)
+function setClaimData (request, key, value) {
+  set(request, entries.claimData, key, value)
 }
 
 function setSelectYourBusiness (request, key, value) {
@@ -66,8 +66,8 @@ function getApplication (request, key) {
   return get(request, entries.application, key)
 }
 
-function getFarmerApplyData (request, key) {
-  return get(request, entries.farmerApplyData, key)
+function getClaimData (request, key) {
+  return get(request, entries.claimData, key)
 }
 
 function setToken (request, key, value) {
@@ -107,9 +107,9 @@ module.exports = {
   lacksAny,
   clear,
   getApplication,
-  getFarmerApplyData,
   setApplication,
-  setFarmerApplyData,
+  getClaimData,
+  setClaimData,
   getSelectYourBusiness,
   setSelectYourBusiness,
   getToken,

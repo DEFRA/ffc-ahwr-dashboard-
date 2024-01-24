@@ -99,17 +99,17 @@ describe('session', () => {
     })
   })
 
-  describe('FarmerApplyData', () => {
+  describe('ClaimData', () => {
     test('set called with correct variables', () => {
       const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
-      session.setFarmerApplyData(request, 'test key', 'test value')
-      expect(yarMock.set).toHaveBeenCalledWith('farmerApplyData', { 'test key': 'test value' })
+      session.setClaimData(request, 'test key', 'test value')
+      expect(yarMock.set).toHaveBeenCalledWith('claimData', { 'test key': 'test value' })
     })
 
     test('get called with correct variables', () => {
       const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
-      session.getFarmerApplyData(request, 'test key')
-      expect(yarMock.get).toHaveBeenCalledWith('farmerApplyData')
+      session.getClaimData(request, 'test key')
+      expect(yarMock.get).toHaveBeenCalledWith('claimData')
     })
   })
 
