@@ -3,6 +3,7 @@ const status = {
   WITHDRAWN: 2,
   IN_CHECK: 5,
   'IN CHECK': 5,
+  ACCEPTED: 6,
   NOT_AGREED: 7,
   'NOT AGREED': 7,
   READY_TO_PAY: 9,

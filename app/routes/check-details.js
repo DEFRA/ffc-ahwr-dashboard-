@@ -45,7 +45,7 @@ module.exports = [{
           confirmCheckDetails,
           request.payload[confirmCheckDetails]
         )
-        return h.redirect('/index')
+        return h.redirect('/vet-visits')
       }
       return h.view('update-details', {
         ruralPaymentsAgency: config.ruralPaymentsAgency

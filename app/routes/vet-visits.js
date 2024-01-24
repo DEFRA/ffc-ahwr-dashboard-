@@ -20,7 +20,7 @@ module.exports = {
 
       return h.view(vetVisits, {
         ...organisation,
-        ...(application.reference && { reference: application.reference })
+        ...(application?.reference && { reference: application?.reference })
       })
     }
   }

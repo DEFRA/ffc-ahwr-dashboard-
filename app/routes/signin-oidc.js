@@ -5,9 +5,7 @@ const sessionKeys = require('../session/keys')
 const config = require('../config')
 const { farmerApply } = require('../constants/user-types')
 const { getPersonSummary, getPersonName, organisationIsEligible, getOrganisationAddress, cphCheck } = require('../api-requests/rpa-api')
-const businessEligibleToApply = require('../api-requests/business-eligible-to-apply')
-const { InvalidPermissionsError, AlreadyAppliedError, NoEligibleCphError, InvalidStateError, CannotReapplyTimeLimitError, OutstandingAgreementError } = require('../exceptions')
-const { raiseIneligibilityEvent } = require('../event')
+const { InvalidPermissionsError } = require('../exceptions')
 const appInsights = require('applicationinsights')
 
 function setOrganisationSessionData (request, personSummary, organisationSummary) {
@@ -62,8 +60,6 @@ module.exports = [{
 
         await cphCheck.customerMustHaveAtLeastOneValidCph(request, apimAccessToken)
 
-        await businessEligibleToApply(organisationSummary.organisation.sbi)
-
         auth.setAuthCookie(request, personSummary.email, farmerApply)
         appInsights.defaultClient.trackEvent({
           name: 'login',
@@ -73,53 +69,16 @@ module.exports = [{
             email: personSummary.email
           }
         })
+
         return h.redirect('/check-details')
       } catch (err) {
         console.error(`Received error with name ${err.name} and message ${err.message}.`)
-        const attachedToMultipleBusinesses = session.getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses)
-        const organisation = session.getFarmerApplyData(request, sessionKeys.farmerApplyData.organisation)
-        const crn = session.getCustomer(request, sessionKeys.customer.crn)
-        switch (true) {
-          case err instanceof InvalidStateError:
-            return h.redirect(auth.requestAuthorizationCodeUrl(session, request))
-          case err instanceof AlreadyAppliedError:
-            break
-          case err instanceof InvalidPermissionsError:
-            break
-          case err instanceof NoEligibleCphError:
-            break
-          case err instanceof CannotReapplyTimeLimitError:
-            break
-          case err instanceof OutstandingAgreementError:
-            break
-          default:
-            return h.view('verify-login-failed', {
-              backLink: auth.requestAuthorizationCodeUrl(session, request),
-              ruralPaymentsAgency: config.ruralPaymentsAgency
-            }).code(400).takeover()
-        }
-        raiseIneligibilityEvent(
-          request.yar.id,
-          organisation?.sbi,
-          crn,
-          organisation?.email,
-          err.name
-        )
-        return h.view('cannot-apply-for-livestock-review-exception', {
-          ruralPaymentsAgency: config.ruralPaymentsAgency,
-          alreadyAppliedError: err instanceof AlreadyAppliedError,
-          permissionError: err instanceof InvalidPermissionsError,
-          cphError: err instanceof NoEligibleCphError,
-          reapplyTimeLimitError: err instanceof CannotReapplyTimeLimitError,
-          outstandingAgreementError: err instanceof OutstandingAgreementError,
-          lastApplicationDate: err.lastApplicationDate,
-          nextApplicationDate: err.nextApplicationDate,
-          hasMultipleBusinesses: attachedToMultipleBusinesses,
+
+        return h.view('verify-login-failed', {
           backLink: auth.requestAuthorizationCodeUrl(session, request),
-          sbiText: organisation?.sbi !== undefined ? ` - SBI ${organisation.sbi}` : null,
-          organisationName: organisation?.name,
-          guidanceLink: config.serviceUri
+          ruralPaymentsAgency: config.ruralPaymentsAgency
         }).code(400).takeover()
+
       }
     }
   }
