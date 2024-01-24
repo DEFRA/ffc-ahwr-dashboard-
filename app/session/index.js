@@ -38,7 +38,7 @@ function get (request, entryKey, key) {
 }
 
 function clear (request) {
-  request.yar.clear(entries.claimsData)
+  request.yar.clear(entries.claimData)
   request.yar.clear(entries.application)
   request.yar.clear(entries.organisation)
   request.yar.clear(entries.answers)
