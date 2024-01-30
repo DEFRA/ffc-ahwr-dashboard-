@@ -34,7 +34,7 @@
     "@hapi/vision": "^6.1.0",
     "@hapi/wreck": "^18.0.0",
     "@hapi/yar": "^10.1.1",
-    "applicationinsights": "^2.9.1",
+    "applicationinsights": "^2.9.2",
     "@ministryofjustice/frontend": "^1.4.2",
     "crypto-js": "^4.2.0",
     "ffc-ahwr-event-publisher": "1.0.2",
