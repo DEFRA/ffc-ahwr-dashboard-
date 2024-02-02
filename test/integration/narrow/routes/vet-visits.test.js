@@ -1,4 +1,4 @@
-const { getClaimData } = require('../../../../app/session')
+const { getEndemicsClaim } = require('../../../../app/session')
 const { vetVisits } = require('../../../../app/config/routes')
 const {
   getLatestApplicationsBySbi
@@ -21,7 +21,7 @@ describe('Claim vet-visits', () => {
       }
     }
 
-    getClaimData.mockReturnValueOnce({
+    getEndemicsClaim.mockReturnValueOnce({
       organisation: {
         sbi: '112670111',
         farmerName: 'Anjana Donald Jaroslav Daniel Gooder',
@@ -50,7 +50,7 @@ describe('Claim vet-visits', () => {
       auth: false
     }
 
-    getClaimData.mockReturnValueOnce({
+    getEndemicsClaim.mockReturnValueOnce({
       organisation: {
         sbi: '112670111',
         farmerName: 'Anjana Donald Jaroslav Daniel Gooder',

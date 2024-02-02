@@ -1,4 +1,4 @@
-const { getClaimData } = require('../session')
+const { getEndemicsClaim } = require('../session')
 const { vetVisits } = require('../config/routes')
 const {
   getLatestApplicationsBySbi
@@ -11,7 +11,7 @@ module.exports = {
   path: pageUrl,
   options: {
     handler: async (request, h) => {
-      const { organisation } = getClaimData(request)
+      const { organisation } = getEndemicsClaim(request)
       const application = (
         await getLatestApplicationsBySbi(organisation.sbi)
       ).find((application) => {

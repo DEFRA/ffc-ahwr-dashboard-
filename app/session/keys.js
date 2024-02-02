@@ -5,7 +5,7 @@ module.exports = {
     pigs: 'pigs',
     sheep: 'sheep'
   },
-  claimData: {
+  endemicsClaim: {
     organisation: 'organisation',
     vetsName: 'vetsName',
     testResult: 'testResult',

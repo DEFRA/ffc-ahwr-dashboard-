@@ -50,7 +50,7 @@ describe('Org review page test', () => {
     })
 
     test('returns 200', async () => {
-      session.getClaimData.mockReturnValue(org)
+      session.getEndemicsClaim.mockReturnValue(org)
       const options = {
         auth,
         method: 'GET',
@@ -83,7 +83,7 @@ describe('Org review page test', () => {
     })
 
     test('returns 404 when no orgranisation', async () => {
-      session.getClaimData.mockReturnValue(undefined)
+      session.getEndemicsClaim.mockReturnValue(undefined)
       const options = {
         auth,
         method: 'GET',
@@ -163,7 +163,7 @@ describe('Org review page test', () => {
     ])(
       'returns error when unacceptable answer is given',
       async ({ confirmCheckDetails }) => {
-        session.getClaimData.mockReturnValue(org)
+        session.getEndemicsClaim.mockReturnValue(org)
         const options = {
           method,
           url,
