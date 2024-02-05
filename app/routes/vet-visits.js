@@ -1,27 +1,31 @@
 const { getClaimData } = require('../session')
-const { vetVisits } = require('../config/routes')
+const { vetVisits, claimServiceUri } = require('../config/routes')
 const {
   getLatestApplicationsBySbi
 } = require('../api-requests/application-api')
 
 const pageUrl = `/${vetVisits}`
+const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
 
-module.exports = {
-  method: 'GET',
-  path: pageUrl,
-  options: {
-    handler: async (request, h) => {
-      const { organisation } = getClaimData(request)
-      const application = (
-        await getLatestApplicationsBySbi(organisation.sbi)
-      ).find((application) => {
-        return application.type === 'EE'
-      })
+module.exports = [
+  {
+    method: 'GET',
+    path: pageUrl,
+    options: {
+      handler: async (request, h) => {
+        const { organisation } = getClaimData(request)
+        const application = (
+          await getLatestApplicationsBySbi(organisation.sbi)
+        ).find((application) => {
+          return application.type === 'EE'
+        })
 
-      return h.view(vetVisits, {
-        ...organisation,
-        ...(application?.reference && { reference: application?.reference })
-      })
+        return h.view(vetVisits, {
+          claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
+          ...organisation,
+          ...(application?.reference && { reference: application?.reference })
+        })
+      }
     }
   }
-}
+]

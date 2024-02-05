@@ -70,7 +70,7 @@ module.exports = [{
           }
         })
 
-        return h.redirect('/vet-visits')
+        return h.redirect('/check-details')
       } catch (err) {
         console.error(`Received error with name ${err.name} and message ${err.message}.`)
 
