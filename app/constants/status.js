@@ -13,6 +13,7 @@ const status = {
   'ON HOLD': 11
 }
 
+const closedStatuses = [status.WITHDRAWN, status.REJECTED, status.NOT_AGREED, status.READY_TO_PAY]
 const claimStatus = [status.IN_CHECK, status.REJECTED, status.READY_TO_PAY, status.ON_HOLD]
 
 const statusClass = {
@@ -62,4 +63,4 @@ const getStyleClassByStatus = (value) => {
   } else { return 'govuk-tag--grey' }
 }
 
-module.exports = { status, claimStatus, getStyleClassByStatus }
+module.exports = { status, claimStatus, closedStatuses, getStyleClassByStatus }

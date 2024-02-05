@@ -3,6 +3,7 @@ const { sendSessionEvent } = require('../event')
 const entries = {
   application: 'application',
   endemicsClaim: 'endemicsClaim',
+  farmerApplyData: 'farmerApplyData',
   selectYourBusiness: 'selectYourBusiness',
   organisation: 'organisation',
   answers: 'answers',
@@ -39,6 +40,7 @@ function get (request, entryKey, key) {
 
 function clear (request) {
   request.yar.clear(entries.endemicsClaim)
+  request.yar.clear(entries.farmerApplyData)
   request.yar.clear(entries.application)
   request.yar.clear(entries.organisation)
   request.yar.clear(entries.answers)
@@ -50,8 +52,24 @@ function setApplication (request, key, value) {
   set(request, entries.application, key, value)
 }
 
+function getApplication (request, key) {
+  return get(request, entries.application, key)
+}
+
 function setEndemicsClaim (request, key, value) {
   set(request, entries.endemicsClaim, key, value)
+}
+
+function getEndemicsClaim (request, key) {
+  return get(request, entries.endemicsClaim, key)
+}
+
+function setFarmerApplyData (request, key, value) {
+  set(request, entries.farmerApplyData, key, value)
+}
+
+function getFarmerApplyData (request, key) {
+  return get(request, entries.farmerApplyData, key)
 }
 
 function setSelectYourBusiness (request, key, value) {
@@ -60,14 +78,6 @@ function setSelectYourBusiness (request, key, value) {
 
 function getSelectYourBusiness (request, key) {
   return get(request, entries.selectYourBusiness, key)
-}
-
-function getApplication (request, key) {
-  return get(request, entries.application, key)
-}
-
-function getEndemicsClaim (request, key) {
-  return get(request, entries.endemicsClaim, key)
 }
 
 function setToken (request, key, value) {
@@ -110,6 +120,8 @@ module.exports = {
   setApplication,
   getEndemicsClaim,
   setEndemicsClaim,
+  getFarmerApplyData,
+  setFarmerApplyData,
   getSelectYourBusiness,
   setSelectYourBusiness,
   getToken,
