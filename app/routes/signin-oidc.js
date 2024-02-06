@@ -70,16 +70,6 @@ module.exports = [{
         const { organisation, organisationPermission } = await organisationIsEligible(request, personSummary.id, apimAccessToken)
         setOrganisationSessionData(request, personSummary, organisation)
 
-        if (organisation.locked) {
-          throw new LockedBusinessError(`Organisation id ${organisation.id} is locked by RPA`)
-        }
-
-        if (!organisationPermission) {
-          throw new InvalidPermissionsError(`Person id ${personSummary.id} does not have the required permissions for organisation id ${organisation.id}`)
-        }
-
-        await cphCheck.customerMustHaveAtLeastOneValidCph(request, apimAccessToken)
-
         auth.setAuthCookie(request, personSummary.email, farmerApply)
         appInsights.defaultClient.trackEvent({
           name: 'login',
@@ -89,6 +79,16 @@ module.exports = [{
             email: personSummary.email
           }
         })
+
+        if (organisation.locked) {
+          throw new LockedBusinessError(`Organisation id ${organisation.id} is locked by RPA`)
+        }
+
+        if (!organisationPermission) {
+          throw new InvalidPermissionsError(`Person id ${personSummary.id} does not have the required permissions for organisation id ${organisation.id}`)
+        }
+
+        await cphCheck.customerMustHaveAtLeastOneValidCph(request, apimAccessToken)
 
         const endemicsApplyJourney = `${config.applyServiceUri}/endemics/check-details`
         const oldClaimJourney = `${config.claimServiceUri}/check-details`
@@ -116,12 +116,12 @@ module.exports = [{
             return h.redirect(endemicsApplyJourney)
           } else {
             // show the 'You need to complete an endemics application' error page
-            throw new NoEndemicsAgreementError(`Business with SBI ${latestApplication.data.organisation.sbi} must complete an endemics agreement`)
+            throw new NoEndemicsAgreementError(`Business with SBI ${organisation.sbi} must complete an endemics agreement`)
           }
         } else { // they have an open old world application/claim
           if (loginSource === loginSources.apply) {
             // show the 'You have an outstanding claim' error page
-            throw new OutstandingAgreementError(`Business with SBI ${latestApplication.data.organisation.sbi} must claim or withdraw agreement before creating another.`)
+            throw new OutstandingAgreementError(`Business with SBI ${organisation.sbi} must claim or withdraw agreement before creating another`)
           } else {
             // send to old claim journey
             return h.redirect(oldClaimJourney)
