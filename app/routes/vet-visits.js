@@ -1,10 +1,11 @@
 const { getEndemicsClaim } = require('../session')
-const { vetVisits } = require('../config/routes')
+const { vetVisits, claimServiceUri } = require('../config/routes')
 const {
   getLatestApplicationsBySbi
 } = require('../api-requests/application-api')
 
 const pageUrl = `/${vetVisits}`
+const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
 
 module.exports = {
   method: 'GET',
@@ -19,6 +20,7 @@ module.exports = {
       })
 
       return h.view(vetVisits, {
+        claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
         ...organisation,
         ...(application?.reference && { reference: application?.reference })
       })

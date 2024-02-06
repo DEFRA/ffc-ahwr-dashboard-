@@ -94,27 +94,7 @@ module.exports = [{
         const oldClaimJourney = `${config.claimServiceUri}/check-details`
 
         const latestApplicationsForSbi = await applicationApi.getLatestApplicationsBySbi(organisation.sbi)
-        // const latestApplicationsForSbi = [
-        //   {
-        //     id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        //     reference: 'AHWR-BF93-EC75',
-        //     data: {
-        //       type: 'EE',
-        //       reference: null,
-        //       declaration: true,
-        //       offerStatus: 'accepted',
-        //       organisation: [Object],
-        //       confirmCheckDetails: 'yes'
-        //     },
-        //     claimed: false,
-        //     createdAt: '2024-01-23T09:37:23.519Z',
-        //     updatedAt: '2024-01-23T09:37:23.583Z',
-        //     createdBy: 'admin',
-        //     updatedBy: null,
-        //     statusId: 1,
-        //     type: 'VV'
-        //   }]
-        console.log('loginSource', loginSource)
+
         if (latestApplicationsForSbi.length === 0) {
           if (loginSource === loginSources.apply) {
             // send to endemics apply journey
