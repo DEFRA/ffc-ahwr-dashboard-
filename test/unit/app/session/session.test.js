@@ -113,6 +113,20 @@ describe('session', () => {
     })
   })
 
+  describe('FarmerApplyData', () => {
+    test('set called with correct variables', () => {
+      const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
+      session.setFarmerApplyData(request, 'test key', 'test value')
+      expect(yarMock.set).toHaveBeenCalledWith('farmerApplyData', { 'test key': 'test value' })
+    })
+
+    test('get called with correct variables', () => {
+      const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
+      session.getFarmerApplyData(request, 'test key')
+      expect(yarMock.get).toHaveBeenCalledWith('farmerApplyData')
+    })
+  })
+
   describe('SelectYourBusiness', () => {
     test('set called with correct variables', () => {
       const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
