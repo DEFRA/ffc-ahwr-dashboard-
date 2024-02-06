@@ -10,6 +10,7 @@ module.exports = {
   },
   endemicsClaim: {
     organisation: 'organisation',
+    confirmCheckDetails: 'confirmCheckDetails',
     vetsName: 'vetsName',
     testResult: 'testResult',
     typeOfReview: 'livestock',

@@ -1,6 +1,7 @@
 const cheerio = require('cheerio')
 const expectPhaseBanner = require('../../../utils/phase-banner-expect')
 const getCrumbs = require('../../../utils/get-crumbs')
+const sessionKeys = require('../../../../app/session/keys')
 
 describe('Org review page test', () => {
   let session
@@ -18,6 +19,7 @@ describe('Org review page test', () => {
     name: 'org-name',
     sbi: '123456789'
   }
+
   describe(`GET ${url} route when logged in`, () => {
     beforeAll(async () => {
       jest.resetAllMocks()
@@ -109,6 +111,11 @@ describe('Org review page test', () => {
     })
 
     beforeAll(async () => {
+      jest.mock('../../../../app/auth')
+      authMock = require('../../../../app/auth')
+      authMock.requestAuthorizationCodeUrl.mockReturnValue('https://somedefraidlogin')
+      session = require('../../../../app/session')
+      jest.mock('../../../../app/session')
       jest.mock('../../../../app/config', () => ({
         ...jest.requireActual('../../../../app/config'),
         authConfig: {
@@ -125,35 +132,57 @@ describe('Org review page test', () => {
       }))
     })
 
-    // test('returns 302 to welcome page when acceptable answer given', async () => {
-    //   const options = {
-    //     method: 'POST',
-    //     url,
-    //     payload: { crumb, confirmCheckDetails: 'yes' },
-    //     auth,
-    //     headers: { cookie: `crumb=${crumb}` }
-    //   }
+    test('returns 302 to welcome page when acceptable answer given', async () => {
+      session.getEndemicsClaim.mockImplementationOnce((_req, key) => {
+        if (key === sessionKeys.endemicsClaim.organisation) {
+          return org
+        } else if (key === sessionKeys.endemicsClaim.confirmCheckDetails) {
+          return 'yes'
+        }
+      })
 
-    //   const res = await global.__SERVER__.inject(options)
+      const options = {
+        method: 'POST',
+        url,
+        payload: { crumb, confirmCheckDetails: 'yes' },
+        auth: {
+          credentials: { reference: '1111', sbi: '111111111' },
+          strategy: 'cookie'
+        },
+        headers: { cookie: `crumb=${crumb}` }
+      }
 
-    //   expect(res.statusCode).toBe(302)
-    //   expect(res.headers.location).toEqual('/index')
-    // })
+      const res = await global.__SERVER__.inject(options)
 
-    // test('returns 200 with update your details recognised when no is answered', async () => {
-    //   const options = {
-    //     method,
-    //     url,
-    //     payload: { crumb, confirmCheckDetails: 'no' },
-    //     auth,
-    //     headers: { cookie: `crumb=${crumb}` }
-    //   }
+      expect(res.statusCode).toBe(302)
+      expect(res.headers.location).toEqual('/vet-visits')
+    })
 
-    //   const res = await global.__SERVER__.inject(options)
-    //   expect(res.statusCode).toBe(200)
-    //   const $ = cheerio.load(res.payload)
-    //   expect($('.govuk-heading-l').text()).toEqual('Update your details')
-    // })
+    test('returns 200 with update your details recognised when no is answered', async () => {
+      session.getEndemicsClaim.mockImplementationOnce((_req, key) => {
+        if (key === sessionKeys.endemicsClaim.organisation) {
+          return org
+        } else if (key === sessionKeys.endemicsClaim.confirmCheckDetails) {
+          return 'no'
+        }
+      })
+
+      const options = {
+        method,
+        url,
+        payload: { crumb, confirmCheckDetails: 'no' },
+        auth: {
+          credentials: { reference: '1111', sbi: '111111111' },
+          strategy: 'cookie'
+        },
+        headers: { cookie: `crumb=${crumb}` }
+      }
+
+      const res = await global.__SERVER__.inject(options)
+      expect(res.statusCode).toBe(200)
+      const $ = cheerio.load(res.payload)
+      expect($('.govuk-heading-l').text()).toEqual('Update your details')
+    })
 
     test.each([
       { confirmCheckDetails: null },
@@ -163,7 +192,13 @@ describe('Org review page test', () => {
     ])(
       'returns error when unacceptable answer is given',
       async ({ confirmCheckDetails }) => {
-        session.getEndemicsClaim.mockReturnValue(org)
+        session.getEndemicsClaim.mockImplementationOnce((_req, key) => {
+          if (key === sessionKeys.endemicsClaim.organisation) {
+            return org
+          } else if (key === sessionKeys.endemicsClaim.confirmCheckDetails) {
+            return confirmCheckDetails
+          }
+        })
         const options = {
           method,
           url,
@@ -185,6 +220,14 @@ describe('Org review page test', () => {
     )
 
     test("returns 400 and show error summary if user didn't select answer", async () => {
+      session.getEndemicsClaim.mockImplementationOnce((_req, key) => {
+        console.log(_req.length, key)
+        if (key === sessionKeys.endemicsClaim.organisation) {
+          return org
+        } else if (key === sessionKeys.endemicsClaim.confirmCheckDetails) {
+          return ''
+        }
+      })
       const options = {
         method,
         url,
@@ -198,6 +241,31 @@ describe('Org review page test', () => {
       expect(res.statusCode).toBe(400)
       const $ = cheerio.load(res.payload)
       expect($('.govuk-error-summary .govuk-list').text().trim()).toEqual('Select if your details are correct')
+    })
+
+    test('returns 404 when no orgranisation', async () => {
+      session.getEndemicsClaim.mockImplementationOnce((_req, key) => {
+        if (key === sessionKeys.endemicsClaim.organisation) {
+          return undefined
+        } else if (key === sessionKeys.endemicsClaim.confirmCheckDetails) {
+          return ''
+        }
+      })
+      const options = {
+        method: 'POST',
+        url,
+        payload: { crumb, confirmCheckDetails: '' },
+        auth,
+        headers: { cookie: `crumb=${crumb}` }
+      }
+
+      const res = await global.__SERVER__.inject(options)
+
+      expect(res.statusCode).toBe(404)
+      const $ = cheerio.load(res.payload)
+      expect($('.govuk-heading-l').text()).toEqual('404 - Not Found')
+      expect($('#_404 div p').text()).toEqual('Not Found')
+      expectPhaseBanner.ok($)
     })
   })
 })

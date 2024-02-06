@@ -11,7 +11,7 @@ const formatAddressForDisplay = (organisation) => {
 
 const getOrganisation = (request, organisation, errorText) => {
   const prevAnswer = session.getEndemicsClaim(request, confirmCheckDetails)
-
+  
   const rows = [
     { key: { text: 'Farmer name' }, value: { text: organisation.farmerName } },
     { key: { text: 'Business name' }, value: { text: organisation.name } },
