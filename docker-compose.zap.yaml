@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   ffc-ahwr-dashboard:
@@ -12,7 +12,7 @@ services:
       - ./test-output/:/home/node/test-output/
 
   zap-baseline-scan:
-    image: owasp/zap2docker-stable:2.11.1
+    image: owasp/zap2docker-stable:2.14.0
     command: echo 12345
     depends_on:
       - ffc-ahwr-dashboard
