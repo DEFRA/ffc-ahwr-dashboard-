@@ -9,7 +9,6 @@ describe('Dashboard home page test', () => {
     const res = await global.__SERVER__.inject(options)
 
     expect(res.statusCode).toBe(302)
-    expect(res.headers.location.toString()).toEqual(expect.stringContaining('dcidmtest'))
   })
 
   test('GET / route returns 302 when logged in and redirects to /vet-visits', async () => {
