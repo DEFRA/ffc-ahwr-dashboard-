@@ -41,7 +41,7 @@
     "ffc-messaging": "^2.6.2",
     "govuk-frontend": "^4.7.0",
     "hapi-pino": "^9.1.2",
-    "joi": "17.11.0",
+    "joi": "17.11.1",
     "jsonwebtoken": "^9.0.0",
     "jwk-to-pem": "^2.0.5",
     "mssql": "^10.0.1",
