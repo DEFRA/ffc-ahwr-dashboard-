@@ -118,14 +118,15 @@ module.exports = [{
             // show the 'You need to complete an endemics application' error page
             throw new NoEndemicsAgreementError(`Business with SBI ${organisation.sbi} must complete an endemics agreement`)
           }
-        } else { // they have an open old world application/claim
-          if (loginSource === loginSources.apply) {
-            // show the 'You have an outstanding claim' error page
-            throw new OutstandingAgreementError(`Business with SBI ${organisation.sbi} must claim or withdraw agreement before creating another`)
-          } else {
-            // send to old claim journey
-            return h.redirect(oldClaimJourney)
-          }
+        }
+
+        // they have an open old world application/claim
+        if (loginSource === loginSources.apply) {
+          // show the 'You have an outstanding claim' error page
+          throw new OutstandingAgreementError(`Business with SBI ${organisation.sbi} must claim or withdraw agreement before creating another`)
+        } else {
+          // send to old claim journey
+          return h.redirect(oldClaimJourney)
         }
       } catch (err) {
         console.error(`Received error with name ${err.name} and message ${err.message}.`)
@@ -173,7 +174,7 @@ module.exports = [{
           backLink: auth.requestAuthorizationCodeUrl(session, request),
           claimLink: `${config.claimServiceUri}/endemics/`,
           applyLink: `${config.applyServiceUri}/endemics/start`,
-          sbiText: organisation?.sbi !== undefined ? ` - SBI ${organisation.sbi}` : null,
+          sbiText: ` - SBI ${organisation?.sbi ?? ''}`,
           organisationName: organisation?.name,
           guidanceLink: config.serviceUri
         }).code(400).takeover()
