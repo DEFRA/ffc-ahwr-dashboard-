@@ -1,7 +1,7 @@
 const config = require('../config')
 const auth = require('../auth')
 const session = require('../session')
-const { claimData: { organisation: organisationKey } } = require('../session/keys')
+const { endemicsClaim: { organisation: organisationKey } } = require('../session/keys')
 
 module.exports = {
   plugin: {
@@ -23,7 +23,7 @@ module.exports = {
         validateFunc: async (request, s) => {
           const result = { valid: false }
 
-          if (session.getClaimData(request, organisationKey)) {
+          if (session.getEndemicsClaim(request, organisationKey)) {
             result.valid = true
           }
 

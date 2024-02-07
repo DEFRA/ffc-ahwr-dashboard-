@@ -5,8 +5,12 @@ module.exports = {
     pigs: 'pigs',
     sheep: 'sheep'
   },
-  claimData: {
+  farmerApplyData: {
+    organisation: 'organisation'
+  },
+  endemicsClaim: {
     organisation: 'organisation',
+    confirmCheckDetails: 'confirmCheckDetails',
     vetsName: 'vetsName',
     testResult: 'testResult',
     typeOfReview: 'livestock',

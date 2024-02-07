@@ -99,17 +99,31 @@ describe('session', () => {
     })
   })
 
-  describe('ClaimData', () => {
+  describe('EndemicsClaim', () => {
     test('set called with correct variables', () => {
       const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
-      session.setClaimData(request, 'test key', 'test value')
-      expect(yarMock.set).toHaveBeenCalledWith('claimData', { 'test key': 'test value' })
+      session.setEndemicsClaim(request, 'test key', 'test value')
+      expect(yarMock.set).toHaveBeenCalledWith('endemicsClaim', { 'test key': 'test value' })
     })
 
     test('get called with correct variables', () => {
       const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
-      session.getClaimData(request, 'test key')
-      expect(yarMock.get).toHaveBeenCalledWith('claimData')
+      session.getEndemicsClaim(request, 'test key')
+      expect(yarMock.get).toHaveBeenCalledWith('endemicsClaim')
+    })
+  })
+
+  describe('FarmerApplyData', () => {
+    test('set called with correct variables', () => {
+      const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
+      session.setFarmerApplyData(request, 'test key', 'test value')
+      expect(yarMock.set).toHaveBeenCalledWith('farmerApplyData', { 'test key': 'test value' })
+    })
+
+    test('get called with correct variables', () => {
+      const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
+      session.getFarmerApplyData(request, 'test key')
+      expect(yarMock.get).toHaveBeenCalledWith('farmerApplyData')
     })
   })
 

@@ -1,3 +1,3 @@
-module.exports = {
-  farmerApply: 'farmerApply'
-}
+const farmerApply = 'farmerApply'
+
+module.exports = { farmerApply }
