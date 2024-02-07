@@ -44,7 +44,7 @@
     "joi": "17.11.0",
     "jsonwebtoken": "^9.0.0",
     "jwk-to-pem": "^2.0.5",
-    "mssql": "^10.0.1",
+    "mssql": "^10.0.2",
     "notifications-node-client": "^7.0.6",
     "nunjucks": "^3.2.3",
     "pg-promise": "^11.5.4",
