@@ -7,7 +7,7 @@ const {
 const pageUrl = `/${vetVisits}`
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
 
-module.exports = 
+module.exports =
   {
     method: 'GET',
     path: pageUrl,
