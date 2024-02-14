@@ -22,6 +22,7 @@ const { InvalidPermissionsError, InvalidStateError, NoEligibleCphError, Outstand
 const stateFromApply = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImFwcGx5In0='
 const stateFromClaim = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImNsYWltIn0='
 const stateFromDashboard = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9'
+const YOU_CAN_NOT_APPLY = 'You cannot apply for reviews or follow-ups for this business'
 
 describe('Defra ID redirection test', () => {
   function assertLoginAuth ($, expectedMessage) {
@@ -29,7 +30,7 @@ describe('Defra ID redirection test', () => {
     assertAuthorizationCodeUrlCalled()
     assertAuthenticateCalled()
   }
-  function assertLoginFailed ($, expectedMessage) {
+  function assertLoginFailed ($, expectedMessage = 'Login failed') {
     expect($('.govuk-heading-l').text()).toMatch(expectedMessage)
   }
   function assertAuthorizationCodeUrlCalled () {
@@ -83,7 +84,7 @@ describe('Defra ID redirection test', () => {
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       assertAuthorizationCodeUrlCalled()
-      assertLoginFailed($, 'Login failed')
+      assertLoginFailed($)
     })
 
     test('returns 400 and login failed view when state missing', async () => {
@@ -97,7 +98,7 @@ describe('Defra ID redirection test', () => {
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       assertAuthorizationCodeUrlCalled()
-      assertLoginFailed($, 'Login failed')
+      assertLoginFailed($)
     })
 
     test('returns 400 and login failed view when code missing', async () => {
@@ -111,7 +112,7 @@ describe('Defra ID redirection test', () => {
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       assertAuthorizationCodeUrlCalled()
-      assertLoginFailed($, 'Login failed')
+      assertLoginFailed($)
     })
 
     test('redirects to defra id when state mismatch', async () => {
@@ -150,7 +151,7 @@ describe('Defra ID redirection test', () => {
       const $ = cheerio.load(res.payload)
       assertAuthenticateCalled()
       assertRetrieveApimAccessTokenCalled()
-      assertLoginFailed($, 'Login failed')
+      assertLoginFailed($)
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name Error and message ${expectedError.message}.`)
     })
@@ -224,7 +225,7 @@ describe('Defra ID redirection test', () => {
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
-      assertLoginAuth($, 'You cannot apply for reviews or follow-ups for this business')
+      assertLoginAuth($, YOU_CAN_NOT_APPLY)
       assertRetrieveApimAccessTokenCalled()
       expect(personMock.getPersonSummary).toBeCalledTimes(1)
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
@@ -308,7 +309,7 @@ describe('Defra ID redirection test', () => {
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
-      assertLoginAuth($, 'You cannot apply for reviews or follow-ups for this business')
+      assertLoginAuth($, YOU_CAN_NOT_APPLY)
       assertRetrieveApimAccessTokenCalled()
       expect(personMock.getPersonSummary).toBeCalledTimes(1)
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
@@ -392,7 +393,7 @@ describe('Defra ID redirection test', () => {
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     const $ = cheerio.load(res.payload)
-    assertLoginAuth($, 'You cannot apply for reviews or follow-ups for this business')
+    assertLoginAuth($, YOU_CAN_NOT_APPLY)
     assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
