@@ -7,7 +7,9 @@ const limit = 20
 const offset = 0
 let searchText = ''
 let searchType = ''
-const { getApplications, getApplication, updateApplicationStatus, processApplicationClaim, getApplicationHistory, getApplicationEvents } = require('../../../../app/api/applications')
+const status = 12
+const user = 'admin'
+const { getApplications, getApplication, updateApplicationStatus, processApplicationClaim, getApplicationHistory, getApplicationEvents, withdrawApplication } = require('../../../../app/api/applications')
 describe('Application API', () => {
   afterEach(() => {
     jest.clearAllMocks()
@@ -116,6 +118,55 @@ describe('Application API', () => {
     expect(Wreck.get).toHaveBeenCalledWith(`${applicationApiUri}/application/get/${appRef}`, options)
   })
 
+  it('WithdrawApplication should return true', async () => {
+    jest.mock('@hapi/wreck')
+    const wreckResponse = {
+      payload: {
+        application: {
+
+        }
+      },
+      res: {
+        statusCode: 200
+      }
+    }
+    const options = {
+      payload: {
+        user,
+        status
+      },
+      json: true
+    }
+    Wreck.put = jest.fn(async function (_url, _options) {
+      return wreckResponse
+    })
+    const response = await withdrawApplication(appRef, user, status)
+    expect(response).not.toBeNull()
+    expect(Wreck.put).toHaveBeenCalledTimes(1)
+    expect(Wreck.put).toHaveBeenCalledWith(`${applicationApiUri}/application/${appRef}`, options)
+  })
+  it('WithdrawApplication should return false on error', async () => {
+    jest.mock('@hapi/wreck')
+    const applicationData = {
+      reference: appRef
+    }
+    const wreckResponse = new Error('Something Wrong')
+    const options = {
+      json: true,
+      payload: {
+        user,
+        status
+      }
+    }
+    Wreck.put = jest.fn(async function (_url, _options) {
+      return wreckResponse
+    })
+    const response = await withdrawApplication(appRef, user, status)
+    expect(response).not.toBeNull()
+    expect(response).toBeTruthy()
+    expect(Wreck.put).toHaveBeenCalledTimes(1)
+    expect(Wreck.put).toHaveBeenCalledWith(`${applicationApiUri}/application/${appRef}`, options)
+  })
   it('GetApplications should return empty applications array if api not available', async () => {
     jest.mock('@hapi/wreck')
     const options = {
