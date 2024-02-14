@@ -107,7 +107,8 @@ module.exports = [{
 
         const latestApplication = latestApplicationsForSbi[0]
         if (latestApplication.type === applicationType.ENDEMICS) {
-          return h.redirect('/check-details')
+          return h.redirect(`${config.claimServiceUri}/endemics?from=dashboard&sbi=${organisation.sbi}`)
+          // return h.redirect('/check-details')
         }
 
         if (closedStatuses.includes(latestApplication.statusId)) {
