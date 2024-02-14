@@ -12,7 +12,7 @@ describe('routes plugin test', () => {
       routePaths.push(element.path)
     })
     expect(routePaths).toEqual([
-      '/check-details', '/cookies', '/healthy', '/healthz', '/signin-oidc', '/update-details', '/vet-visits', '/', '/assets/{path*}', '/check-details', '/cookies'
+      '/check-details', '/cookies', '/healthy', '/healthz', '/signin-oidc', '/update-details', '/vet-visits', '/', '/assets/{path*}', '/check-details', '/cookies', '/vet-visits'
     ])
   })
 })
