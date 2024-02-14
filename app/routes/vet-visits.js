@@ -20,7 +20,7 @@ module.exports = {
       })
 
       return h.view(vetVisits, {
-        claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
+        claimServiceRedirectUri: `${claimServiceUri}/endemics/which-review-annual`,
         ...organisation,
         ...(application?.reference && { reference: application?.reference })
       })
