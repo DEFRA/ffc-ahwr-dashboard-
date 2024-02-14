@@ -16,8 +16,8 @@ module.exports = [
         const { organisation } = getEndemicsClaim(request)
         const application = (
           await getLatestApplicationsBySbi(organisation.sbi)
-        ).find((application) => {
-          return application.type === 'EE'
+        ).find((app) => {
+          return app.type === 'EE'
         })
 
         return h.view(vetVisits, {
