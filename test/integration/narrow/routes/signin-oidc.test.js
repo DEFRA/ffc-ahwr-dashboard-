@@ -562,7 +562,7 @@ describe('Defra ID redirection test', () => {
     const $ = cheerio.load(res.payload)
     assertLoginFailed($, 'noEndemicsAgreementError')
     assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled
+    assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
