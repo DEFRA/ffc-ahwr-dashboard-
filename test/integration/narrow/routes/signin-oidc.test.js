@@ -1034,7 +1034,7 @@ describe('Defra ID redirection test', () => {
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual('/check-details')
+    expect(res.headers.location).toEqual('http://localhost:3004/claim/endemics?from=dashboard&sbi=101122201')
   })
 
   test('returns 302 and redirects user to dashboard if endemics agreement and user entered from claim', async () => {
@@ -1133,7 +1133,7 @@ describe('Defra ID redirection test', () => {
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual('/check-details')
+    expect(res.headers.location).toEqual('http://localhost:3004/claim/endemics?from=dashboard&sbi=101122201')
   })
 
   test('returns 302 and redirects user to dashboard if endemics agreement and user entered from dashboard', async () => {
@@ -1232,7 +1232,7 @@ describe('Defra ID redirection test', () => {
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual('/check-details')
+    expect(res.headers.location).toEqual('http://localhost:3004/claim/endemics?from=dashboard&sbi=101122201')
   })
 
   test('returns 302 and redirects user to endemics apply if last application is a closed VV application and coming from apply', async () => {
