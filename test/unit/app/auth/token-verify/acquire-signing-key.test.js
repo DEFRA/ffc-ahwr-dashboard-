@@ -4,20 +4,20 @@ const Wreck = require('@hapi/wreck')
 
 // Mock the dependencies
 jest.mock('@hapi/wreck', () => ({
-  get: jest.fn(),
+  get: jest.fn()
 }))
 
 jest.mock('../../../../../app/config', () => ({
   ...jest.requireActual('../../../../../app/config'),
   authConfig: {
-    ruralPaymentsAgency:{
-        hostname: 'https://example.com',
+    ruralPaymentsAgency: {
+      hostname: 'https://example.com'
     },
     defraId: {
       hostname: 'https://example.com',
-      policy: 'policy123',
-    },
-  },
+      policy: 'policy123'
+    }
+  }
 }))
 
 // The actual test
@@ -27,9 +27,9 @@ describe('acquireSigningKey error scenario', () => {
     Wreck.get.mockResolvedValue({
       res: {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        statusMessage: 'Internal Server Error',
+        statusMessage: 'Internal Server Error'
       },
-      payload: null,
+      payload: null
     })
 
     // Import the module after mocking its dependencies
@@ -48,8 +48,8 @@ describe('acquireSigningKey error scenario', () => {
     // Clean up
     logSpy.mockRestore()
     errorSpy.mockRestore()
+  })
 })
-})  
 
 // Assuming @hapi/wreck and config are already mocked from the previous example
 describe('acquireSigningKey success scenario', () => {
@@ -57,18 +57,18 @@ describe('acquireSigningKey success scenario', () => {
     // Mock signing key data as expected from the successful response
     const mockSigningKeys = {
       keys: [
-        { kid: 'key1', use: 'sig', /* other key properties */ },
+        { kid: 'key1', use: 'sig' /* other key properties */ }
         // Additional keys can be listed here if needed
-      ],
+      ]
     }
 
     // Setup Wreck to simulate a successful response
     Wreck.get.mockResolvedValue({
       res: {
         statusCode: HttpStatus.OK,
-        statusMessage: 'OK',
+        statusMessage: 'OK'
       },
-      payload: mockSigningKeys,
+      payload: mockSigningKeys
     })
 
     // Import the module after mocking its dependencies
@@ -77,5 +77,5 @@ describe('acquireSigningKey success scenario', () => {
     const result = await acquireSigningKey()
 
     expect(result).toEqual(mockSigningKeys.keys[0])
-    })
+  })
 })
