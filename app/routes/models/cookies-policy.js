@@ -1,4 +1,4 @@
-function viewModel (cookiesPolicy = {}, updated = false) {
+function ViewModel (cookiesPolicy = {}, updated = false) {
   this.analytics = {
     idPrefix: 'analytics',
     name: 'analytics',
@@ -25,4 +25,4 @@ function viewModel (cookiesPolicy = {}, updated = false) {
   this.updated = updated
 }
 
-module.exports = viewModel
+module.exports = ViewModel
