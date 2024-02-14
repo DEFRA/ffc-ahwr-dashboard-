@@ -24,6 +24,10 @@ const stateFromClaim = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNk
 const stateFromDashboard = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9'
 
 describe('Defra ID redirection test', () => {
+  function assertLoginFailed ($, expectedMessage) {
+    expect($('.govuk-heading-l').text()).toMatch(expectedMessage)
+  }
+
   jest.mock('../../../../app/config', () => ({
     ...jest.requireActual('../../../../app/config'),
     serviceUri: 'http://localhost:3003',
@@ -66,7 +70,7 @@ describe('Defra ID redirection test', () => {
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
-      expect($('.govuk-heading-l').text()).toMatch('Login failed')
+      assertLoginFailed($, 'Login failed')
     })
 
     test('returns 400 and login failed view when state missing', async () => {
@@ -80,7 +84,7 @@ describe('Defra ID redirection test', () => {
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
-      expect($('.govuk-heading-l').text()).toMatch('Login failed')
+      assertLoginFailed($, 'Login failed')
     })
 
     test('returns 400 and login failed view when code missing', async () => {
@@ -94,7 +98,7 @@ describe('Defra ID redirection test', () => {
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
-      expect($('.govuk-heading-l').text()).toMatch('Login failed')
+      assertLoginFailed($, 'Login failed')
     })
 
     test('redirects to defra id when state mismatch', async () => {
@@ -133,7 +137,7 @@ describe('Defra ID redirection test', () => {
       expect(authMock.authenticate).toBeCalledTimes(1)
       expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
       const $ = cheerio.load(res.payload)
-      expect($('.govuk-heading-l').text()).toMatch('Login failed')
+      assertLoginFailed($, 'Login failed')
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name Error and message ${expectedError.message}.`)
     })
@@ -213,7 +217,7 @@ describe('Defra ID redirection test', () => {
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       expect(sendIneligibilityEventMock).toBeCalledTimes(1)
       const $ = cheerio.load(res.payload)
-      expect($('.govuk-heading-l').text()).toMatch('You cannot apply for reviews or follow-ups for this business')
+      assertLoginFailed($, 'You cannot apply for reviews or follow-ups for this business')
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name InvalidPermissionsError and message ${expectedError.message}.`)
     })
@@ -299,7 +303,7 @@ describe('Defra ID redirection test', () => {
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       expect(sendIneligibilityEventMock).toBeCalledTimes(1)
       const $ = cheerio.load(res.payload)
-      expect($('.govuk-heading-l').text()).toMatch('You cannot apply for reviews or follow-ups for this business')
+      assertLoginFailed($, 'You cannot apply for reviews or follow-ups for this business')
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEligibleCphError and message ${expectedError.message}.`)
     })
@@ -385,7 +389,7 @@ describe('Defra ID redirection test', () => {
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(sendIneligibilityEventMock).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
-    expect($('.govuk-heading-l').text()).toMatch('You cannot apply for reviews or follow-ups for this business')
+    assertLoginFailed($, 'You cannot apply for reviews or follow-ups for this business')
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name LockedBusinessError and message ${expectedError.message}`)
   })
@@ -469,7 +473,7 @@ describe('Defra ID redirection test', () => {
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
-    expect($('.govuk-heading-l').text()).toMatch('noEndemicsAgreementError')
+    assertLoginFailed($, 'noEndemicsAgreementError')
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   })
@@ -553,7 +557,7 @@ describe('Defra ID redirection test', () => {
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
-    expect($('.govuk-heading-l').text()).toMatch('noEndemicsAgreementError')
+    assertLoginFailed($, 'noEndemicsAgreementError')
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   })
@@ -934,7 +938,7 @@ describe('Defra ID redirection test', () => {
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
-    expect($('.govuk-heading-l').text()).toMatch('You have an existing agreement for this business')
+    assertLoginFailed($, 'You have an existing agreement for this business')
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name OutstandingAgreementError and message ${expectedError.message}`)
   })
@@ -1434,7 +1438,7 @@ describe('Defra ID redirection test', () => {
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
-    expect($('.govuk-heading-l').text()).toMatch('noEndemicsAgreementError')
+    assertLoginFailed($, 'noEndemicsAgreementError')
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   })
@@ -1538,7 +1542,7 @@ describe('Defra ID redirection test', () => {
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
-    expect($('.govuk-heading-l').text()).toMatch('noEndemicsAgreementError')
+    assertLoginFailed($, 'noEndemicsAgreementError')
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   })
