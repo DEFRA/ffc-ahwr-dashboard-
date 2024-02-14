@@ -147,7 +147,6 @@ describe('Application API', () => {
   })
   it('WithdrawApplication should return false on error', async () => {
     jest.mock('@hapi/wreck')
-    const wreckResponse = new Error('Something Wrong')
     const options = {
       json: true,
       payload: {
@@ -156,11 +155,11 @@ describe('Application API', () => {
       }
     }
     Wreck.put = jest.fn(async function (_url, _options) {
-      return wreckResponse
+      throw new Error('Something Wrong')
     })
     const response = await withdrawApplication(appRef, user, status)
     expect(response).not.toBeNull()
-    expect(response).toBeTruthy()
+    expect(response).toBeFalsy()
     expect(Wreck.put).toHaveBeenCalledTimes(1)
     expect(Wreck.put).toHaveBeenCalledWith(`${applicationApiUri}/application/${appRef}`, options)
   })
