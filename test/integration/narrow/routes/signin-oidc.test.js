@@ -15,6 +15,7 @@ const cphCheckMock = require('../../../../app/api-requests/rpa-api/cph-check').c
 jest.mock('../../../../app/api-requests/rpa-api/cph-check')
 const getLatestApplicationsBySbiMock = require('../../../../app/api-requests/application-api').getLatestApplicationsBySbi
 jest.mock('../../../../app/api-requests/application-api')
+const HttpStatus = require('http-status-codes')
 
 const { InvalidPermissionsError, InvalidStateError, NoEligibleCphError, OutstandingAgreementError, LockedBusinessError, NoEndemicsAgreementError } = require('../../../../app/exceptions')
 
@@ -62,7 +63,7 @@ describe('Defra ID redirection test', () => {
       }
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(400)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
       expect($('.govuk-heading-l').text()).toMatch('Login failed')
@@ -76,7 +77,7 @@ describe('Defra ID redirection test', () => {
       }
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(400)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
       expect($('.govuk-heading-l').text()).toMatch('Login failed')
@@ -90,7 +91,7 @@ describe('Defra ID redirection test', () => {
       }
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(400)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
       expect($('.govuk-heading-l').text()).toMatch('Login failed')
@@ -108,7 +109,7 @@ describe('Defra ID redirection test', () => {
       })
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(302)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
       expect(authMock.authenticate).toBeCalledTimes(1)
       expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
     })
@@ -128,7 +129,7 @@ describe('Defra ID redirection test', () => {
       })
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(400)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       expect(authMock.authenticate).toBeCalledTimes(1)
       expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
       const $ = cheerio.load(res.payload)
@@ -204,7 +205,7 @@ describe('Defra ID redirection test', () => {
       })
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(400)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       expect(authMock.authenticate).toBeCalledTimes(1)
       expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
       expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
@@ -290,7 +291,7 @@ describe('Defra ID redirection test', () => {
       cphCheckMock.mockRejectedValueOnce(expectedError)
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(400)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       expect(authMock.authenticate).toBeCalledTimes(1)
       expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
       expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
@@ -376,7 +377,7 @@ describe('Defra ID redirection test', () => {
     ])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
@@ -462,7 +463,7 @@ describe('Defra ID redirection test', () => {
     getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -546,7 +547,7 @@ describe('Defra ID redirection test', () => {
     getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -628,7 +629,7 @@ describe('Defra ID redirection test', () => {
     getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -727,7 +728,7 @@ describe('Defra ID redirection test', () => {
     ])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -826,7 +827,7 @@ describe('Defra ID redirection test', () => {
     ])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -927,7 +928,7 @@ describe('Defra ID redirection test', () => {
     ])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -1029,7 +1030,7 @@ describe('Defra ID redirection test', () => {
     ])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -1128,7 +1129,7 @@ describe('Defra ID redirection test', () => {
     ])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -1227,7 +1228,7 @@ describe('Defra ID redirection test', () => {
     ])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -1326,7 +1327,7 @@ describe('Defra ID redirection test', () => {
     ])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -1427,7 +1428,7 @@ describe('Defra ID redirection test', () => {
     ])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
@@ -1531,7 +1532,7 @@ describe('Defra ID redirection test', () => {
     ])
 
     const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     expect(authMock.authenticate).toBeCalledTimes(1)
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
     expect(personMock.getPersonSummary).toBeCalledTimes(1)

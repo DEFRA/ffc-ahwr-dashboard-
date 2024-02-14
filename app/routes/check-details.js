@@ -4,6 +4,7 @@ const getOrganisation = require('./models/organisation')
 const session = require('../session')
 const Joi = require('joi')
 const config = require('../config')
+const HttpStatus = require('http-status-codes')
 
 module.exports = [{
   method: 'GET',
@@ -34,7 +35,7 @@ module.exports = [{
         return h.view('check-details', {
           errorMessage: { text: 'Select if your details are correct' },
           ...getOrganisation(request, organisation, 'Select if your details are correct')
-        }).code(400).takeover()
+        }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()
       }
     },
     handler: async (request, h) => {
