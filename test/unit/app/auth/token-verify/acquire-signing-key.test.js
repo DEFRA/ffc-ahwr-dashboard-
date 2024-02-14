@@ -33,7 +33,7 @@ describe('acquireSigningKey error scenario', () => {
     })
 
     // Import the module after mocking its dependencies
-    const acquireSigningKey = require('../../../../../app/auth/token-verify/acquire-signing-key') // Update with the actual path
+    const acquireSigningKey = require('../../../../../app/auth/token-verify/acquire-signing-key')
 
     // Spy on console.log and console.error to verify they were called
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
@@ -72,7 +72,7 @@ describe('acquireSigningKey success scenario', () => {
     })
 
     // Import the module after mocking its dependencies
-    const acquireSigningKey = require('../../../../../app/auth/token-verify/acquire-signing-key') // Update with the actual path
+    const acquireSigningKey = require('../../../../../app/auth/token-verify/acquire-signing-key')
 
     const result = await acquireSigningKey()
 

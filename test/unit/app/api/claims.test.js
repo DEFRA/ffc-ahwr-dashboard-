@@ -14,7 +14,7 @@ jest.mock('../../../../app/constants/status', () => ({
 }))
 
 const HttpStatus = require('http-status-codes')
-const { getClaim, getClaims } = require('../../../../app/api/claims') // Update with the actual path
+const { getClaim, getClaims } = require('../../../../app/api/claims')
 const Wreck = require('@hapi/wreck')
 describe('getClaim function', () => {
   it('should return claim data on successful response', async () => {
