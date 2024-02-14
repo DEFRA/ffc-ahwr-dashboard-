@@ -43,7 +43,7 @@ async function addStageExecution (payload) {
   }
   try {
     const response = await Wreck.post(url, options)
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload
@@ -62,7 +62,7 @@ async function updateStageExecution (id) {
   }
   try {
     const response = await Wreck.put(url, options)
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload
