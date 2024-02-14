@@ -5,7 +5,7 @@ const {
 } = require('../api-requests/application-api')
 
 const pageUrl = `/${vetVisits}`
-const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
+// const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
 
 module.exports = {
   method: 'GET',
