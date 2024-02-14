@@ -1,5 +1,6 @@
 const Wreck = require('@hapi/wreck')
 const config = require('../../config')
+const HttpStatus = require('http-status-codes')
 
 const acquireSigningKey = async () => {
   console.log(`${new Date().toISOString()} Acquiring the signing key data necessary to validate the signature`)
@@ -10,7 +11,7 @@ const acquireSigningKey = async () => {
         json: true
       }
     )
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload.keys[0]

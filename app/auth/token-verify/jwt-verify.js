@@ -1,10 +1,10 @@
 const jwt = require('jsonwebtoken')
 const jwktopem = require('jwk-to-pem')
 const acquireSigningKey = require('./acquire-signing-key')
-
+const tokenSlicer = 5
 const jwtVerify = async (token) => {
   console.log(`${new Date().toISOString()} Verifying JWT token: ${JSON.stringify({
-    token: `${token.slice(0, 5)}...${token.slice(-5)}`
+    token: `${token.slice(0, tokenSlicer)}...${token.slice(-tokenSlicer)}`
   })}`)
   try {
     const jwk = await acquireSigningKey()
