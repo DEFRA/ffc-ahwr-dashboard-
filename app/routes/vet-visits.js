@@ -7,7 +7,7 @@ const {
 const pageUrl = `/${vetVisits}`
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
 
-module.exports = [
+module.exports =
   {
     method: 'GET',
     path: pageUrl,
@@ -21,20 +21,10 @@ module.exports = [
         })
 
         return h.view(vetVisits, {
+          claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
           ...organisation,
           ...(application?.reference && { reference: application?.reference })
         })
       }
     }
-  },
-  {
-    method: 'POST',
-    path: pageUrl,
-    options: {
-      handler: async (request, h) => {
-        const { organisation } = getEndemicsClaim(request)
-        return h.redirect(`${claimServiceRedirectUri}&sbi=${organisation.sbi}`)
-      }
-    }
   }
-]
