@@ -25,7 +25,7 @@ const stateFromDashboard = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2Zh
 const YOU_CAN_NOT_APPLY = 'You cannot apply for reviews or follow-ups for this business'
 
 describe('Defra ID redirection test', () => {
-  function assertLoginAuth ($, expectedMessage) {
+  function assertLoginAuth ($, expectedMessage = 'Login failed') {
     expect($('.govuk-heading-l').text()).toMatch(expectedMessage)
     assertAuthorizationCodeUrlCalled()
     assertAuthenticateCalled()
@@ -67,6 +67,66 @@ describe('Defra ID redirection test', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
   })
+
+  const setupMock = function (organisationPermission = false, locked = false) {
+    authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
+    authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
+    personMock.getPersonSummary.mockResolvedValueOnce({
+      firstName: 'Bill',
+      middleName: null,
+      lastName: 'Smith',
+      email: 'billsmith@testemail.com',
+      id: 1234567,
+      customerReferenceNumber: '1103452436'
+    })
+    organisationMock.organisationIsEligible.mockResolvedValueOnce({
+      organisation: {
+        id: 7654321,
+        name: 'Mrs Gill Black',
+        sbi: 101122201,
+        address: {
+          address1: 'The Test House',
+          address2: 'Test road',
+          address3: 'Wicklewood',
+          buildingNumberRange: '11',
+          buildingName: 'TestHouse',
+          street: 'Test ROAD',
+          city: 'Test City',
+          postalCode: 'TS1 1TS',
+          country: 'United Kingdom',
+          dependentLocality: 'Test Local'
+        },
+        email: 'org1@testemail.com',
+        locked
+      },
+      organisationPermission
+    })
+
+    sessionMock.getCustomer.mockResolvedValueOnce({
+      attachedToMultipleBusinesses: false
+    })
+
+    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
+      organisation: {
+        id: 7654321,
+        name: 'Mrs Gill Black',
+        sbi: 101122201,
+        address: {
+          address1: 'The Test House',
+          address2: 'Test road',
+          address3: 'Wicklewood',
+          buildingNumberRange: '11',
+          buildingName: 'TestHouse',
+          street: 'Test ROAD',
+          city: 'Test City',
+          postalCode: 'TS1 1TS',
+          country: 'United Kingdom',
+          dependentLocality: 'Test Local'
+        },
+        email: 'org1@testemail.com'
+      }
+    })
+  }
 
   describe(`GET requests to '${url}'`, () => {
     test.each([
@@ -149,9 +209,8 @@ describe('Defra ID redirection test', () => {
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
-      assertAuthenticateCalled()
       assertRetrieveApimAccessTokenCalled()
-      assertLoginFailed($)
+      assertLoginAuth($)
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name Error and message ${expectedError.message}.`)
     })
@@ -165,63 +224,7 @@ describe('Defra ID redirection test', () => {
         url: baseUrl
       }
 
-      authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-      authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
-      personMock.getPersonSummary.mockResolvedValueOnce({
-        firstName: 'Bill',
-        middleName: null,
-        lastName: 'Smith',
-        email: 'billsmith@testemail.com',
-        id: 1234567,
-        customerReferenceNumber: '1103452436'
-      })
-      organisationMock.organisationIsEligible.mockResolvedValueOnce({
-        organisation: {
-          id: 7654321,
-          name: 'Mrs Gill Black',
-          sbi: 101122201,
-          address: {
-            address1: 'The Test House',
-            address2: 'Test road',
-            address3: 'Wicklewood',
-            buildingNumberRange: '11',
-            buildingName: 'TestHouse',
-            street: 'Test ROAD',
-            city: 'Test City',
-            postalCode: 'TS1 1TS',
-            country: 'United Kingdom',
-            dependentLocality: 'Test Local'
-          },
-          email: 'org1@testemail.com'
-        },
-        organisationPermission: false
-      })
-
-      sessionMock.getCustomer.mockResolvedValueOnce({
-        attachedToMultipleBusinesses: false
-      })
-
-      sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-        organisation: {
-          id: 7654321,
-          name: 'Mrs Gill Black',
-          sbi: 101122201,
-          address: {
-            address1: 'The Test House',
-            address2: 'Test road',
-            address3: 'Wicklewood',
-            buildingNumberRange: '11',
-            buildingName: 'TestHouse',
-            street: 'Test ROAD',
-            city: 'Test City',
-            postalCode: 'TS1 1TS',
-            country: 'United Kingdom',
-            dependentLocality: 'Test Local'
-          },
-          email: 'org1@testemail.com'
-        }
-      })
-
+      setupMock()
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
@@ -243,62 +246,7 @@ describe('Defra ID redirection test', () => {
         url: baseUrl
       }
 
-      authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-      authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
-      personMock.getPersonSummary.mockResolvedValueOnce({
-        firstName: 'Bill',
-        middleName: null,
-        lastName: 'Smith',
-        email: 'billsmith@testemail.com',
-        id: 1234567,
-        customerReferenceNumber: '1103452436'
-      })
-      organisationMock.organisationIsEligible.mockResolvedValueOnce({
-        organisation: {
-          id: 7654321,
-          name: 'Mrs Gill Black',
-          sbi: 101122201,
-          address: {
-            address1: 'The Test House',
-            address2: 'Test road',
-            address3: 'Wicklewood',
-            buildingNumberRange: '11',
-            buildingName: 'TestHouse',
-            street: 'Test ROAD',
-            city: 'Test City',
-            postalCode: 'TS1 1TS',
-            country: 'United Kingdom',
-            dependentLocality: 'Test Local'
-          },
-          email: 'org1@testemail.com'
-        },
-        organisationPermission: true
-      })
-
-      sessionMock.getCustomer.mockResolvedValueOnce({
-        attachedToMultipleBusinesses: false
-      })
-
-      sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-        organisation: {
-          id: 7654321,
-          name: 'Mrs Gill Black',
-          sbi: 101122201,
-          address: {
-            address1: 'The Test House',
-            address2: 'Test road',
-            address3: 'Wicklewood',
-            buildingNumberRange: '11',
-            buildingName: 'TestHouse',
-            street: 'Test ROAD',
-            city: 'Test City',
-            postalCode: 'TS1 1TS',
-            country: 'United Kingdom',
-            dependentLocality: 'Test Local'
-          },
-          email: 'org1@testemail.com'
-        }
-      })
+      setupMock(true)
 
       cphNumbersMock.mockResolvedValueOnce([
         '08/178/0064'
@@ -328,63 +276,7 @@ describe('Defra ID redirection test', () => {
       url: baseUrl
     }
 
-    authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-    authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
-    personMock.getPersonSummary.mockResolvedValueOnce({
-      firstName: 'Bill',
-      middleName: null,
-      lastName: 'Smith',
-      email: 'billsmith@testemail.com',
-      id: 1234567,
-      customerReferenceNumber: '1103452436'
-    })
-    organisationMock.organisationIsEligible.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com',
-        locked: true
-      },
-      organisationPermission: true
-    })
-
-    sessionMock.getCustomer.mockResolvedValueOnce({
-      attachedToMultipleBusinesses: false
-    })
-
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
+    setupMock(true, true)
 
     cphNumbersMock.mockResolvedValueOnce([
       '08/178/0064'
@@ -411,62 +303,7 @@ describe('Defra ID redirection test', () => {
       url: baseUrl
     }
 
-    authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-    authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
-    personMock.getPersonSummary.mockResolvedValueOnce({
-      firstName: 'Bill',
-      middleName: null,
-      lastName: 'Smith',
-      email: 'billsmith@testemail.com',
-      id: 1234567,
-      customerReferenceNumber: '1103452436'
-    })
-    organisationMock.organisationIsEligible.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      },
-      organisationPermission: true
-    })
-
-    sessionMock.getCustomer.mockResolvedValueOnce({
-      attachedToMultipleBusinesses: false
-    })
-
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
+    setupMock(true)
 
     cphNumbersMock.mockResolvedValueOnce([
       '08/178/0064'
@@ -495,62 +332,7 @@ describe('Defra ID redirection test', () => {
       url: baseUrl
     }
 
-    authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-    authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
-    personMock.getPersonSummary.mockResolvedValueOnce({
-      firstName: 'Bill',
-      middleName: null,
-      lastName: 'Smith',
-      email: 'billsmith@testemail.com',
-      id: 1234567,
-      customerReferenceNumber: '1103452436'
-    })
-    organisationMock.organisationIsEligible.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      },
-      organisationPermission: true
-    })
-
-    sessionMock.getCustomer.mockResolvedValueOnce({
-      attachedToMultipleBusinesses: false
-    })
-
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
+    setupMock(true)
 
     cphNumbersMock.mockResolvedValueOnce([
       '08/178/0064'
@@ -577,62 +359,7 @@ describe('Defra ID redirection test', () => {
       url: baseUrl
     }
 
-    authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-    authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
-    personMock.getPersonSummary.mockResolvedValueOnce({
-      firstName: 'Bill',
-      middleName: null,
-      lastName: 'Smith',
-      email: 'billsmith@testemail.com',
-      id: 1234567,
-      customerReferenceNumber: '1103452436'
-    })
-    organisationMock.organisationIsEligible.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      },
-      organisationPermission: true
-    })
-
-    sessionMock.getCustomer.mockResolvedValueOnce({
-      attachedToMultipleBusinesses: false
-    })
-
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
+    setupMock(true)
 
     cphNumbersMock.mockResolvedValueOnce([
       '08/178/0064'
@@ -656,63 +383,7 @@ describe('Defra ID redirection test', () => {
       url: baseUrl
     }
 
-    authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-    authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
-    personMock.getPersonSummary.mockResolvedValueOnce({
-      firstName: 'Bill',
-      middleName: null,
-      lastName: 'Smith',
-      email: 'billsmith@testemail.com',
-      id: 1234567,
-      customerReferenceNumber: '1103452436'
-    })
-    organisationMock.organisationIsEligible.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      },
-      organisationPermission: true
-    })
-
-    sessionMock.getCustomer.mockResolvedValueOnce({
-      attachedToMultipleBusinesses: false
-    })
-
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
-
+    setupMock(true)
     cphNumbersMock.mockResolvedValueOnce([
       '08/178/0064'
     ])
@@ -754,42 +425,7 @@ describe('Defra ID redirection test', () => {
       method: 'GET',
       url: baseUrl
     }
-
-    authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-    authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
-    personMock.getPersonSummary.mockResolvedValueOnce({
-      firstName: 'Bill',
-      middleName: null,
-      lastName: 'Smith',
-      email: 'billsmith@testemail.com',
-      id: 1234567,
-      customerReferenceNumber: '1103452436'
-    })
-    organisationMock.organisationIsEligible.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      },
-      organisationPermission: true
-    })
-
-    sessionMock.getCustomer.mockResolvedValueOnce({
-      attachedToMultipleBusinesses: false
-    })
+    setupMock(true)
 
     sessionMock.getEndemicsClaim.mockResolvedValueOnce({
       organisation: {
@@ -856,41 +492,7 @@ describe('Defra ID redirection test', () => {
       url: baseUrl
     }
 
-    authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-    authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
-    personMock.getPersonSummary.mockResolvedValueOnce({
-      firstName: 'Bill',
-      middleName: null,
-      lastName: 'Smith',
-      email: 'billsmith@testemail.com',
-      id: 1234567,
-      customerReferenceNumber: '1103452436'
-    })
-    organisationMock.organisationIsEligible.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      },
-      organisationPermission: true
-    })
-
-    sessionMock.getCustomer.mockResolvedValueOnce({
-      attachedToMultipleBusinesses: false
-    })
+    setupMock(true)
 
     sessionMock.getEndemicsClaim.mockResolvedValueOnce({
       organisation: {
