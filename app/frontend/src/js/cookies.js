@@ -6,20 +6,20 @@ const questionBanner = document.querySelector('.js-question-banner')
 const cookieBanner = document.querySelector('.js-cookies-banner')
 const cookieContainer = document.querySelector('.js-cookies-container')
 
+function showBanner (banner) {
+  questionBanner.setAttribute('hidden', 'hidden')
+  banner.removeAttribute('hidden')
+  // Shift focus to the banner
+  banner.setAttribute('tabindex', '-1')
+  banner.focus()
+
+  banner.addEventListener('blur', function () {
+    banner.removeAttribute('tabindex')
+  })
+}
+
 if (cookieContainer) {
   cookieContainer.style.display = 'block'
-
-  function showBanner (banner) {
-    questionBanner.setAttribute('hidden', 'hidden')
-    banner.removeAttribute('hidden')
-    // Shift focus to the banner
-    banner.setAttribute('tabindex', '-1')
-    banner.focus()
-
-    banner.addEventListener('blur', function () {
-      banner.removeAttribute('tabindex')
-    })
-  }
 
   acceptButton?.addEventListener('click', function (event) {
     showBanner(acceptedBanner)

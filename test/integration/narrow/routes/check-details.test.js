@@ -12,7 +12,7 @@ describe('Org review page test', () => {
     strategy: 'cookie'
   }
   const org = {
-    farmerName: 'Dailry Farmer',
+    farmerName: 'Dairy Farmer',
     address: ' org-address-here',
     cph: '11/222/3333',
     email: 'org@test.com',

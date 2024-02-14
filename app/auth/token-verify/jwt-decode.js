@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken')
-
+const tokenSlicer = 5
 const decodeJwt = (token) => {
   console.log(`${new Date().toISOString()} Decoding JWT token: ${JSON.stringify({
-    token: `${token.slice(0, 5)}...${token.slice(-5)}`
+    token: `${token.slice(0, tokenSlicer)}...${token.slice(-tokenSlicer)}`
   })}`)
   try {
     const decodedToken = jwt.decode(token, { complete: true })
