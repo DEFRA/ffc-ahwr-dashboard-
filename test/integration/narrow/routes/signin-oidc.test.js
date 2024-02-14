@@ -24,10 +24,23 @@ const stateFromClaim = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNk
 const stateFromDashboard = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9'
 
 describe('Defra ID redirection test', () => {
+  function assertLoginAuth ($, expectedMessage) {
+    expect($('.govuk-heading-l').text()).toMatch(expectedMessage)
+    assertAuthorizationCodeUrlCalled()
+    assertAuthenticateCalled()
+  }
   function assertLoginFailed ($, expectedMessage) {
     expect($('.govuk-heading-l').text()).toMatch(expectedMessage)
   }
-
+  function assertAuthorizationCodeUrlCalled () {
+    expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
+  }
+  function assertAuthenticateCalled () {
+    expect(authMock.authenticate).toBeCalledTimes(1)
+  }
+  function assertRetrieveApimAccessTokenCalled () {
+    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
+  }
   jest.mock('../../../../app/config', () => ({
     ...jest.requireActual('../../../../app/config'),
     serviceUri: 'http://localhost:3003',
@@ -69,7 +82,7 @@ describe('Defra ID redirection test', () => {
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
-      expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
+      assertAuthorizationCodeUrlCalled()
       assertLoginFailed($, 'Login failed')
     })
 
@@ -83,7 +96,7 @@ describe('Defra ID redirection test', () => {
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
-      expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
+      assertAuthorizationCodeUrlCalled()
       assertLoginFailed($, 'Login failed')
     })
 
@@ -97,7 +110,7 @@ describe('Defra ID redirection test', () => {
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
-      expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
+      assertAuthorizationCodeUrlCalled()
       assertLoginFailed($, 'Login failed')
     })
 
@@ -114,8 +127,8 @@ describe('Defra ID redirection test', () => {
 
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-      expect(authMock.authenticate).toBeCalledTimes(1)
-      expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
+      assertAuthenticateCalled()
+      assertAuthorizationCodeUrlCalled()
     })
 
     test('returns 400 and login failed view when apim access token auth fails', async () => {
@@ -134,9 +147,9 @@ describe('Defra ID redirection test', () => {
 
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      expect(authMock.authenticate).toBeCalledTimes(1)
-      expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
       const $ = cheerio.load(res.payload)
+      assertAuthenticateCalled()
+      assertRetrieveApimAccessTokenCalled()
       assertLoginFailed($, 'Login failed')
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name Error and message ${expectedError.message}.`)
@@ -210,14 +223,12 @@ describe('Defra ID redirection test', () => {
 
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      expect(authMock.authenticate).toBeCalledTimes(1)
-      expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
-      expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
+      const $ = cheerio.load(res.payload)
+      assertLoginAuth($, 'You cannot apply for reviews or follow-ups for this business')
+      assertRetrieveApimAccessTokenCalled()
       expect(personMock.getPersonSummary).toBeCalledTimes(1)
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-      const $ = cheerio.load(res.payload)
-      assertLoginFailed($, 'You cannot apply for reviews or follow-ups for this business')
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name InvalidPermissionsError and message ${expectedError.message}.`)
     })
@@ -296,14 +307,12 @@ describe('Defra ID redirection test', () => {
 
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      expect(authMock.authenticate).toBeCalledTimes(1)
-      expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
-      expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
+      const $ = cheerio.load(res.payload)
+      assertLoginAuth($, 'You cannot apply for reviews or follow-ups for this business')
+      assertRetrieveApimAccessTokenCalled()
       expect(personMock.getPersonSummary).toBeCalledTimes(1)
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-      const $ = cheerio.load(res.payload)
-      assertLoginFailed($, 'You cannot apply for reviews or follow-ups for this business')
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEligibleCphError and message ${expectedError.message}.`)
     })
@@ -382,14 +391,12 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
-    expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
+    const $ = cheerio.load(res.payload)
+    assertLoginAuth($, 'You cannot apply for reviews or follow-ups for this business')
+    assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-    const $ = cheerio.load(res.payload)
-    assertLoginFailed($, 'You cannot apply for reviews or follow-ups for this business')
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name LockedBusinessError and message ${expectedError.message}`)
   })
@@ -468,12 +475,12 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
     assertLoginFailed($, 'noEndemicsAgreementError')
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
+    expect(personMock.getPersonSummary).toBeCalledTimes(1)
+    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   })
@@ -552,12 +559,12 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
     assertLoginFailed($, 'noEndemicsAgreementError')
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled
+    expect(personMock.getPersonSummary).toBeCalledTimes(1)
+    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   })
@@ -634,8 +641,8 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(res.headers.location).toEqual('http://localhost:3000/apply/endemics/check-details')
@@ -733,8 +740,8 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(res.headers.location).toEqual('http://localhost:3004/claim/check-details')
@@ -832,8 +839,8 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(res.headers.location).toEqual('http://localhost:3004/claim/check-details')
@@ -933,8 +940,8 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
@@ -1035,8 +1042,8 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(res.headers.location).toEqual('/check-details')
@@ -1134,8 +1141,8 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(res.headers.location).toEqual('/check-details')
@@ -1233,8 +1240,8 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(res.headers.location).toEqual('/check-details')
@@ -1332,8 +1339,8 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(res.headers.location).toEqual('http://localhost:3000/apply/endemics/check-details')
@@ -1433,12 +1440,12 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
     assertLoginFailed($, 'noEndemicsAgreementError')
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
+    expect(personMock.getPersonSummary).toBeCalledTimes(1)
+    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   })
@@ -1537,12 +1544,12 @@ describe('Defra ID redirection test', () => {
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    expect(authMock.authenticate).toBeCalledTimes(1)
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     const $ = cheerio.load(res.payload)
     assertLoginFailed($, 'noEndemicsAgreementError')
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
+    expect(personMock.getPersonSummary).toBeCalledTimes(1)
+    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   })
