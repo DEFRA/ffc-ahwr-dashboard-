@@ -147,9 +147,6 @@ describe('Application API', () => {
   })
   it('WithdrawApplication should return false on error', async () => {
     jest.mock('@hapi/wreck')
-    const applicationData = {
-      reference: appRef
-    }
     const wreckResponse = new Error('Something Wrong')
     const options = {
       json: true,
