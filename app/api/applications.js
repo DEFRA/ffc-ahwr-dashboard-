@@ -1,6 +1,6 @@
 const Wreck = require('@hapi/wreck')
 const { applicationApiUri } = require('../config')
-const HttpStatus = require('http-status-codes');
+const HttpStatus = require('http-status-codes')
 
 async function getApplication (reference) {
   const url = `${applicationApiUri}/application/get/${reference}`
