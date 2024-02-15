@@ -2,7 +2,6 @@ const { cookie: { cookieNameCookiePolicy }, cookiePolicy } = require('../config'
 const { getCurrentPolicy } = require('../cookies')
 const HttpStatus = require('http-status-codes')
 
-
 module.exports = {
   plugin: {
     name: 'cookies',
