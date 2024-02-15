@@ -149,10 +149,37 @@ describe('Defra ID redirection test', () => {
         email: 'org1@testemail.com'
       }
     })
-    
+
     cphNumbersMock.mockResolvedValueOnce([
       '08/178/0064'
     ])
+  }
+
+  function verifyResult (res, expectedError, consoleErrorSpy, errorMessage = 'NoEligibleCphError', isLoginFailed = false) {
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
+    const $ = cheerio.load(res.payload)
+    if (isLoginFailed) {
+      assertLoginAuth($, YOU_CAN_NOT_APPLY)
+    } else {
+      assertLoginAuth($, errorMessage)
+    }
+    assertRetrieveApimAccessTokenCalled()
+    expect(personMock.getPersonSummary).toBeCalledTimes(1)
+    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+    expect(sendIneligibilityEventMock).toBeCalledTimes(1)
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name ${errorMessage} and message ${expectedError.message}.`)
+  }
+  function verifyResultForNoEndemicsAgreement (res, expectedError, consoleErrorSpy) {
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
+    const $ = cheerio.load(res.payload)
+    assertLoginFailed($, 'noEndemicsAgreementError')
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
+    expect(personMock.getPersonSummary).toBeCalledTimes(1)
+    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   }
 
   describe(`GET requests to '${url}'`, () => {
@@ -263,7 +290,6 @@ describe('Defra ID redirection test', () => {
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name InvalidPermissionsError and message ${expectedError.message}.`)
     })
-
     test('returns 400 and exception view when no eligible cph', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error')
       const expectedError = new NoEligibleCphError('Customer must have at least one valid CPH')
@@ -276,6 +302,19 @@ describe('Defra ID redirection test', () => {
       setupMock(true)
 
       cphCheckMock.mockRejectedValueOnce(expectedError)
+      const res = await global.__SERVER__.inject(options)
+      verifyResult(res, expectedError, consoleErrorSpy, 'NoEligibleCphError', true)
+    })
+    test('returns 400 and exception view when business is locked', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error')
+      const expectedError = new LockedBusinessError('Organisation id 7654321 is locked by RPA.')
+      const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
+
+      setupMock(true, true)
 
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
@@ -286,294 +325,239 @@ describe('Defra ID redirection test', () => {
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       expect(sendIneligibilityEventMock).toBeCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-      expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEligibleCphError and message ${expectedError.message}.`)
+      expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name LockedBusinessError and message ${expectedError.message}`)
     })
-  })
 
-  test('returns 400 and exception view when business is locked', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error')
-    const expectedError = new LockedBusinessError('Organisation id 7654321 is locked by RPA.')
-    const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+    test('returns 400 and exception view when there is no agreement and user entered from claim journey', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error')
+      const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
+      const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    setupMock(true, true)
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    const $ = cheerio.load(res.payload)
-    assertLoginAuth($, YOU_CAN_NOT_APPLY)
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name LockedBusinessError and message ${expectedError.message}`)
-  })
+      getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
-  test('returns 400 and exception view when there is no agreement and user entered from claim journey', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error')
-    const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
-    const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+      const res = await global.__SERVER__.inject(options)
+      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
+    })
 
-    setupMock(true)
+    test('returns 400 and exception view when there is no agreement and user entered from dashboard directly', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error')
+      const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
+      const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    const $ = cheerio.load(res.payload)
-    assertLoginFailed($, 'noEndemicsAgreementError')
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
-  })
+      getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
-  test('returns 400 and exception view when there is no agreement and user entered from dashboard directly', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error')
-    const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
-    const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+      const res = await global.__SERVER__.inject(options)
+      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
+    })
 
-    setupMock(true)
+    test('returns 302 and redirects user to apply journey if no previous applications and user entered from apply journey', async () => {
+      const baseUrl = `${url}?code=432432&state=${stateFromApply}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    const $ = cheerio.load(res.payload)
-    assertLoginFailed($, 'noEndemicsAgreementError')
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
-  })
+      getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
-  test('returns 302 and redirects user to apply journey if no previous applications and user entered from apply journey', async () => {
-    const baseUrl = `${url}?code=432432&state=${stateFromApply}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+      const res = await global.__SERVER__.inject(options)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
+      assertAuthenticateCalled()
+      assertRetrieveApimAccessTokenCalled()
+      expect(personMock.getPersonSummary).toBeCalledTimes(1)
+      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+      expect(res.headers.location).toEqual('http://localhost:3000/apply/endemics/check-details')
+    })
 
-    setupMock(true)
+    test('returns 302 and redirects user to old claim journey if open application/claim and user entered from claim journey', async () => {
+      const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual('http://localhost:3000/apply/endemics/check-details')
-  })
+      mockGetLatestApplicationsBySbiMock('VV', 1)
 
-  test('returns 302 and redirects user to old claim journey if open application/claim and user entered from claim journey', async () => {
-    const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+      const res = await global.__SERVER__.inject(options)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
+      assertAuthenticateCalled()
+      assertRetrieveApimAccessTokenCalled()
+      expect(personMock.getPersonSummary).toBeCalledTimes(1)
+      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+      expect(res.headers.location).toEqual('http://localhost:3004/claim/check-details')
+    })
 
-    setupMock(true)
+    test('returns 302 and redirects user to old claim journey if open application/claim and user entered from dashboard directly', async () => {
+      const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
+      setupMock(true)
 
-    mockGetLatestApplicationsBySbiMock('VV', 1)
+      mockGetLatestApplicationsBySbiMock('VV', 1)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual('http://localhost:3004/claim/check-details')
-  })
+      const res = await global.__SERVER__.inject(options)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
+      assertAuthenticateCalled()
+      assertRetrieveApimAccessTokenCalled()
+      expect(personMock.getPersonSummary).toBeCalledTimes(1)
+      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+      expect(res.headers.location).toEqual('http://localhost:3004/claim/check-details')
+    })
 
-  test('returns 302 and redirects user to old claim journey if open application/claim and user entered from dashboard directly', async () => {
-    const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
-    setupMock(true)
+    test('returns 400 and exception view if open application/claim and user entered from apply journey', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error')
+      const expectedError = new OutstandingAgreementError('Business with SBI 101122201 must claim or withdraw agreement before creating another.')
+      const baseUrl = `${url}?code=432432&state=${stateFromApply}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    mockGetLatestApplicationsBySbiMock('VV', 1)
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual('http://localhost:3004/claim/check-details')
-  })
+      mockGetLatestApplicationsBySbiMock('VV', 1)
 
-  test('returns 400 and exception view if open application/claim and user entered from apply journey', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error')
-    const expectedError = new OutstandingAgreementError('Business with SBI 101122201 must claim or withdraw agreement before creating another.')
-    const baseUrl = `${url}?code=432432&state=${stateFromApply}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+      const res = await global.__SERVER__.inject(options)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
+      assertAuthenticateCalled()
+      assertRetrieveApimAccessTokenCalled()
+      expect(personMock.getPersonSummary).toBeCalledTimes(1)
+      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+      const $ = cheerio.load(res.payload)
+      assertLoginFailed($, 'You have an existing agreement for this business')
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+      expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name OutstandingAgreementError and message ${expectedError.message}`)
+    })
 
-    setupMock(true)
+    test('returns 302 and redirects user to dashboard if endemics agreement and user entered from apply', async () => {
+      const baseUrl = `${url}?code=432432&state=${stateFromApply}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    mockGetLatestApplicationsBySbiMock('VV', 1)
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    const $ = cheerio.load(res.payload)
-    assertLoginFailed($, 'You have an existing agreement for this business')
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name OutstandingAgreementError and message ${expectedError.message}`)
-  })
+      mockGetLatestApplicationsBySbiMock('EE', 1)
 
-  test('returns 302 and redirects user to dashboard if endemics agreement and user entered from apply', async () => {
-    const baseUrl = `${url}?code=432432&state=${stateFromApply}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+      const res = await global.__SERVER__.inject(options)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
+      assertAuthenticateCalled()
+      assertRetrieveApimAccessTokenCalled()
+      expect(personMock.getPersonSummary).toBeCalledTimes(1)
+      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+      expect(res.headers.location).toEqual('/check-details')
+    })
 
-    setupMock(true)
+    test('returns 302 and redirects user to dashboard if endemics agreement and user entered from claim', async () => {
+      const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    mockGetLatestApplicationsBySbiMock('EE', 1)
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual('/check-details')
-  })
+      mockGetLatestApplicationsBySbiMock('EE', 1)
 
-  test('returns 302 and redirects user to dashboard if endemics agreement and user entered from claim', async () => {
-    const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+      const res = await global.__SERVER__.inject(options)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
+      assertAuthenticateCalled()
+      assertRetrieveApimAccessTokenCalled()
+      expect(personMock.getPersonSummary).toBeCalledTimes(1)
+      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+      expect(res.headers.location).toEqual('/check-details')
+    })
 
-    setupMock(true)
+    test('returns 302 and redirects user to dashboard if endemics agreement and user entered from dashboard', async () => {
+      const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    mockGetLatestApplicationsBySbiMock('EE', 1)
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual('/check-details')
-  })
+      mockGetLatestApplicationsBySbiMock('EE', 1)
 
-  test('returns 302 and redirects user to dashboard if endemics agreement and user entered from dashboard', async () => {
-    const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+      const res = await global.__SERVER__.inject(options)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
+      assertAuthenticateCalled()
+      assertRetrieveApimAccessTokenCalled()
+      expect(personMock.getPersonSummary).toBeCalledTimes(1)
+      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+      expect(res.headers.location).toEqual('/check-details')
+    })
 
-    setupMock(true)
+    test('returns 302 and redirects user to endemics apply if last application is a closed VV application and coming from apply', async () => {
+      const baseUrl = `${url}?code=432432&state=${stateFromApply}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    mockGetLatestApplicationsBySbiMock('EE', 1)
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual('/check-details')
-  })
+      mockGetLatestApplicationsBySbiMock('VV', 9)
 
-  test('returns 302 and redirects user to endemics apply if last application is a closed VV application and coming from apply', async () => {
-    const baseUrl = `${url}?code=432432&state=${stateFromApply}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+      const res = await global.__SERVER__.inject(options)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
+      assertAuthenticateCalled()
+      assertRetrieveApimAccessTokenCalled()
+      expect(personMock.getPersonSummary).toBeCalledTimes(1)
+      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+      expect(res.headers.location).toEqual('http://localhost:3000/apply/endemics/check-details')
+    })
 
-    setupMock(true)
+    test('returns 400 and and exception view if last application is a closed VV application and coming from claim', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error')
+      const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
+      const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    mockGetLatestApplicationsBySbiMock('VV', 9)
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual('http://localhost:3000/apply/endemics/check-details')
-  })
+      mockGetLatestApplicationsBySbiMock('VV', 9)
 
-  test('returns 400 and and exception view if last application is a closed VV application and coming from claim', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error')
-    const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
-    const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
+      const res = await global.__SERVER__.inject(options)
+      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
+    })
 
-    setupMock(true)
+    test('returns 400 and and exception view if last application is a closed VV application and coming from dashboard', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error')
+      const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
+      const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
 
-    mockGetLatestApplicationsBySbiMock('VV', 9)
+      setupMock(true)
 
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    const $ = cheerio.load(res.payload)
-    assertLoginFailed($, 'noEndemicsAgreementError')
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
-  })
+      mockGetLatestApplicationsBySbiMock('VV', 9)
 
-  test('returns 400 and and exception view if last application is a closed VV application and coming from dashboard', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error')
-    const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
-    const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
-    const options = {
-      method: 'GET',
-      url: baseUrl
-    }
-
-    setupMock(true)
-
-    mockGetLatestApplicationsBySbiMock('VV', 9)
-
-    const res = await global.__SERVER__.inject(options)
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    const $ = cheerio.load(res.payload)
-    assertLoginFailed($, 'noEndemicsAgreementError')
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
+      const res = await global.__SERVER__.inject(options)
+      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
+    })
   })
 })
