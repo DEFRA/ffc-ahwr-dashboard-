@@ -42,6 +42,29 @@ describe('Defra ID redirection test', () => {
   function assertRetrieveApimAccessTokenCalled () {
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
   }
+  function mockGetLatestApplicationsBySbiMock (type = 'VV', statusId = 9) {
+    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
+      {
+        id: 'bf93ec75-d3a4-434b-8443-511838410640',
+        reference: 'AHWR-BF93-EC75',
+        data: {
+          type,
+          reference: null,
+          declaration: true,
+          offerStatus: 'accepted',
+          organisation: [Object],
+          confirmCheckDetails: 'yes'
+        },
+        claimed: false,
+        createdAt: '2024-01-23T09:37:23.519Z',
+        updatedAt: '2024-01-23T09:37:23.583Z',
+        createdBy: 'admin',
+        updatedBy: null,
+        statusId,
+        type
+      }
+    ])
+  }
   jest.mock('../../../../app/config', () => ({
     ...jest.requireActual('../../../../app/config'),
     serviceUri: 'http://localhost:3003',
@@ -388,27 +411,7 @@ describe('Defra ID redirection test', () => {
       '08/178/0064'
     ])
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
-      {
-        id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        reference: 'AHWR-BF93-EC75',
-        data: {
-          type: 'VV',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: [Object],
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-01-23T09:37:23.519Z',
-        updatedAt: '2024-01-23T09:37:23.583Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 1,
-        type: 'VV'
-      }
-    ])
+    mockGetLatestApplicationsBySbiMock('VV', 1)
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
@@ -452,27 +455,7 @@ describe('Defra ID redirection test', () => {
       '08/178/0064'
     ])
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
-      {
-        id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        reference: 'AHWR-BF93-EC75',
-        data: {
-          type: 'VV',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: [Object],
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-01-23T09:37:23.519Z',
-        updatedAt: '2024-01-23T09:37:23.583Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 1,
-        type: 'VV'
-      }
-    ])
+    mockGetLatestApplicationsBySbiMock('VV', 1)
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
@@ -519,27 +502,7 @@ describe('Defra ID redirection test', () => {
       '08/178/0064'
     ])
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
-      {
-        id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        reference: 'AHWR-BF93-EC75',
-        data: {
-          type: 'VV',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: [Object],
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-01-23T09:37:23.519Z',
-        updatedAt: '2024-01-23T09:37:23.583Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 1,
-        type: 'VV'
-      }
-    ])
+    mockGetLatestApplicationsBySbiMock('VV', 1)
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
@@ -587,27 +550,7 @@ describe('Defra ID redirection test', () => {
       '08/178/0064'
     ])
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
-      {
-        id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        reference: 'AHWR-BF93-EC75',
-        data: {
-          type: 'EE',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: [Object],
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-01-23T09:37:23.519Z',
-        updatedAt: '2024-01-23T09:37:23.583Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 1,
-        type: 'EE'
-      }
-    ])
+    mockGetLatestApplicationsBySbiMock('EE', 1)
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
@@ -651,27 +594,7 @@ describe('Defra ID redirection test', () => {
       '08/178/0064'
     ])
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
-      {
-        id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        reference: 'AHWR-BF93-EC75',
-        data: {
-          type: 'EE',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: [Object],
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-01-23T09:37:23.519Z',
-        updatedAt: '2024-01-23T09:37:23.583Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 1,
-        type: 'EE'
-      }
-    ])
+    mockGetLatestApplicationsBySbiMock('EE', 1)
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
@@ -715,27 +638,7 @@ describe('Defra ID redirection test', () => {
       '08/178/0064'
     ])
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
-      {
-        id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        reference: 'AHWR-BF93-EC75',
-        data: {
-          type: 'EE',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: [Object],
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-01-23T09:37:23.519Z',
-        updatedAt: '2024-01-23T09:37:23.583Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 1,
-        type: 'EE'
-      }
-    ])
+    mockGetLatestApplicationsBySbiMock('EE', 1)
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
@@ -779,27 +682,7 @@ describe('Defra ID redirection test', () => {
       '08/178/0064'
     ])
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
-      {
-        id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        reference: 'AHWR-BF93-EC75',
-        data: {
-          type: 'VV',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: [Object],
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-01-23T09:37:23.519Z',
-        updatedAt: '2024-01-23T09:37:23.583Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 9,
-        type: 'VV'
-      }
-    ])
+    mockGetLatestApplicationsBySbiMock('VV', 9)
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
@@ -845,27 +728,7 @@ describe('Defra ID redirection test', () => {
       '08/178/0064'
     ])
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
-      {
-        id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        reference: 'AHWR-BF93-EC75',
-        data: {
-          type: 'VV',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: [Object],
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-01-23T09:37:23.519Z',
-        updatedAt: '2024-01-23T09:37:23.583Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 9,
-        type: 'VV'
-      }
-    ])
+    mockGetLatestApplicationsBySbiMock('VV', 9)
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
@@ -915,27 +778,7 @@ describe('Defra ID redirection test', () => {
       '08/178/0064'
     ])
 
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
-      {
-        id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        reference: 'AHWR-BF93-EC75',
-        data: {
-          type: 'VV',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: [Object],
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-01-23T09:37:23.519Z',
-        updatedAt: '2024-01-23T09:37:23.583Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 9,
-        type: 'VV'
-      }
-    ])
+    mockGetLatestApplicationsBySbiMock('VV', 9)
 
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
