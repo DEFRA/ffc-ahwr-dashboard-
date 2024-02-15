@@ -181,6 +181,14 @@ describe('Defra ID redirection test', () => {
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   }
+  function verifyResult302 (res, locationUrl) {
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
+    assertAuthenticateCalled()
+    assertRetrieveApimAccessTokenCalled()
+    expect(personMock.getPersonSummary).toBeCalledTimes(1)
+    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+    expect(res.headers.location).toEqual(locationUrl)
+  }
 
   describe(`GET requests to '${url}'`, () => {
     test.each([
@@ -374,12 +382,7 @@ describe('Defra ID redirection test', () => {
       getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-      assertAuthenticateCalled()
-      assertRetrieveApimAccessTokenCalled()
-      expect(personMock.getPersonSummary).toBeCalledTimes(1)
-      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-      expect(res.headers.location).toEqual('http://localhost:3000/apply/endemics/check-details')
+      verifyResult302(res, 'http://localhost:3000/apply/endemics/check-details')
     })
 
     test('returns 302 and redirects user to old claim journey if open application/claim and user entered from claim journey', async () => {
@@ -394,12 +397,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('VV', 1)
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-      assertAuthenticateCalled()
-      assertRetrieveApimAccessTokenCalled()
-      expect(personMock.getPersonSummary).toBeCalledTimes(1)
-      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-      expect(res.headers.location).toEqual('http://localhost:3004/claim/check-details')
+      verifyResult302(res, 'http://localhost:3004/claim/check-details')
     })
 
     test('returns 302 and redirects user to old claim journey if open application/claim and user entered from dashboard directly', async () => {
@@ -413,12 +411,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('VV', 1)
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-      assertAuthenticateCalled()
-      assertRetrieveApimAccessTokenCalled()
-      expect(personMock.getPersonSummary).toBeCalledTimes(1)
-      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-      expect(res.headers.location).toEqual('http://localhost:3004/claim/check-details')
+      verifyResult302(res, 'http://localhost:3004/claim/check-details')
     })
 
     test('returns 400 and exception view if open application/claim and user entered from apply journey', async () => {
@@ -458,12 +451,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('EE', 1)
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-      assertAuthenticateCalled()
-      assertRetrieveApimAccessTokenCalled()
-      expect(personMock.getPersonSummary).toBeCalledTimes(1)
-      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-      expect(res.headers.location).toEqual('/check-details')
+      verifyResult302(res, '/check-details')
     })
 
     test('returns 302 and redirects user to dashboard if endemics agreement and user entered from claim', async () => {
@@ -478,12 +466,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('EE', 1)
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-      assertAuthenticateCalled()
-      assertRetrieveApimAccessTokenCalled()
-      expect(personMock.getPersonSummary).toBeCalledTimes(1)
-      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-      expect(res.headers.location).toEqual('/check-details')
+      verifyResult302(res, '/check-details')
     })
 
     test('returns 302 and redirects user to dashboard if endemics agreement and user entered from dashboard', async () => {
@@ -498,12 +481,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('EE', 1)
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-      assertAuthenticateCalled()
-      assertRetrieveApimAccessTokenCalled()
-      expect(personMock.getPersonSummary).toBeCalledTimes(1)
-      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-      expect(res.headers.location).toEqual('/check-details')
+      verifyResult302(res, '/check-details')
     })
 
     test('returns 302 and redirects user to endemics apply if last application is a closed VV application and coming from apply', async () => {
@@ -518,12 +496,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('VV', 9)
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-      assertAuthenticateCalled()
-      assertRetrieveApimAccessTokenCalled()
-      expect(personMock.getPersonSummary).toBeCalledTimes(1)
-      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-      expect(res.headers.location).toEqual('http://localhost:3000/apply/endemics/check-details')
+      verifyResult302(res, 'http://localhost:3000/apply/endemics/check-details')
     })
 
     test('returns 400 and and exception view if last application is a closed VV application and coming from claim', async () => {
