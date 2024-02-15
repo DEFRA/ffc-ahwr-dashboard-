@@ -16,6 +16,7 @@ jest.mock('../../../../app/api-requests/rpa-api/cph-check')
 const getLatestApplicationsBySbiMock = require('../../../../app/api-requests/application-api').getLatestApplicationsBySbi
 jest.mock('../../../../app/api-requests/application-api')
 const HttpStatus = require('http-status-codes')
+const { status } = require('../../../../app/constants/status')
 
 const { InvalidPermissionsError, InvalidStateError, NoEligibleCphError, OutstandingAgreementError, LockedBusinessError, NoEndemicsAgreementError } = require('../../../../app/exceptions')
 
@@ -42,7 +43,7 @@ describe('Defra ID redirection test', () => {
   function assertRetrieveApimAccessTokenCalled () {
     expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
   }
-  function mockGetLatestApplicationsBySbiMock (type = 'VV', statusId = 9) {
+  function mockGetLatestApplicationsBySbiMock (type = 'VV', statusId = status.READY_TO_PAY) {
     getLatestApplicationsBySbiMock.mockResolvedValueOnce([
       {
         id: 'bf93ec75-d3a4-434b-8443-511838410640',
@@ -181,7 +182,7 @@ describe('Defra ID redirection test', () => {
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   }
-  function verifyResult302 (res, locationUrl) {
+  function verifyResult302 (res, locationUrl = '/check-details') {
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
     assertAuthenticateCalled()
     assertRetrieveApimAccessTokenCalled()
@@ -394,7 +395,7 @@ describe('Defra ID redirection test', () => {
 
       setupMock(true)
 
-      mockGetLatestApplicationsBySbiMock('VV', 1)
+      mockGetLatestApplicationsBySbiMock('VV', status.AGREED)
 
       const res = await global.__SERVER__.inject(options)
       verifyResult302(res, 'http://localhost:3004/claim/check-details')
@@ -408,7 +409,7 @@ describe('Defra ID redirection test', () => {
       }
       setupMock(true)
 
-      mockGetLatestApplicationsBySbiMock('VV', 1)
+      mockGetLatestApplicationsBySbiMock('VV', status.AGREED)
 
       const res = await global.__SERVER__.inject(options)
       verifyResult302(res, 'http://localhost:3004/claim/check-details')
@@ -425,7 +426,7 @@ describe('Defra ID redirection test', () => {
 
       setupMock(true)
 
-      mockGetLatestApplicationsBySbiMock('VV', 1)
+      mockGetLatestApplicationsBySbiMock('VV', status.AGREED)
 
       const res = await global.__SERVER__.inject(options)
       expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
@@ -448,10 +449,10 @@ describe('Defra ID redirection test', () => {
 
       setupMock(true)
 
-      mockGetLatestApplicationsBySbiMock('EE', 1)
+      mockGetLatestApplicationsBySbiMock('EE', status.AGREED)
 
       const res = await global.__SERVER__.inject(options)
-      verifyResult302(res, '/check-details')
+      verifyResult302(res)
     })
 
     test('returns 302 and redirects user to dashboard if endemics agreement and user entered from claim', async () => {
@@ -463,10 +464,10 @@ describe('Defra ID redirection test', () => {
 
       setupMock(true)
 
-      mockGetLatestApplicationsBySbiMock('EE', 1)
+      mockGetLatestApplicationsBySbiMock('EE', status.AGREED)
 
       const res = await global.__SERVER__.inject(options)
-      verifyResult302(res, '/check-details')
+      verifyResult302(res)
     })
 
     test('returns 302 and redirects user to dashboard if endemics agreement and user entered from dashboard', async () => {
@@ -478,10 +479,10 @@ describe('Defra ID redirection test', () => {
 
       setupMock(true)
 
-      mockGetLatestApplicationsBySbiMock('EE', 1)
+      mockGetLatestApplicationsBySbiMock('EE', status.AGREED)
 
       const res = await global.__SERVER__.inject(options)
-      verifyResult302(res, '/check-details')
+      verifyResult302(res)
     })
 
     test('returns 302 and redirects user to endemics apply if last application is a closed VV application and coming from apply', async () => {
@@ -493,7 +494,7 @@ describe('Defra ID redirection test', () => {
 
       setupMock(true)
 
-      mockGetLatestApplicationsBySbiMock('VV', 9)
+      mockGetLatestApplicationsBySbiMock('VV', status.READY_TO_PAY)
 
       const res = await global.__SERVER__.inject(options)
       verifyResult302(res, 'http://localhost:3000/apply/endemics/check-details')
@@ -510,7 +511,7 @@ describe('Defra ID redirection test', () => {
 
       setupMock(true)
 
-      mockGetLatestApplicationsBySbiMock('VV', 9)
+      mockGetLatestApplicationsBySbiMock('VV', status.READY_TO_PAY)
 
       const res = await global.__SERVER__.inject(options)
       verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
@@ -527,7 +528,7 @@ describe('Defra ID redirection test', () => {
 
       setupMock(true)
 
-      mockGetLatestApplicationsBySbiMock('VV', 9)
+      mockGetLatestApplicationsBySbiMock('VV', status.READY_TO_PAY)
 
       const res = await global.__SERVER__.inject(options)
       verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
