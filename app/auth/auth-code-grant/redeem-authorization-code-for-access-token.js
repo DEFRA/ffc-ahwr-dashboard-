@@ -3,6 +3,7 @@ const FormData = require('form-data')
 const config = require('../../config')
 const session = require('../../session')
 const sessionKeys = require('../../session/keys')
+const HttpStatus = require('http-status-codes')
 
 const redeemAuthorizationCodeForAccessToken = async (request) => {
   console.log(`${new Date().toISOString()} Requesting an access token with a client_secret`)
@@ -29,7 +30,7 @@ const redeemAuthorizationCodeForAccessToken = async (request) => {
         json: true
       }
     )
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload
