@@ -1,6 +1,7 @@
 const wreck = require('@hapi/wreck')
 const FormData = require('form-data')
 const config = require('../../config')
+const HttpStatus = require('http-status-codes')
 
 const retrieveApimAccessToken = async () => {
   console.log(`${new Date().toISOString()} Requesting an access token for APIM: ${JSON.stringify(`${config.authConfig.apim.hostname}${config.authConfig.apim.oAuthPath}`)}`)
@@ -22,7 +23,7 @@ const retrieveApimAccessToken = async () => {
       }
     )
     console.log(`${new Date().toISOString()} Response status code from APIM access token request: ${JSON.stringify(response.res.statusCode)}`)
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
 

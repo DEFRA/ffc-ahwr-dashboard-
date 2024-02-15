@@ -7,6 +7,7 @@ const cheerio = require('cheerio')
 
 jest.mock('../../../../app/session')
 jest.mock('../../../../app/api-requests/application-api')
+const HttpStatus = require('http-status-codes')
 
 describe('Claim vet-visits', () => {
   const url = `/${vetVisits}`
@@ -41,7 +42,7 @@ describe('Claim vet-visits', () => {
     const SBIText = 'Single Business Identifier (SBI): 112670111'
 
     expect($('#SBI').text()).toEqual(SBIText)
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
   })
   test('GET /vet-visits route returns 302', async () => {
     const options = {
@@ -66,6 +67,6 @@ describe('Claim vet-visits', () => {
     ])
 
     const response = await global.__SERVER__.inject(options)
-    expect(response.statusCode).toBe(302)
+    expect(response.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
   })
 })
