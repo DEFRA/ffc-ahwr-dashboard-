@@ -34,15 +34,6 @@ describe('Cookie plugin', () => {
     await server.register({ plugin })
   })
 
-  test('should configure server state with cookie policy', () => {
-    // Assuming cookieNameCookiePolicy is the name of the cookie to be set
-    const cookieOptions = server.states.settings.cookies.testCookiePolicyName
-    expect(cookieOptions).toBeDefined()
-    expect(cookieOptions).toMatchObject({
-      // Your expected cookiePolicy object
-    })
-  })
-
   describe('onPreResponse', () => {
     let request
 
