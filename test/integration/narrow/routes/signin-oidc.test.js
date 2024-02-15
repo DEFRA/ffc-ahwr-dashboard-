@@ -149,6 +149,10 @@ describe('Defra ID redirection test', () => {
         email: 'org1@testemail.com'
       }
     })
+    
+    cphNumbersMock.mockResolvedValueOnce([
+      '08/178/0064'
+    ])
   }
 
   describe(`GET requests to '${url}'`, () => {
@@ -271,10 +275,6 @@ describe('Defra ID redirection test', () => {
 
       setupMock(true)
 
-      cphNumbersMock.mockResolvedValueOnce([
-        '08/178/0064'
-      ])
-
       cphCheckMock.mockRejectedValueOnce(expectedError)
 
       const res = await global.__SERVER__.inject(options)
@@ -301,10 +301,6 @@ describe('Defra ID redirection test', () => {
 
     setupMock(true, true)
 
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
-
     const res = await global.__SERVER__.inject(options)
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     const $ = cheerio.load(res.payload)
@@ -327,10 +323,6 @@ describe('Defra ID redirection test', () => {
     }
 
     setupMock(true)
-
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
 
     getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
@@ -357,10 +349,6 @@ describe('Defra ID redirection test', () => {
 
     setupMock(true)
 
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
-
     getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
     const res = await global.__SERVER__.inject(options)
@@ -384,10 +372,6 @@ describe('Defra ID redirection test', () => {
 
     setupMock(true)
 
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
-
     getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
     const res = await global.__SERVER__.inject(options)
@@ -407,9 +391,6 @@ describe('Defra ID redirection test', () => {
     }
 
     setupMock(true)
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
 
     mockGetLatestApplicationsBySbiMock('VV', 1)
 
@@ -429,31 +410,6 @@ describe('Defra ID redirection test', () => {
       url: baseUrl
     }
     setupMock(true)
-
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
-
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
 
     mockGetLatestApplicationsBySbiMock('VV', 1)
 
@@ -476,31 +432,6 @@ describe('Defra ID redirection test', () => {
     }
 
     setupMock(true)
-
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
-
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
 
     mockGetLatestApplicationsBySbiMock('VV', 1)
 
@@ -525,31 +456,6 @@ describe('Defra ID redirection test', () => {
 
     setupMock(true)
 
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
-
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
-
     mockGetLatestApplicationsBySbiMock('EE', 1)
 
     const res = await global.__SERVER__.inject(options)
@@ -569,30 +475,6 @@ describe('Defra ID redirection test', () => {
     }
 
     setupMock(true)
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
-
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
 
     mockGetLatestApplicationsBySbiMock('EE', 1)
 
@@ -613,30 +495,6 @@ describe('Defra ID redirection test', () => {
     }
 
     setupMock(true)
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
-
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
 
     mockGetLatestApplicationsBySbiMock('EE', 1)
 
@@ -657,30 +515,6 @@ describe('Defra ID redirection test', () => {
     }
 
     setupMock(true)
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
-
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
 
     mockGetLatestApplicationsBySbiMock('VV', 9)
 
@@ -703,30 +537,6 @@ describe('Defra ID redirection test', () => {
     }
 
     setupMock(true)
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
-
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
 
     mockGetLatestApplicationsBySbiMock('VV', 9)
 
@@ -752,31 +562,6 @@ describe('Defra ID redirection test', () => {
     }
 
     setupMock(true)
-
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
-
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
 
     mockGetLatestApplicationsBySbiMock('VV', 9)
 
