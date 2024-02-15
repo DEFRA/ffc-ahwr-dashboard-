@@ -1,6 +1,7 @@
 const { when, resetAllWhenMocks } = require('jest-when')
 const MOCK_USE_ACTUAL_DECODE = require('jsonwebtoken').decode
 const sessionKeys = require('../../../../app/session/keys')
+const HttpStatus = require('http-status-codes')
 
 const MOCK_NOW = new Date()
 const MOCK_JWT_VERIFY = jest.fn()
@@ -106,7 +107,7 @@ describe('authenticate', () => {
         },
         redeemResponse: {
           res: {
-            statusCode: 200
+            statusCode: HttpStatus.StatusCodes.OK
           },
           payload: {
             /* Decoded access_token:
@@ -181,7 +182,7 @@ describe('authenticate', () => {
         },
         redeemResponse: {
           res: {
-            statusCode: 200
+            statusCode: HttpStatus.StatusCodes.OK
           },
           payload: {
             /* Decoded access_token:
@@ -257,7 +258,7 @@ describe('authenticate', () => {
         },
         redeemResponse: {
           res: {
-            statusCode: 200
+            statusCode: HttpStatus.StatusCodes.OK
           },
           payload: {
             /* Decoded access_token:
@@ -324,7 +325,7 @@ describe('authenticate', () => {
       )
       .mockResolvedValue({
         res: {
-          statusCode: 200
+          statusCode: HttpStatus.StatusCodes.OK
         },
         payload: {
           keys: [testCase.when.acquiredSigningKey]

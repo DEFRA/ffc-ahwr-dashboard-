@@ -18,6 +18,16 @@ function showBanner (banner) {
   })
 }
 
+function submitPreference (accepted) {
+  const xhr = new XMLHttpRequest() // eslint-disable-line
+  xhr.open('POST', '/cookies', true)
+  xhr.setRequestHeader('Content-Type', 'application/json')
+  xhr.send(JSON.stringify({
+    analytics: accepted,
+    async: true
+  }))
+}
+
 if (cookieContainer) {
   cookieContainer.style.display = 'block'
 
@@ -40,14 +50,4 @@ if (cookieContainer) {
   rejectedBanner?.querySelector('.js-hide').addEventListener('click', function () {
     cookieBanner.setAttribute('hidden', 'hidden')
   })
-
-  function submitPreference (accepted) {
-  const xhr = new XMLHttpRequest() // eslint-disable-line
-    xhr.open('POST', '/cookies', true)
-    xhr.setRequestHeader('Content-Type', 'application/json')
-    xhr.send(JSON.stringify({
-      analytics: accepted,
-      async: true
-    }))
-  }
 }

@@ -1,3 +1,4 @@
+const HttpStatus = require('http-status-codes')
 describe('App Insight', () => {
   const appInsights = require('applicationinsights')
   jest.mock('applicationinsights')
@@ -71,7 +72,7 @@ describe('App Insight', () => {
     }
 
     let req = {
-      statusCode: 200,
+      statusCode: HttpStatus.StatusCodes.OK,
       yar: { id: 'mock_id' },
       payload: 'mock_payload'
     }
@@ -79,7 +80,7 @@ describe('App Insight', () => {
     expect(appInsights.defaultClient.trackException).toHaveBeenCalled()
 
     req = {
-      statusCode: 200,
+      statusCode: HttpStatus.StatusCodes.OK,
       payload: 'mock_payload'
     }
     expect(appInsights.defaultClient.trackException).toHaveBeenCalled()

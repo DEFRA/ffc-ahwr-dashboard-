@@ -10,6 +10,7 @@ let searchType = ''
 const status = 12
 const user = 'admin'
 const { getApplications, getApplication, updateApplicationStatus, processApplicationClaim, getApplicationHistory, getApplicationEvents, withdrawApplication } = require('../../../../app/api/applications')
+const HttpStatus = require('http-status-codes')
 describe('Application API', () => {
   afterEach(() => {
     jest.clearAllMocks()
@@ -23,7 +24,7 @@ describe('Application API', () => {
         total: 0
       },
       res: {
-        statusCode: 502
+        statusCode: HttpStatus.StatusCodes.BAD_GATEWAY
       }
     }
     const options = {
@@ -49,7 +50,7 @@ describe('Application API', () => {
     const wreckResponse = {
       payload: null,
       res: {
-        statusCode: 502
+        statusCode: HttpStatus.StatusCodes.BAD_GATEWAY
       }
     }
     const options = { json: true }
@@ -72,7 +73,7 @@ describe('Application API', () => {
         total: 1
       },
       res: {
-        statusCode: 200
+        statusCode: HttpStatus.StatusCodes.OK
       }
     }
     searchText = '1234567890'
@@ -103,7 +104,7 @@ describe('Application API', () => {
     const wreckResponse = {
       payload: applicationData,
       res: {
-        statusCode: 200
+        statusCode: HttpStatus.StatusCodes.OK
       }
     }
     const options = { json: true }
@@ -127,7 +128,7 @@ describe('Application API', () => {
         }
       },
       res: {
-        statusCode: 200
+        statusCode: HttpStatus.StatusCodes.OK
       }
     }
     const options = {
@@ -225,7 +226,7 @@ describe('Application API', () => {
     }
     const wreckResponse = {
       res: {
-        statusCode: 200
+        statusCode: HttpStatus.StatusCodes.OK
       }
     }
 
@@ -269,7 +270,7 @@ describe('Application API', () => {
     }
     const wreckResponse = {
       res: {
-        statusCode: 200
+        statusCode: HttpStatus.StatusCodes.OK
       }
     }
 
@@ -285,7 +286,7 @@ describe('Application API', () => {
   it('GetApplicationHistory should return empty history records array', async () => {
     jest.mock('@hapi/wreck')
     const consoleErrorSpy = jest.spyOn(console, 'error')
-    const statusCode = 502
+    const statusCode = HttpStatus.StatusCodes.BAD_GATEWAY
     const statusMessage = 'undefined'
     const wreckResponse = {
       payload: {
@@ -318,7 +319,7 @@ describe('Application API', () => {
         }]
       },
       res: {
-        statusCode: 200
+        statusCode: HttpStatus.StatusCodes.OK
       }
     }
 
@@ -350,7 +351,7 @@ describe('Application API', () => {
   it('GetApplicationEvents should return empty records array', async () => {
     jest.mock('@hapi/wreck')
     const consoleErrorSpy = jest.spyOn(console, 'error')
-    const statusCode = 502
+    const statusCode = HttpStatus.StatusCodes.BAD_GATEWAY
     const statusMessage = 'undefined'
     const wreckResponse = {
       payload: {
@@ -383,7 +384,7 @@ describe('Application API', () => {
         }]
       },
       res: {
-        statusCode: 200
+        statusCode: HttpStatus.StatusCodes.OK
       }
     }
 

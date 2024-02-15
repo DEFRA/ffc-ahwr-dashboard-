@@ -28,10 +28,10 @@ const containAtLeastOneValidCph = (cphNumbers) => {
   if (typeof cphNumbers === 'undefined' || !Array.isArray(cphNumbers)) {
     return false
   }
-  const containAtLeastOneValidCph = cphNumbers.some(
+  const isContainAtLeastOneValidCph = cphNumbers.some(
     cphNumber => inEngland(cphNumber) && restrictedToCattlePigAndSheepLivestock(cphNumber)
   )
-  return containAtLeastOneValidCph
+  return isContainAtLeastOneValidCph
 }
 
 const customerMustHaveAtLeastOneValidCph = async (request, apimAccessToken) => {
