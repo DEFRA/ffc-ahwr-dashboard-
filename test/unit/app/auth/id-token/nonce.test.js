@@ -71,7 +71,7 @@ describe('Nonce handling', () => {
         verify(request, idToken)
       } catch (error) {
         expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Error while verifying id_token nonce: HTTP Session contains no nonce'))
-        expect(console.error).toHaveBeenCalledWith(error)
+        expect(logErrorSpy).toHaveBeenCalledWith(error)
       }
     })
 
