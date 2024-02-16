@@ -1,4 +1,4 @@
-const { getEndemicsClaim } = require('../../../../app/session')
+const { getEndemicsClaim, getCustomer } = require('../../../../app/session')
 const { vetVisits } = require('../../../../app/config/routes')
 const {
   getLatestApplicationsBySbi
@@ -29,6 +29,9 @@ describe('Claim vet-visits', () => {
         name: 'Kathryn Jeffery'
       }
     })
+    getCustomer.mockReturnValueOnce({
+      attachedToMultipleBusinesses: true
+    })
 
     await getLatestApplicationsBySbi.mockReturnValueOnce([
       {
@@ -42,6 +45,7 @@ describe('Claim vet-visits', () => {
     const SBIText = 'Single Business Identifier (SBI): 112670111'
 
     expect($('#SBI').text()).toEqual(SBIText)
+    expect($('#MBILink').text()).toEqual('Apply for a different business')
     expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
   })
   test('GET /vet-visits route returns 302', async () => {
@@ -57,6 +61,9 @@ describe('Claim vet-visits', () => {
         farmerName: 'Anjana Donald Jaroslav Daniel Gooder',
         name: 'Kathryn Jeffery'
       }
+    })
+    getCustomer.mockReturnValueOnce({
+      attachedToMultipleBusinesses: false
     })
 
     await getLatestApplicationsBySbi.mockReturnValueOnce([

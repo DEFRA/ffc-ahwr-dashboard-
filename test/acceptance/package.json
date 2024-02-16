@@ -58,17 +58,18 @@
     "@babel/core": "^7.23.2",
     "@wdio/allure-reporter": "^8.8.6",
     "@wdio/browser-runner": "^8.20.5",
-    "@wdio/browserstack-service": "^8.23.0",
+    "@wdio/browserstack-service": "^8.21.0",
     "@wdio/cli": "^8.20.5",
     "@wdio/cucumber-framework": "^8.20.3",
     "@wdio/selenium-standalone-service": "^8.8.6",
-    "allure-commandline": "^2.26.0",
     "babel-jest": "^24.8.0",
     "chromedriver": "^121.0.0",
     "cucumber-html-reporter": "6.0.0",
-    "@wdio/spec-reporter": "^8.28.6",
     "wdio-chromedriver-service": "^8.1.1",
-    "webdriverio": "7.33.0"
+    "webdriverio": "7.33.0",
+    "allure-commandline": "^2.25.0",
+    "@wdio/spec-reporter": "^8.28.6"
+
   },
   "standard": {
     "globals": [

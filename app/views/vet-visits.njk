@@ -11,9 +11,11 @@
     </div>
     <div class="govuk-grid-column-one-third govuk-!-static-padding-0">
       <h3 class="govuk-heading-m govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{farmerName}}</h3>
-      <p class="govuk-!-text-align-right">
-        <a href="../apply/business-2.html">Apply for a different business</a>
-      </p>
+      {% if hasMultipleBusinesses %}
+        <p class="govuk-!-text-align-right">
+          <a id="MBILink" href={{hostname}}>Apply for a different business</a>
+        </p>
+      {% endif %}
     </div>
   </div>
   <hr/>
