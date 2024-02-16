@@ -17,17 +17,17 @@ describe('getYesNoRadios', () => {
           legend: {
             text: legendText,
             isPageHeading: true, // Default value
-            classes: 'govuk-fieldset__legend--l', // Default value
-          },
+            classes: 'govuk-fieldset__legend--l' // Default value
+          }
         },
         hint: {
-          text: '', // Default empty string
+          text: '' // Default empty string
         },
         items: [
           { value: 'yes', text: 'Yes', checked: true },
-          { value: 'no', text: 'No', checked: false },
-        ],
-      },
+          { value: 'no', text: 'No', checked: false }
+        ]
+      }
     })
   })
 
@@ -44,20 +44,20 @@ describe('getYesNoRadios', () => {
           legend: {
             text: legendText,
             isPageHeading: options.isPageHeading,
-            classes: options.legendClasses,
-          },
+            classes: options.legendClasses
+          }
         },
         hint: {
-          text: options.hintText,
+          text: options.hintText
         },
         items: [
           { value: 'yes', text: 'Yes', checked: false },
-          { value: 'no', text: 'No', checked: true },
+          { value: 'no', text: 'No', checked: true }
         ],
         errorMessage: {
-          text: errorText,
-        },
-      },
+          text: errorText
+        }
+      }
     })
   })
 
