@@ -1,12 +1,13 @@
 const Wreck = require('@hapi/wreck')
 const { applicationApiUri } = require('../config')
+const HttpStatus = require('http-status-codes')
 
 async function getAllStageExecutions () {
   const url = `${applicationApiUri}/stageexecution`
   console.log('Application API: Getting all stage executions')
   try {
     const response = await Wreck.get(url, { json: true })
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload
@@ -21,7 +22,7 @@ async function getStageExecutionByApplication (applicationReference) {
   const url = `${applicationApiUri}/stageexecution/${applicationReference}`
   try {
     const response = await Wreck.get(url, { json: true })
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     console.log(`Application API: Got stage executions by application ${applicationReference}: ${response.payload}`)
@@ -42,7 +43,7 @@ async function addStageExecution (payload) {
   }
   try {
     const response = await Wreck.post(url, options)
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload
@@ -61,7 +62,7 @@ async function updateStageExecution (id) {
   }
   try {
     const response = await Wreck.put(url, options)
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload

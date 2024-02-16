@@ -1,6 +1,10 @@
 {
   "name": "ffc-ahwr-dashboard",
+
   "version": "0.3.15",
+
+  "version": "0.3.14",
+
   "description": "Dashboard service for AHWP service",
   "homepage": "https://github.com/DEFRA/ffc-ahwr-dashboard",
   "main": "app/index.js",
@@ -34,13 +38,14 @@
     "@hapi/vision": "^6.1.0",
     "@hapi/wreck": "^18.0.0",
     "@hapi/yar": "^10.1.1",
-    "applicationinsights": "^2.9.1",
     "@ministryofjustice/frontend": "^1.4.2",
+    "applicationinsights": "^2.9.1",
     "crypto-js": "^4.2.0",
     "ffc-ahwr-event-publisher": "1.0.2",
     "ffc-messaging": "^2.6.2",
     "govuk-frontend": "^4.7.0",
     "hapi-pino": "^9.1.2",
+    "http-status-codes": "^2.3.0",
     "joi": "17.11.0",
     "jsonwebtoken": "^9.0.0",
     "jwk-to-pem": "^2.0.5",

@@ -3,7 +3,7 @@ jest.mock('@hapi/wreck')
 jest.mock('../../../../app/config')
 const { applicationApiUri } = require('../../../../app/config')
 const { getAllStageConfigurations, getStageConfigurationById } = require('../../../../app/api/stage-configuration')
-
+const HttpStatus = require('http-status-codes')
 describe('Stage Configuration API', () => {
   let logSpy
 
@@ -22,7 +22,7 @@ describe('Stage Configuration API', () => {
           stageConfigurations: ['stage1', 'stage2']
         },
         res: {
-          statusCode: 200
+          statusCode: HttpStatus.StatusCodes.OK
         }
       }
       const options = {
@@ -81,7 +81,7 @@ describe('Stage Configuration API', () => {
           stageConfigurations: ['stage1', 'stage2']
         },
         res: {
-          statusCode: 200
+          statusCode: HttpStatus.StatusCodes.OK
         }
       }
       const options = {

@@ -2,6 +2,7 @@ const { when, resetAllWhenMocks } = require('jest-when')
 const Wreck = require('@hapi/wreck')
 const session = require('../../../../../app/session')
 const sessionKeys = require('../../../../../app/session/keys')
+const HttpStatus = require('http-status-codes')
 
 jest.mock('@hapi/wreck')
 jest.mock('../../../../../app/session')
@@ -164,7 +165,7 @@ describe('CPH check', () => {
       )
       .mockResolvedValue({
         res: {
-          statusCode: 200
+          statusCode: HttpStatus.StatusCodes.OK
         },
         payload: {
           data: testCase.when.cphNumbers,

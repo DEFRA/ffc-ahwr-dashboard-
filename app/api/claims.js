@@ -1,12 +1,13 @@
 const Wreck = require('@hapi/wreck')
 const { applicationApiUri } = require('../config')
 const { status, claimStatus } = require('../constants/status')
+const HttpStatus = require('http-status-codes')
 
 async function getClaim (reference) {
   const url = `${applicationApiUri}/application/get/${reference}`
   try {
     const response = await Wreck.get(url, { json: true })
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       return null
     }
 
@@ -31,7 +32,7 @@ async function getClaims (searchType, searchText, limit, offset, filterStatus, s
   }
   try {
     const response = await Wreck.post(url, options)
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       return { claims: [], total: 0, claimStatus: [] }
     }
 

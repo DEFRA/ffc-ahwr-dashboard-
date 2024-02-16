@@ -18,12 +18,11 @@
 }
 
 .gem-c-organisation-logo__crest--eo, .gem-c-organisation-logo__crest--org, .gem-c-organisation-logo__crest--single-identity {
-    background: url(../images/govuk-crest.png) no-repeat 6px 0;
+    background: url(../images/govuk-crest.png) no-repeat 6px 0 !important;
     background-size: auto 26px;
 }
 
 .gem-c-organisation-logo__link {
-    font-family: "nta", arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-family: "HelveticaNeue", "Helvetica Neue", "Arial", "Helvetica", sans-serif;
@@ -50,10 +49,6 @@
     height: auto;
     width: auto;
     direction: ltr;
-}
-
-.gem-c-organisation-logo__crest--eo, .gem-c-organisation-logo__crest--org, .gem-c-organisation-logo__crest--single-identity {
-    background-image: url(../images/govuk-crest.png) !important;
 }
 
 .gem-c-organisation-logo__name {

@@ -5,6 +5,7 @@ const mockJwtDecode = require('../../../../../app/auth/token-verify/jwt-decode')
 jest.mock('../../../../../app/session/index')
 jest.mock('@hapi/wreck')
 jest.mock('../../../../../app/auth/token-verify/jwt-decode')
+const HttpStatus = require('http-status-codes')
 
 describe('Base', () => {
   test('when get called - returns valid payload', async () => {
@@ -20,7 +21,7 @@ describe('Base', () => {
         id: contactId
       },
       res: {
-        statusCode: 200
+        statusCode: HttpStatus.StatusCodes.OK
       }
     }
 
