@@ -1,11 +1,12 @@
 const Wreck = require('@hapi/wreck')
 const { applicationApiUri } = require('../config')
+const HttpStatus = require('http-status-codes')
 
 async function getApplication (reference) {
   const url = `${applicationApiUri}/application/get/${reference}`
   try {
     const response = await Wreck.get(url, { json: true })
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       return null
     }
     return response.payload
@@ -28,7 +29,7 @@ async function getApplications (searchType, searchText, limit, offset, filterSta
   }
   try {
     const response = await Wreck.post(url, options)
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       return { applications: [], total: 0, applicationStatus: [] }
     }
     return response.payload
@@ -86,7 +87,7 @@ async function updateApplicationStatus (reference, user, status) {
   }
   try {
     const response = await Wreck.put(url, options)
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       return null
     }
     return true
@@ -100,7 +101,7 @@ async function getApplicationHistory (reference) {
   const url = `${applicationApiUri}/application/history/${reference}`
   try {
     const response = await Wreck.get(url, { json: true })
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload
@@ -115,7 +116,7 @@ async function getApplicationEvents (reference) {
   const url = `${applicationApiUri}/application/events/${reference}`
   try {
     const response = await Wreck.get(url, { json: true })
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload

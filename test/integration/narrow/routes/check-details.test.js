@@ -2,6 +2,7 @@ const cheerio = require('cheerio')
 const expectPhaseBanner = require('../../../utils/phase-banner-expect')
 const getCrumbs = require('../../../utils/get-crumbs')
 const sessionKeys = require('../../../../app/session/keys')
+const HttpStatus = require('http-status-codes')
 
 describe('Org review page test', () => {
   let session
@@ -12,7 +13,7 @@ describe('Org review page test', () => {
     strategy: 'cookie'
   }
   const org = {
-    farmerName: 'Dailry Farmer',
+    farmerName: 'Dairy Farmer',
     address: ' org-address-here',
     cph: '11/222/3333',
     email: 'org@test.com',
@@ -94,7 +95,7 @@ describe('Org review page test', () => {
 
       const res = await global.__SERVER__.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.NOT_FOUND)
       const $ = cheerio.load(res.payload)
       expect($('.govuk-heading-l').text()).toEqual('404 - Not Found')
       expect($('#_404 div p').text()).toEqual('Not Found')
@@ -179,7 +180,7 @@ describe('Org review page test', () => {
       }
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(200)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.OK)
       const $ = cheerio.load(res.payload)
       expect($('.govuk-heading-l').text()).toEqual('Update your details')
     })
@@ -209,7 +210,7 @@ describe('Org review page test', () => {
 
         const res = await global.__SERVER__.inject(options)
 
-        expect(res.statusCode).toBe(400)
+        expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
         expect(res.request.response.variety).toBe('view')
         expect(res.request.response.source.template).toBe('check-details')
         expect(res.result).toContain(org.sbi)
@@ -238,7 +239,7 @@ describe('Org review page test', () => {
 
       const res = await global.__SERVER__.inject(options)
 
-      expect(res.statusCode).toBe(400)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       expect($('.govuk-error-summary .govuk-list').text().trim()).toEqual('Select if your details are correct')
     })
@@ -261,7 +262,7 @@ describe('Org review page test', () => {
 
       const res = await global.__SERVER__.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.NOT_FOUND)
       const $ = cheerio.load(res.payload)
       expect($('.govuk-heading-l').text()).toEqual('404 - Not Found')
       expect($('#_404 div p').text()).toEqual('Not Found')

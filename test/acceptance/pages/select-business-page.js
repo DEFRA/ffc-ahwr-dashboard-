@@ -359,7 +359,6 @@ console.log(error.message)
       await this.inputValidCrn(process.env.CRN_EXCEPTION_USERNAME_MB_NOCPH)
       await this.inputPassword(process.env.CRN_EXCEPTION_PASSWORD)
     }
-    await sleep(2000)
     await this.signInButton()
     await sleep(10000)
   }

@@ -1,4 +1,5 @@
-const { getEndemicsClaim } = require('../session')
+const auth = require('../auth')
+const session = require('../session')
 const { vetVisits, claimServiceUri } = require('../config/routes')
 const {
   getLatestApplicationsBySbi
@@ -12,17 +13,20 @@ module.exports = {
   path: pageUrl,
   options: {
     handler: async (request, h) => {
-      const { organisation } = getEndemicsClaim(request)
+      const { attachedToMultipleBusinesses } = session.getCustomer(request)
+      const { organisation } = session.getEndemicsClaim(request)
       const application = (
         await getLatestApplicationsBySbi(organisation.sbi)
-      ).find((application) => {
-        return application.type === 'EE'
+      ).find((app) => {
+        return app.type === 'EE'
       })
 
       return h.view(vetVisits, {
+        hasMultipleBusinesses: attachedToMultipleBusinesses,
         claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
         ...organisation,
-        ...(application?.reference && { reference: application?.reference })
+        ...(application?.reference && { reference: application?.reference }),
+        ...(attachedToMultipleBusinesses && { hostname: auth.requestAuthorizationCodeUrl(session, request) })
       })
     }
   }

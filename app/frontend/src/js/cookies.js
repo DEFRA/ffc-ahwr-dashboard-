@@ -6,20 +6,30 @@ const questionBanner = document.querySelector('.js-question-banner')
 const cookieBanner = document.querySelector('.js-cookies-banner')
 const cookieContainer = document.querySelector('.js-cookies-container')
 
+function showBanner (banner) {
+  questionBanner.setAttribute('hidden', 'hidden')
+  banner.removeAttribute('hidden')
+  // Shift focus to the banner
+  banner.setAttribute('tabindex', '-1')
+  banner.focus()
+
+  banner.addEventListener('blur', function () {
+    banner.removeAttribute('tabindex')
+  })
+}
+
+function submitPreference (accepted) {
+  const xhr = new XMLHttpRequest() // eslint-disable-line
+  xhr.open('POST', '/cookies', true)
+  xhr.setRequestHeader('Content-Type', 'application/json')
+  xhr.send(JSON.stringify({
+    analytics: accepted,
+    async: true
+  }))
+}
+
 if (cookieContainer) {
   cookieContainer.style.display = 'block'
-
-  function showBanner (banner) {
-    questionBanner.setAttribute('hidden', 'hidden')
-    banner.removeAttribute('hidden')
-    // Shift focus to the banner
-    banner.setAttribute('tabindex', '-1')
-    banner.focus()
-
-    banner.addEventListener('blur', function () {
-      banner.removeAttribute('tabindex')
-    })
-  }
 
   acceptButton?.addEventListener('click', function (event) {
     showBanner(acceptedBanner)
@@ -40,14 +50,4 @@ if (cookieContainer) {
   rejectedBanner?.querySelector('.js-hide').addEventListener('click', function () {
     cookieBanner.setAttribute('hidden', 'hidden')
   })
-
-  function submitPreference (accepted) {
-  const xhr = new XMLHttpRequest() // eslint-disable-line
-    xhr.open('POST', '/cookies', true)
-    xhr.setRequestHeader('Content-Type', 'application/json')
-    xhr.send(JSON.stringify({
-      analytics: accepted,
-      async: true
-    }))
-  }
 }

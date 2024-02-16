@@ -69,6 +69,7 @@
     "webdriverio": "7.33.0",
     "allure-commandline": "^2.25.0",
     "@wdio/spec-reporter": "^8.28.6"
+
   },
   "standard": {
     "globals": [

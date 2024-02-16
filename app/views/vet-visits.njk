@@ -11,9 +11,11 @@
     </div>
     <div class="govuk-grid-column-one-third govuk-!-static-padding-0">
       <h3 class="govuk-heading-m govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{farmerName}}</h3>
-      <p class="govuk-!-text-align-right">
-        <a href="../apply/business-2.html">Apply for a different business</a>
-      </p>
+      {% if hasMultipleBusinesses %}
+        <p class="govuk-!-text-align-right">
+          <a id="MBILink" href={{hostname}}>Apply for a different business</a>
+        </p>
+      {% endif %}
     </div>
   </div>
   <hr/>
@@ -21,11 +23,11 @@
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
       <h1 class="govuk-heading-xl">Manage your claims</h1>
       <h1 class="govuk-caption-l govuk-!-static-margin-bottom-4">Agreement number: {{reference}}</h1>
-        {{ govukButton({
-          text: "Start new claim",
-          href: claimServiceRedirectUri,
-          preventDoubleClick: true
-        }) }}
+      {{ govukButton({
+        text: "Start a new claim",
+        href: claimServiceRedirectUri,
+        preventDoubleClick: true
+      }) }}
       <h3 class="govuk-heading-m govuk-!-static-margin-top-2">Your previous claims</h3>
       <hr/>
       <p class="govuk-caption-m">Your claims will appear here when you have made them</p>
