@@ -36,7 +36,7 @@ describe('Error Pages Plugin', () => {
     expect(response.statusCode).toBe(200)
     expect(response.result).toBe('Success')
   })
-  
+
   test('renders 500 error page for server errors', async () => {
     const response = await server.inject({
       method: 'GET',
