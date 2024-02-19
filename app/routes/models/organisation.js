@@ -11,11 +11,14 @@ const formatAddressForDisplay = (organisation) => {
 
 const getOrganisation = (request, organisation, errorText) => {
   const prevAnswer = session.getEndemicsClaim(request, confirmCheckDetails)
+  const { crn } = session.getCustomer(request)
 
   const rows = [
     { key: { text: 'Farmer name' }, value: { text: organisation.farmerName } },
     { key: { text: 'Business name' }, value: { text: organisation.name } },
+    { key: { text: 'CRN number' }, value: { text: crn } },
     { key: { text: 'SBI number' }, value: { text: organisation.sbi } },
+    { key: { text: 'Email' }, value: { text: organisation.email } },
     {
       key: { text: 'Address' },
       value: { html: formatAddressForDisplay(organisation) }
@@ -30,7 +33,7 @@ const getOrganisation = (request, organisation, errorText) => {
     ...getYesNoRadios(labelText, confirmCheckDetails, prevAnswer, errorText, {
       isPageHeading: false,
       legendClasses: 'govuk-fieldset__legend--m',
-      inline: false
+      inline: true
     })
   }
 }
