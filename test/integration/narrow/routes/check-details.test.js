@@ -53,7 +53,9 @@ describe('Org review page test', () => {
     })
 
     test('returns 200', async () => {
+      const crn = '123456789'
       session.getEndemicsClaim.mockReturnValue(org)
+      session.getCustomer.mockReturnValue({ crn })
       const options = {
         auth,
         method: 'GET',
@@ -73,10 +75,14 @@ describe('Org review page test', () => {
       expect(values.eq(0).text()).toMatch(org.farmerName)
       expect(keys.eq(1).text()).toMatch('Business name')
       expect(values.eq(1).text()).toMatch(org.name)
-      expect(keys.eq(2).text()).toMatch('SBI number')
-      expect(values.eq(2).text()).toMatch(org.sbi)
-      expect(keys.eq(3).text()).toMatch('Address')
-      expect(values.eq(3).text()).toMatch(org.address)
+      expect(keys.eq(2).text()).toMatch('CRN number')
+      expect(values.eq(2).text()).toMatch(crn)
+      expect(keys.eq(3).text()).toMatch('SBI number')
+      expect(values.eq(3).text()).toMatch(org.sbi)
+      expect(keys.eq(4).text()).toMatch('Email')
+      expect(values.eq(4).text()).toMatch(org.email)
+      expect(keys.eq(5).text()).toMatch('Address')
+      expect(values.eq(5).text()).toMatch(org.address)
       expect($('title').text()).toEqual('Check your details - Annual health and welfare review of livestock')
       expect($('.govuk-back-link').attr('href')).toContain('https://somedefraidlogin')
       expect($('legend').text().trim()).toEqual('Are your details correct?')
