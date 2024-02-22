@@ -53,8 +53,10 @@ module.exports = [{
       failAction (request, h, err) {
         console.log(`Validation error caught during DEFRA ID redirect - ${err.message}.`)
         appInsights.defaultClient.trackException({ exception: err })
+
+        const loginSource = request?.query?.state ? JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source : undefined
         return h.view('verify-login-failed', {
-          backLink: auth.requestAuthorizationCodeUrl(session, request),
+          backLink: auth.requestAuthorizationCodeUrl(session, request, loginSource),
           ruralPaymentsAgency: config.ruralPaymentsAgency
         }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()
       }
@@ -131,13 +133,14 @@ module.exports = [{
         }
       } catch (err) {
         console.error(`Received error with name ${err.name} and message ${err.message}.`)
+        const loginSource = JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source
         const attachedToMultipleBusinesses = session.getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses)
         const organisation = session.getEndemicsClaim(request, sessionKeys.endemicsClaim.organisation)
         const crn = session.getCustomer(request, sessionKeys.customer.crn)
 
         switch (true) {
           case err instanceof InvalidStateError:
-            return h.redirect(auth.requestAuthorizationCodeUrl(session, request))
+            return h.redirect(auth.requestAuthorizationCodeUrl(session, request, loginSource))
           case err instanceof InvalidPermissionsError:
             break
           case err instanceof LockedBusinessError:
@@ -151,7 +154,7 @@ module.exports = [{
           default:
             appInsights.defaultClient.trackException({ exception: err })
             return h.view('verify-login-failed', {
-              backLink: auth.requestAuthorizationCodeUrl(session, request),
+              backLink: auth.requestAuthorizationCodeUrl(session, request, loginSource),
               ruralPaymentsAgency: config.ruralPaymentsAgency
             }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()
         }
@@ -172,7 +175,7 @@ module.exports = [{
           outstandingAgreementError: err instanceof OutstandingAgreementError,
           noEndemicsAgreementError: err instanceof NoEndemicsAgreementError,
           hasMultipleBusinesses: attachedToMultipleBusinesses,
-          backLink: auth.requestAuthorizationCodeUrl(session, request),
+          backLink: auth.requestAuthorizationCodeUrl(session, request, loginSource),
           claimLink: `${config.claimServiceUri}/endemics/`,
           applyLink: `${config.applyServiceUri}/endemics/start`,
           sbiText: ` - SBI ${organisation?.sbi ?? ''}`,
