@@ -13,6 +13,7 @@ const loginSources = require('../constants/login-sources')
 const { InvalidPermissionsError, NoEndemicsAgreementError, NoEligibleCphError, InvalidStateError, OutstandingAgreementError, LockedBusinessError } = require('../exceptions')
 const { raiseIneligibilityEvent } = require('../event')
 const appInsights = require('applicationinsights')
+const HttpStatus = require('http-status-codes')
 
 function setOrganisationSessionData (request, personSummary, org) {
   const organisation = {
@@ -57,7 +58,7 @@ module.exports = [{
         return h.view('verify-login-failed', {
           backLink: auth.requestAuthorizationCodeUrl(session, request, loginSource),
           ruralPaymentsAgency: config.ruralPaymentsAgency
-        }).code(400).takeover()
+        }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()
       }
     },
     handler: async (request, h) => {
@@ -155,7 +156,7 @@ module.exports = [{
             return h.view('verify-login-failed', {
               backLink: auth.requestAuthorizationCodeUrl(session, request, loginSource),
               ruralPaymentsAgency: config.ruralPaymentsAgency
-            }).code(400).takeover()
+            }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()
         }
 
         raiseIneligibilityEvent(
@@ -180,7 +181,7 @@ module.exports = [{
           sbiText: ` - SBI ${organisation?.sbi ?? ''}`,
           organisationName: organisation?.name,
           guidanceLink: config.serviceUri
-        }).code(400).takeover()
+        }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()
       }
     }
   }

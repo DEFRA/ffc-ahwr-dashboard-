@@ -1,6 +1,7 @@
 const retrieveApimAccessToken = require('../../../../../app/auth/client-credential-grant/retrieve-apim-access-token')
 const Wreck = require('@hapi/wreck')
 jest.mock('@hapi/wreck')
+const HttpStatus = require('http-status-codes')
 
 describe('Retrieve apim access token', () => {
   test('when retrieveApimAccessToken called - returns valid access token', async () => {
@@ -12,7 +13,7 @@ describe('Retrieve apim access token', () => {
         access_token: token
       },
       res: {
-        statusCode: 200
+        statusCode: HttpStatus.StatusCodes.OK
       }
     }
 
@@ -27,7 +28,7 @@ describe('Retrieve apim access token', () => {
     expect(Wreck.post).toHaveBeenCalledTimes(1)
   })
 
-  test('when retrieveApimAccessToken called - error thrown when not 200 status code', async () => {
+  test('when retrieveApimAccessToken called - error thrown when not HttpStatus.StatusCodes.OK status code', async () => {
     const error = new Error('HTTP 404 (Call failed)')
     const wreckResponse = {
       res: {

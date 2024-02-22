@@ -1,5 +1,6 @@
+const HttpStatus = require('http-status-codes')
 describe('Dashboard home page test', () => {
-  test('GET / route returns 302 when NOT logged in and redirects to signin', async () => {
+  test('GET / route returns HttpStatus.StatusCodes.MOVED_TEMPORARILY when NOT logged in and redirects to signin', async () => {
     const options = {
       method: 'GET',
       url: '/',
@@ -8,10 +9,10 @@ describe('Dashboard home page test', () => {
 
     const res = await global.__SERVER__.inject(options)
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
   })
 
-  test('GET / route returns 302 when logged in and redirects to /vet-visits', async () => {
+  test('GET / route returns HttpStatus.StatusCodes.MOVED_TEMPORARILY when logged in and redirects to /vet-visits', async () => {
     const options = {
       method: 'GET',
       url: '/',
@@ -23,7 +24,7 @@ describe('Dashboard home page test', () => {
 
     const res = await global.__SERVER__.inject(options)
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe('/vet-visits')
   })
 })

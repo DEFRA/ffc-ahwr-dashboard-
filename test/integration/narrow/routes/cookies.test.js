@@ -2,6 +2,7 @@ const cheerio = require('cheerio')
 const { serviceName } = require('../../../../app/config')
 const expectPhaseBanner = require('../../../utils/phase-banner-expect')
 const url = '/cookies'
+const HttpStatus = require('http-status-codes')
 describe('cookies route', () => {
   test('GET /cookies returns 200', async () => {
     const options = {
@@ -42,7 +43,7 @@ describe('cookies route', () => {
     }
 
     const result = await global.__SERVER__.inject(options)
-    expect(result.statusCode).toBe(302)
+    expect(result.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
   })
 
   test('POST /cookies returns 200 if async', async () => {
@@ -53,7 +54,7 @@ describe('cookies route', () => {
     }
 
     const result = await global.__SERVER__.inject(options)
-    expect(result.statusCode).toBe(200)
+    expect(result.statusCode).toBe(HttpStatus.StatusCodes.OK)
   })
 
   test('POST /cookies invalid returns 400', async () => {
@@ -64,7 +65,7 @@ describe('cookies route', () => {
     }
 
     const result = await global.__SERVER__.inject(options)
-    expect(result.statusCode).toBe(400)
+    expect(result.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
   })
 
   test('POST /cookies redirects to GET with querystring', async () => {
@@ -85,7 +86,7 @@ describe('cookies route', () => {
       url
     }
     const response = await global.__SERVER__.inject(options)
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
     const $ = cheerio.load(response.payload)
     expect($('.govuk-cookie-banner h2').text()).toEqual(serviceName)
     expect($('.js-cookies-button-accept').text()).toContain('Accept analytics cookies')

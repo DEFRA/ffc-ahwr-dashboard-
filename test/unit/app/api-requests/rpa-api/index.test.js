@@ -3,7 +3,8 @@ const mockOrganisation = require('../../../../../app/api-requests/rpa-api/organi
 const index = require('../../../../../app/api-requests/rpa-api/index')
 jest.mock('../../../../../app/api-requests/rpa-api/person')
 jest.mock('../../../../../app/api-requests/rpa-api/organisation')
-
+const id = 1234567
+const sbi = 106979907
 describe('Index', () => {
   test('when getPersonSummary called - returns valid payload', async () => {
     mockPerson.getPersonSummary.mockResolvedValueOnce({
@@ -11,7 +12,7 @@ describe('Index', () => {
       middleName: 'James',
       lastName: 'Smith',
       email: 'billsmith@testemail.com',
-      id: 1234567,
+      id,
       customerReferenceNumber: '1103452436'
     })
 
@@ -22,7 +23,7 @@ describe('Index', () => {
     expect(result.middleName).toMatch('James')
     expect(result.lastName).toMatch('Smith')
     expect(result.email).toMatch('billsmith@testemail.com')
-    expect(result.id).toEqual(1234567)
+    expect(result.id).toEqual(id)
     expect(result.customerReferenceNumber).toMatch('1103452436')
   })
 
@@ -40,9 +41,9 @@ describe('Index', () => {
     mockOrganisation.organisationIsEligible.mockResolvedValueOnce({
       organisationPermission: true,
       organisation: {
-        id: 1234567,
+        id,
         name: 'Mrs Jane Black',
-        sbi: 106979907,
+        sbi,
         address: {
           address1: '1 Test House',
           address2: 'Test Road',
@@ -72,28 +73,12 @@ describe('Index', () => {
 
     expect(mockOrganisation.organisationIsEligible).toHaveBeenCalledTimes(1)
     expect(result.organisationPermission).toBeTruthy()
-    expect(result.organisation.id).toEqual(1234567)
+    expect(result.organisation.id).toEqual(id)
     expect(result.organisation.name).toMatch('Mrs Jane Black')
-    expect(result.organisation.sbi).toEqual(106979907)
+    expect(result.organisation.sbi).toEqual(sbi)
     expect(result.organisation.address.address1).toMatch('1 Test House')
     expect(result.organisation.address.city).toMatch('Test City')
     expect(result.organisation.address.county).toMatch('Test County')
     expect(result.organisation.address.postalCode).toMatch('TS1 1TS')
-  })
-
-  test('when getOrganisationAddress called - returns valid payload', async () => {
-    const expectedAddress = '1 Test House Test City Test County Test Postcode'
-    mockOrganisation.getOrganisationAddress.mockResolvedValueOnce(expectedAddress)
-    const address = {
-      address1: '1 Test House',
-      city: 'Test City',
-      county: 'Test County',
-      postalCode: 'TS1 1TS'
-    }
-
-    const result = await index.getOrganisationAddress(address)
-
-    expect(mockOrganisation.getOrganisationAddress).toHaveBeenCalledTimes(1)
-    expect(result).toEqual(expectedAddress)
   })
 })

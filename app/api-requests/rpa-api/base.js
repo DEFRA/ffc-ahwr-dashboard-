@@ -8,7 +8,8 @@ const get = async (hostname, url, request, headers = {}) => {
   const token = session.getToken(request, tokens.accessToken)
   headers[apiHeaders.xForwardedAuthorization] = token
   headers[apiHeaders.ocpSubscriptionKey] = config.authConfig.apim.ocpSubscriptionKey
-  console.log(`${new Date().toISOString()} Request message to RPA: ${JSON.stringify(`${hostname}${url}`)}`)
+  const hostNameUrl = JSON.stringify(`${hostname}${url}`)
+  console.log(`${new Date().toISOString()} Request message to RPA: ${hostNameUrl}`)
 
   try {
     const response = await wreck.get(`${hostname}${url}`,

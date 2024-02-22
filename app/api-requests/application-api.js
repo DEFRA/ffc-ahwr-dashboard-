@@ -1,5 +1,6 @@
 const Wreck = require('@hapi/wreck')
 const config = require('../config')
+const HttpStatus = require('http-status-codes')
 
 async function getLatestApplicationsBySbi (sbi) {
   console.log(`${new Date().toISOString()} Getting latest applications by: ${JSON.stringify({ sbi })}`)
@@ -8,7 +9,7 @@ async function getLatestApplicationsBySbi (sbi) {
       `${config.applicationApi.uri}/applications/latest?sbi=${sbi}`,
       { json: true }
     )
-    if (response.res.statusCode !== 200) {
+    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload

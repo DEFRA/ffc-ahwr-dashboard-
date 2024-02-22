@@ -2,6 +2,7 @@ const cheerio = require('cheerio')
 const expectPhaseBanner = require('../../../utils/phase-banner-expect')
 const getCrumbs = require('../../../utils/get-crumbs')
 const sessionKeys = require('../../../../app/session/keys')
+const HttpStatus = require('http-status-codes')
 
 describe('Org review page test', () => {
   let session
@@ -12,7 +13,7 @@ describe('Org review page test', () => {
     strategy: 'cookie'
   }
   const org = {
-    farmerName: 'Dailry Farmer',
+    farmerName: 'Dairy Farmer',
     address: ' org-address-here',
     cph: '11/222/3333',
     email: 'org@test.com',
@@ -52,7 +53,9 @@ describe('Org review page test', () => {
     })
 
     test('returns 200', async () => {
+      const crn = '123456789'
       session.getEndemicsClaim.mockReturnValue(org)
+      session.getCustomer.mockReturnValue({ crn })
       const options = {
         auth,
         method: 'GET',
@@ -72,10 +75,14 @@ describe('Org review page test', () => {
       expect(values.eq(0).text()).toMatch(org.farmerName)
       expect(keys.eq(1).text()).toMatch('Business name')
       expect(values.eq(1).text()).toMatch(org.name)
-      expect(keys.eq(2).text()).toMatch('SBI number')
-      expect(values.eq(2).text()).toMatch(org.sbi)
-      expect(keys.eq(3).text()).toMatch('Address')
-      expect(values.eq(3).text()).toMatch(org.address)
+      expect(keys.eq(2).text()).toMatch('CRN number')
+      expect(values.eq(2).text()).toMatch(crn)
+      expect(keys.eq(3).text()).toMatch('SBI number')
+      expect(values.eq(3).text()).toMatch(org.sbi)
+      expect(keys.eq(4).text()).toMatch('Email')
+      expect(values.eq(4).text()).toMatch(org.email)
+      expect(keys.eq(5).text()).toMatch('Address')
+      expect(values.eq(5).text()).toMatch(org.address)
       expect($('title').text()).toEqual('Check your details - Annual health and welfare review of livestock')
       expect($('.govuk-back-link').attr('href')).toContain('https://somedefraidlogin')
       expect($('legend').text().trim()).toEqual('Are your details correct?')
@@ -94,7 +101,7 @@ describe('Org review page test', () => {
 
       const res = await global.__SERVER__.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.NOT_FOUND)
       const $ = cheerio.load(res.payload)
       expect($('.govuk-heading-l').text()).toEqual('404 - Not Found')
       expect($('#_404 div p').text()).toEqual('Not Found')
@@ -179,7 +186,7 @@ describe('Org review page test', () => {
       }
 
       const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(200)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.OK)
       const $ = cheerio.load(res.payload)
       expect($('.govuk-heading-l').text()).toEqual('Update your details')
     })
@@ -209,7 +216,7 @@ describe('Org review page test', () => {
 
         const res = await global.__SERVER__.inject(options)
 
-        expect(res.statusCode).toBe(400)
+        expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
         expect(res.request.response.variety).toBe('view')
         expect(res.request.response.source.template).toBe('check-details')
         expect(res.result).toContain(org.sbi)
@@ -238,7 +245,7 @@ describe('Org review page test', () => {
 
       const res = await global.__SERVER__.inject(options)
 
-      expect(res.statusCode).toBe(400)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
       const $ = cheerio.load(res.payload)
       expect($('.govuk-error-summary .govuk-list').text().trim()).toEqual('Select if your details are correct')
     })
@@ -261,7 +268,7 @@ describe('Org review page test', () => {
 
       const res = await global.__SERVER__.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.NOT_FOUND)
       const $ = cheerio.load(res.payload)
       expect($('.govuk-heading-l').text()).toEqual('404 - Not Found')
       expect($('#_404 div p').text()).toEqual('Not Found')

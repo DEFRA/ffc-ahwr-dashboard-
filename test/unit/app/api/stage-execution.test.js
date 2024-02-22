@@ -3,7 +3,7 @@ jest.mock('@hapi/wreck')
 jest.mock('../../../../app/config')
 const { applicationApiUri } = require('../../../../app/config')
 const { getAllStageExecutions, getStageExecutionByApplication, addStageExecution, updateStageExecution } = require('../../../../app/api/stage-execution')
-
+const HttpStatus = require('http-status-codes')
 const payload = {
   applicationReference: 'AHWR-0000-0000',
   stageConfigurationId: 2,
@@ -29,7 +29,7 @@ describe('Stage Execution API', () => {
           stageExecutions: ['stage1', 'stage2']
         },
         res: {
-          statusCode: 200
+          statusCode: HttpStatus.StatusCodes.OK
         }
       }
       const options = {
@@ -88,7 +88,7 @@ describe('Stage Execution API', () => {
           stageExecutions: ['stage1', 'stage2']
         },
         res: {
-          statusCode: 200
+          statusCode: HttpStatus.StatusCodes.OK
         }
       }
       const options = {
@@ -146,7 +146,7 @@ describe('Stage Execution API', () => {
           stageExecution: 'stage1'
         },
         res: {
-          statusCode: 200
+          statusCode: HttpStatus.StatusCodes.OK
         }
       }
       const options = {
@@ -208,7 +208,7 @@ describe('Stage Execution API', () => {
           stageExecution: 'stage1'
         },
         res: {
-          statusCode: 200
+          statusCode: HttpStatus.StatusCodes.OK
         }
       }
       const options = {

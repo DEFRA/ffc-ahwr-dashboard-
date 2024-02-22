@@ -1,5 +1,6 @@
 const { cookie: { cookieNameCookiePolicy }, cookiePolicy } = require('../config')
 const { getCurrentPolicy } = require('../cookies')
+const HttpStatus = require('http-status-codes')
 
 module.exports = {
   plugin: {
@@ -11,8 +12,8 @@ module.exports = {
         const statusCode = request.response.statusCode
         if (
           request.response.variety === 'view' &&
-          statusCode !== 404 &&
-          statusCode !== 500 &&
+          statusCode !== HttpStatus.StatusCodes.NOT_FOUND &&
+          statusCode !== HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR &&
           request.response.source.manager._context
         ) {
           const cookiesPolicy = getCurrentPolicy(request, h)

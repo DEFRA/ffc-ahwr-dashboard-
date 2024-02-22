@@ -4,6 +4,7 @@ jest.mock('@hapi/wreck')
 const consoleLogSpy = jest.spyOn(console, 'log')
 const consoleErrorSpy = jest.spyOn(console, 'error')
 const mockApplicationApiUri = 'http://internal:3333/api'
+const HttpStatus = require('http-status-codes')
 
 const MOCK_NOW = new Date()
 
@@ -117,7 +118,7 @@ describe('Application API', () => {
           }
         ],
         res: {
-          statusCode: 200
+          statusCode: HttpStatus.StatusCodes.OK
         }
       }
       const options = {
@@ -134,7 +135,7 @@ describe('Application API', () => {
       )
     })
     test('given Wreck.get returns 400 it logs the issue and throws error', async () => {
-      const statusCode = 400
+      const statusCode = HttpStatus.StatusCodes.BAD_REQUEST
       const statusMessage = 'The SBI number must have 9 digits'
       const expectedResponse = {
         payload: {
