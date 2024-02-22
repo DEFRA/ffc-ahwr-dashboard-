@@ -3,11 +3,11 @@ const session = require('../../session')
 const { tokens } = require('../../session/keys')
 const config = require('../../config')
 
-const generate = (request) => {
+const generate = (request, source = 'dashboard') => {
   const state = {
     id: uuidv4(),
     namespace: config.namespace,
-    source: 'dashboard'
+    source
   }
 
   const base64EncodedState = Buffer.from(JSON.stringify(state)).toString('base64')

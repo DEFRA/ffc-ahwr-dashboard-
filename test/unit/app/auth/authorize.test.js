@@ -40,7 +40,7 @@ describe('Generate authentication url test', () => {
       setPkcecodes: setPkcecodesMock,
       setToken: setTokenMock
     }
-    const result = auth.requestAuthorizationCodeUrl(session, undefined, false)
+    const result = auth.requestAuthorizationCodeUrl(session, undefined, undefined, false)
     const params = new URL(result).searchParams
     expect(params.get('code_challenge')).toBeNull()
   })

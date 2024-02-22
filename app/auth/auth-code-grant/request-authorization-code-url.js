@@ -3,7 +3,7 @@ const nonce = require('../id-token/nonce')
 const state = require('./state')
 const pkce = require('./proof-key-for-code-exchange')
 
-const requestAuthorizationCodeUrl = (session, request, useProofKeyForCodeExchange = true) => {
+const requestAuthorizationCodeUrl = (session, request, source, useProofKeyForCodeExchange = true) => {
   const url = new URL(
     `${config.authConfig.defraId.hostname}${config.authConfig.defraId.oAuthAuthorisePath}`
   )
@@ -14,7 +14,7 @@ const requestAuthorizationCodeUrl = (session, request, useProofKeyForCodeExchang
   url.searchParams.append('scope', config.authConfig.defraId.scope)
   url.searchParams.append('response_type', 'code')
   url.searchParams.append('serviceId', config.authConfig.defraId.serviceId)
-  url.searchParams.append('state', state.generate(request))
+  url.searchParams.append('state', state.generate(request, source))
   url.searchParams.append('forceReselection', true)
   if (useProofKeyForCodeExchange) {
     // Used to secure authorization code grants by using Proof Key for Code Exchange (PKCE)
