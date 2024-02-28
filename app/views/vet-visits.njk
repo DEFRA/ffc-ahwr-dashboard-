@@ -30,8 +30,15 @@
       }) }}
       <h3 class="govuk-heading-m govuk-!-static-margin-top-2">Your previous claims</h3>
       <hr/>
-      <p class="govuk-caption-m">Your claims will appear here when you have made them</p>
-      <hr/>
+      {% if claims | length %}
+        {{ govukTable({
+          firstCellIsHeader: false,
+          rows: claims
+        }) }}
+      {% else %}
+        <p class="govuk-caption-m">Your claims will appear here when you have made them</p>
+        <hr/>
+      {% endif %}
       <h3 class="govuk-heading-m govuk-!-static-margin-top-4">More information</h3>
       <p class="govuk-body">
         <a href="https://fcp-ahwr-prototype.herokuapp.com/v25/second-claim/terms-conditions" class="govuk-link">Terms and conditions for reviewing the health and welfare of your livestock</a>
