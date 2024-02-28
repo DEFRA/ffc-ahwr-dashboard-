@@ -22,7 +22,7 @@ module.exports = {
       const vetVisitApplications = applications?.filter((application) => application.type === 'VV')
       const latestEndemicsApplication = applications?.find((application) => application.type === 'EE')
 
-      let claims = await getClaimsByApplicationReference(latestEndemicsApplication.reference) || []
+      let claims = latestEndemicsApplication ? await getClaimsByApplicationReference(latestEndemicsApplication?.reference) || [] : []
       const vetVisitApplicationsWithInLastTenMonths = vetVisitApplications.filter((application) => isWithInLastTenMonths(application?.createdAt))
 
       const capitalize = (value) => value?.charAt(0).toUpperCase() + value?.slice(1)
