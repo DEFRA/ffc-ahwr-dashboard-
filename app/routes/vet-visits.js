@@ -4,7 +4,7 @@ const { vetVisits, claimServiceUri } = require('../config/routes')
 const { getLatestApplicationsBySbi } = require('../api-requests/application-api')
 const { getClaimsByApplicationReference, isWithInLastTenMonths } = require('../api-requests/claim-api')
 const { claimType } = require('../constants/claim')
-const { statusId, statusClass } = require('../constants/status')
+const { statusIdToFrontendStatusMapping, statusClass } = require('../constants/status')
 
 const pageUrl = `/${vetVisits}`
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
@@ -28,7 +28,7 @@ module.exports = {
       const capitalize = (value) => value?.charAt(0).toUpperCase() + value?.slice(1)
       const sortByCreatedAt = (claims) => claims?.sort((a, b) => new Date(a.createdAt) > new Date(b.createdAt) ? a : b)
       const typeOfReviewTitle = (typeOfReview) => [claimType.review, VETVISIT_APPLICATION_TYPE].includes(typeOfReview) ? 'Health and welfare review' : 'Endemic disease follow-ups'
-      const statusTag = (claim) => `<strong class=${statusClass[statusId[claim.statusId]]?.styleClass || 'govuk-tag--grey'}>${statusId[claim.statusId]}</strong>`
+      const statusTag = (claim) => `<strong class="govuk-tag ${statusClass[statusIdToFrontendStatusMapping[claim.statusId]]?.styleClass || 'govuk-tag--grey'}">${statusIdToFrontendStatusMapping[claim.statusId]}</strong>`
       const description = (claim) => `${claim.reference} - ${claim.data?.typeOfLivestock ? capitalize(claim.data?.typeOfLivestock) + ' - ' : ''} ${typeOfReviewTitle(claim.type)}`
 
       claims = [...(claims && sortByCreatedAt(claims)), ...(vetVisitApplicationsWithInLastTenMonths && sortByCreatedAt(vetVisitApplicationsWithInLastTenMonths))]
