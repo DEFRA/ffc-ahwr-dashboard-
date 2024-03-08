@@ -12,23 +12,17 @@ const status = {
   ON_HOLD: 11,
   'ON HOLD': 11
 }
-const statusId = {
-  1: 'AGREED',
-  2: 'WITHDRAWN',
-  3: 'DATA INPUTTED',
-  4: 'CLAIMED',
-  5: 'IN CHECK',
-  6: 'ACCEPTED',
-  7: 'NOT AGREED',
-  8: 'PAID',
-  9: 'READY TO PAY',
+const statusIdToFrontendStatusMapping = {
+  5: 'CLAIMED',
+  9: 'CLAIMED',
+  11: 'CLAIMED',
+  12: 'CLAIMED',
+  13: 'CLAIMED',
+  14: 'CLAIMED',
+  15: 'CLAIMED',
+  16: 'CLAIMED',
   10: 'REJECTED',
-  11: 'ON HOLD',
-  12: 'Recommended to Pay',
-  13: 'Recommended to Reject',
-  14: 'AUTHORISED',
-  15: 'SENT TO FINANCE',
-  16: 'PAYMENT HELD'
+  8: 'PAID'
 }
 
 const closedStatuses = [status.WITHDRAWN, status.REJECTED, status.NOT_AGREED, status.READY_TO_PAY]
@@ -72,7 +66,7 @@ const statusClass = {
     styleClass: 'govuk-tag--purple'
   },
   CLAIMED: {
-    styleClass: 'govuk-tag--blue'
+    styleClass: 'govuk-tag--green'
   },
   'IN CHECK': {
     styleClass: 'govuk-tag--orange'
@@ -88,4 +82,4 @@ const statusClass = {
   }
 }
 
-module.exports = { status, statusId, statusClass, claimStatus, closedStatuses }
+module.exports = { status, statusIdToFrontendStatusMapping, statusClass, claimStatus, closedStatuses }
