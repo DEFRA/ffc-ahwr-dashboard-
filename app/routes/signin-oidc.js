@@ -94,7 +94,7 @@ module.exports = [{
         await cphCheck.customerMustHaveAtLeastOneValidCph(request, apimAccessToken)
 
         const endemicsApplyJourney = `${config.applyServiceUri}/endemics/check-details`
-        const oldClaimJourney = `${config.claimServiceUri}/visit-review`
+        const oldClaimJourney = `${config.claimServiceUri}/signin-oidc`
 
         const latestApplicationsForSbi = await applicationApi.getLatestApplicationsBySbi(organisation.sbi)
 
