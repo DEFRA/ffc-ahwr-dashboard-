@@ -7,7 +7,7 @@ const config = require('../config')
 const { getPersonSummary, getPersonName, organisationIsEligible, getOrganisationAddress, cphCheck } = require('../api-requests/rpa-api')
 const applicationApi = require('../api-requests/application-api')
 const { farmerApply } = require('../constants/user-types')
-const { closedStatuses } = require('../constants/status')
+const { status, closedStatuses } = require('../constants/status')
 const applicationType = require('../constants/application-type')
 const loginSources = require('../constants/login-sources')
 const { InvalidPermissionsError, NoEndemicsAgreementError, NoEligibleCphError, InvalidStateError, OutstandingAgreementError, LockedBusinessError } = require('../exceptions')
@@ -110,7 +110,12 @@ module.exports = [{
 
         const latestApplication = latestApplicationsForSbi[0]
         if (latestApplication.type === applicationType.ENDEMICS) {
-          return h.redirect('/check-details')
+          if (latestApplication.statusId === status.AGREED) {
+            return h.redirect('/check-details')
+          } else {
+            // send to endemics apply journey
+            return h.redirect(endemicsApplyJourney)
+          }
         }
 
         if (closedStatuses.includes(latestApplication.statusId)) {

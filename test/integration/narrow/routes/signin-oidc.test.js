@@ -455,6 +455,20 @@ describe('Defra ID redirection test', () => {
       verifyResult302(res)
     })
 
+    test('returns 302 and redirects user to old claim journey if open application/claim and user entered from dashboard directly', async () => {
+      const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
+      setupMock(true)
+
+      mockGetLatestApplicationsBySbiMock('EE', status.NOT_AGREED)
+
+      const res = await global.__SERVER__.inject(options)
+      verifyResult302(res, 'http://localhost:3000/apply/endemics/check-details')
+    })
+
     test('returns 302 and redirects user to dashboard if endemics agreement and user entered from claim', async () => {
       const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
       const options = {
