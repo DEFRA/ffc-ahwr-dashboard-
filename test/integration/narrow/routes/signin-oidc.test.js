@@ -463,7 +463,7 @@ describe('Defra ID redirection test', () => {
       }
       setupMock(true)
 
-      mockGetLatestApplicationsBySbiMock('EE', status.REJECTED)
+      mockGetLatestApplicationsBySbiMock('EE', status.NOT_AGREED)
 
       const res = await global.__SERVER__.inject(options)
       verifyResult302(res, 'http://localhost:3000/apply/endemics/check-details')

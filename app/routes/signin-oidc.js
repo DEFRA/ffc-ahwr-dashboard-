@@ -112,7 +112,7 @@ module.exports = [{
         if (latestApplication.type === applicationType.ENDEMICS) {
           if (latestApplication.statusId === status.AGREED) {
             return h.redirect('/check-details')
-          } else if (latestApplication.statusId === status.REJECTED) {
+          } else if (latestApplication.statusId === status.NOT_AGREED) {
             // send to endemics apply journey
             return h.redirect(endemicsApplyJourney)
           }
