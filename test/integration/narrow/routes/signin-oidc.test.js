@@ -398,7 +398,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('VV', status.AGREED)
 
       const res = await global.__SERVER__.inject(options)
-      verifyResult302(res, 'http://localhost:3004/claim/signin-oidc')
+      verifyResult302(res, 'http://localhost:3004/claim/signin-oidc?state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImNsYWltIn0=&code=432432')
     })
 
     test('returns 302 and redirects user to old claim journey if open application/claim and user entered from dashboard directly', async () => {
@@ -412,7 +412,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('VV', status.AGREED)
 
       const res = await global.__SERVER__.inject(options)
-      verifyResult302(res, 'http://localhost:3004/claim/signin-oidc')
+      verifyResult302(res, 'http://localhost:3004/claim/signin-oidc?state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9&code=432432')
     })
 
     test('returns 400 and exception view if open application/claim and user entered from apply journey', async () => {
