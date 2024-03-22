@@ -20,6 +20,7 @@ function setOrganisationSessionData (request, personSummary, org) {
     sbi: org.sbi?.toString(),
     farmerName: getPersonName(personSummary),
     name: org.name,
+    orgEmail: org.email,
     email: personSummary.email ? personSummary.email : org.email,
     address: getOrganisationAddress(org.address)
   }
