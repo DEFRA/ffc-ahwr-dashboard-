@@ -32,7 +32,7 @@ const redeemAuthorizationCodeForAccessToken = async (request) => {
       }
     )
     if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
-      appInsights.defaultClient.trackException({ exception: res })
+      appInsights.defaultClient.trackException({ exception: response.res })
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload
