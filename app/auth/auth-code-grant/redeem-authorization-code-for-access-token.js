@@ -4,6 +4,7 @@ const config = require('../../config')
 const session = require('../../session')
 const sessionKeys = require('../../session/keys')
 const HttpStatus = require('http-status-codes')
+const appInsights = require('applicationinsights')
 
 const redeemAuthorizationCodeForAccessToken = async (request) => {
   console.log(`${new Date().toISOString()} Requesting an access token with a client_secret`)
@@ -31,10 +32,12 @@ const redeemAuthorizationCodeForAccessToken = async (request) => {
       }
     )
     if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
+      appInsights.defaultClient.trackException({ exception: res })
       throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
     }
     return response.payload
   } catch (error) {
+    appInsights.defaultClient.trackException({ exception: error })
     console.log(`${new Date().toISOString()} Error while requesting an access token: ${error.message}`)
     console.error(error)
     throw error
