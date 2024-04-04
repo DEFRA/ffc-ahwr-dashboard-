@@ -18,7 +18,8 @@ const getOrganisation = (request, organisation, errorText) => {
     { key: { text: 'Business name' }, value: { text: organisation.name } },
     { key: { text: 'CRN number' }, value: { text: crn } },
     { key: { text: 'SBI number' }, value: { text: organisation.sbi } },
-    { key: { text: 'Email' }, value: { text: organisation.email } },
+    { key: { text: 'Organisation email address' }, value: { text: organisation.orgEmail } },
+    { key: { text: 'User email address' }, value: { text: organisation.email } },
     {
       key: { text: 'Address' },
       value: { html: formatAddressForDisplay(organisation) }
