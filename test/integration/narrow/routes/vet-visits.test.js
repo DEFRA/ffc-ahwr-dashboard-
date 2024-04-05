@@ -7,12 +7,11 @@ const {
   getClaimsByApplicationReference
 } = require('../../../../app/api-requests/claim-api')
 const cheerio = require('cheerio')
-
 jest.mock('../../../../app/session')
 jest.mock('../../../../app/api-requests/application-api')
 jest.mock('../../../../app/api-requests/claim-api')
 const HttpStatus = require('http-status-codes')
-
+const { claimType } = require('../../../../app/constants/claim')
 describe('Claim vet-visits', () => {
   const url = `/${vetVisits}`
 
@@ -189,7 +188,7 @@ describe('Claim vet-visits', () => {
         updatedAt: '2024-02-28T14:45:13.112Z',
         createdBy: 'admin',
         updatedBy: null,
-        statusId: 1,
+        statusId: 9,
         type: 'EE'
       }
     ]
@@ -249,5 +248,34 @@ describe('Claim vet-visits', () => {
 
     const response = await global.__SERVER__.inject(options)
     expect(response.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
+  })
+  test('getClaimsByApplicationReference is called with the correct argument', async () => {
+    const options = {
+      method: 'GET',
+      url,
+      auth: false
+    }
+    const latestEndemicsApplication = {
+      reference: 'AHWR-B136-76A0'
+    }
+
+    await getClaimsByApplicationReference.mockReturnValueOnce()
+
+    await global.__SERVER__.inject(options)
+
+    expect(getClaimsByApplicationReference).toHaveBeenCalledWith(latestEndemicsApplication.reference)
+  })
+  test('typeOfReviewTitle returns review', () => {
+    const typeOfReviewTitle = (typeOfReview) => [claimType.review, 'VV'].includes(typeOfReview) ? 'review' : 'follow-up'
+    const typeOfReview = claimType.review
+    const result = typeOfReviewTitle(typeOfReview)
+    expect(result).toBe('review')
+  })
+
+  test('typeOfReviewTitle returns follow-up', () => {
+    const typeOfReviewTitle = (typeOfReview) => [claimType.review, 'VV'].includes(typeOfReview) ? 'review' : 'follow-up'
+    const typeOfReview = 'claimType.endemics'
+    const result = typeOfReviewTitle(typeOfReview)
+    expect(result).toBe('follow-up')
   })
 })

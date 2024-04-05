@@ -5,6 +5,7 @@ const { getLatestApplicationsBySbi } = require('../api-requests/application-api'
 const { getClaimsByApplicationReference, isWithInLastTenMonths } = require('../api-requests/claim-api')
 const { claimType } = require('../constants/claim')
 const { statusIdToFrontendStatusMapping, statusClass } = require('../constants/status')
+const { checkStatusTenMonths } = require('./utils/checks')
 
 const pageUrl = `/${vetVisits}`
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
@@ -21,21 +22,21 @@ module.exports = {
       const applications = await getLatestApplicationsBySbi(organisation.sbi)
       const vetVisitApplications = applications?.filter((application) => application.type === 'VV')
       const latestEndemicsApplication = applications?.find((application) => application.type === 'EE')
+      const allClaims = await getClaimsByApplicationReference(latestEndemicsApplication?.reference)
 
       let claims = latestEndemicsApplication ? await getClaimsByApplicationReference(latestEndemicsApplication?.reference) || [] : []
       const vetVisitApplicationsWithInLastTenMonths = vetVisitApplications.filter((application) => isWithInLastTenMonths(application?.createdAt))
 
-      const capitalize = (value) => value?.charAt(0).toUpperCase() + value?.slice(1)
       const sortByCreatedAt = (claims) => claims?.sort((a, b) => new Date(a.createdAt) > new Date(b.createdAt) ? a : b)
-      const typeOfReviewTitle = (typeOfReview) => [claimType.review, VETVISIT_APPLICATION_TYPE].includes(typeOfReview) ? 'Health and welfare review' : 'Endemic disease follow-ups'
+      const typeOfReviewTitle = (typeOfReview) => [claimType.review, VETVISIT_APPLICATION_TYPE].includes(typeOfReview) ? 'review' : 'follow-up'
       const statusTag = (claim) => `<strong class="govuk-tag ${statusClass[statusIdToFrontendStatusMapping[claim.statusId]]?.styleClass || 'govuk-tag--grey'}">${statusIdToFrontendStatusMapping[claim.statusId]}</strong>`
-      const description = (claim) => `${claim.reference} - ${claim.data?.typeOfLivestock ? capitalize(claim.data?.typeOfLivestock) + ' - ' : ''} ${typeOfReviewTitle(claim.type)}`
-
+      const description = (claim) => `${claim.reference} - ${claim.data?.whichReview ? claim.data?.whichReview : ''} ${typeOfReviewTitle(claim.type)}`
       claims = [...(claims && sortByCreatedAt(claims)), ...(vetVisitApplicationsWithInLastTenMonths && sortByCreatedAt(vetVisitApplicationsWithInLastTenMonths))]
       claims = claims.slice(0, MAXIMUM_CLAIMS_TO_DISPLAY).map(claim => ([{ text: description(claim) }, { html: statusTag(claim) }]))
 
       return h.view(vetVisits, {
         claims,
+        checkStatusTenMonths: checkStatusTenMonths(allClaims),
         hasMultipleBusinesses: attachedToMultipleBusinesses,
         claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
         ...organisation,
