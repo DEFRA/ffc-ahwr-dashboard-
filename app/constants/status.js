@@ -42,7 +42,7 @@ const statusClass = {
     styleClass: 'govuk-tag--grey'
   },
   PAID: {
-    styleClass: 'govuk-tag--blue'
+    styleClass: 'govuk-tag-- app-task-list__tag'
   },
   'Recommended to Pay': {
     styleClass: 'govuk-tag--blue'
@@ -66,7 +66,7 @@ const statusClass = {
     styleClass: 'govuk-tag--purple'
   },
   CLAIMED: {
-    styleClass: 'govuk-tag--green'
+    styleClass: 'govuk-tag--turquoise'
   },
   'IN CHECK': {
     styleClass: 'govuk-tag--orange'

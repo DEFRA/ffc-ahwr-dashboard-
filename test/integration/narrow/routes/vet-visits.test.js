@@ -14,6 +14,72 @@ const HttpStatus = require('http-status-codes')
 const { claimType } = require('../../../../app/constants/claim')
 describe('Claim vet-visits', () => {
   const url = `/${vetVisits}`
+  const claims = [
+    {
+      id: 'a94e2cce-b774-484f-95c0-94e93c82f311',
+      reference: 'AHWR-A94E-2CCE',
+      applicationReference: 'AHWR-B136-76A0',
+      data: {
+        vetsName: 'Afshin',
+        dateOfVisit: '2024-02-28T00:00:00.000Z',
+        dateOfTesting: '2024-02-28T00:00:00.000Z',
+        laboratoryURN: 'URN4567',
+        vetRCVSNumber: '1234567',
+        speciesNumbers: 'yes',
+        typeOfLivestock: 'sheep',
+        numberAnimalsTested: '21'
+      },
+      statusId: 8,
+      type: 'R',
+      createdAt: '2024-02-26T14:14:43.632Z',
+      updatedAt: '2024-02-28T15:09:03.185Z',
+      createdBy: 'admin',
+      updatedBy: null,
+      status: { status: 'ON HOLD' }
+    },
+    {
+      id: 'a94e2cce-b774-484f-95c0-94e93c82f311',
+      reference: 'AHWR-A94E-2CCE',
+      applicationReference: 'AHWR-B136-76A0',
+      data: {
+        vetsName: 'Afshin',
+        dateOfVisit: '2024-02-28T00:00:00.000Z',
+        dateOfTesting: '2024-02-28T00:00:00.000Z',
+        laboratoryURN: 'URN4567',
+        vetRCVSNumber: '1234567',
+        speciesNumbers: 'yes',
+        numberAnimalsTested: '21'
+      },
+      statusId: 18,
+      type: 'E',
+      createdAt: '2024-02-28T14:14:43.632Z',
+      updatedAt: '2024-02-28T15:09:03.185Z',
+      createdBy: 'admin',
+      updatedBy: null,
+      status: { status: 'ON HOLD' }
+    },
+    {
+      id: 'a94e2cce-b774-484f-95c0-94e93c82f311',
+      reference: 'AHWR-A94E-2CCE',
+      applicationReference: 'AHWR-B136-76A0',
+      data: {
+        vetsName: 'Afshin',
+        dateOfVisit: '2024-02-28T00:00:00.000Z',
+        dateOfTesting: '2024-02-28T00:00:00.000Z',
+        laboratoryURN: 'URN4567',
+        vetRCVSNumber: '1234567',
+        speciesNumbers: 'yes',
+        numberAnimalsTested: '21'
+      },
+      statusId: 18,
+      type: 'E',
+      createdAt: '2024-02-27T14:14:43.632Z',
+      updatedAt: '2024-02-28T15:09:03.185Z',
+      createdBy: 'admin',
+      updatedBy: null,
+      status: { status: 'ON HOLD' }
+    }
+  ]
 
   test('GET /vet-visits route returns 200', async () => {
     const applications = [
@@ -84,7 +150,7 @@ describe('Claim vet-visits', () => {
           typeOfLivestock: 'sheep',
           numberAnimalsTested: '21'
         },
-        statusId: 11,
+        statusId: 8,
         type: 'R',
         createdAt: '2024-02-26T14:14:43.632Z',
         updatedAt: '2024-02-28T15:09:03.185Z',
@@ -126,7 +192,7 @@ describe('Claim vet-visits', () => {
           speciesNumbers: 'yes',
           numberAnimalsTested: '21'
         },
-        statusId: 18,
+        statusId: 8,
         type: 'E',
         createdAt: '2024-02-27T14:14:43.632Z',
         updatedAt: '2024-02-28T15:09:03.185Z',
@@ -277,5 +343,14 @@ describe('Claim vet-visits', () => {
     const typeOfReview = 'claimType.endemics'
     const result = typeOfReviewTitle(typeOfReview)
     expect(result).toBe('follow-up')
+  })
+  test('statusTag returns status tag', () => {
+    claims.statusId = 8
+
+    const statusIdToFrontendStatusMapping = {
+      8: 'PAID'
+    }
+    const statusTag = (claims) => `<strong class="govuk-tag ${'govuk-tag-- app-task-list__tag'}">${statusIdToFrontendStatusMapping[claims.statusId]}</strong>`
+    expect(statusTag(claims)).toMatch('<strong class="govuk-tag govuk-tag-- app-task-list__tag">PAID</strong>')
   })
 })
