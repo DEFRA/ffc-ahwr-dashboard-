@@ -29,8 +29,9 @@ module.exports = {
 
       const sortByCreatedAt = (claims) => claims?.sort((a, b) => new Date(a.createdAt) > new Date(b.createdAt) ? a : b)
       const typeOfReviewTitle = (typeOfReview) => [claimType.review, VETVISIT_APPLICATION_TYPE].includes(typeOfReview) ? 'review' : 'follow-up'
+
       const statusTag = (claim) => `<strong class="govuk-tag ${statusClass[statusIdToFrontendStatusMapping[claim.statusId]]?.styleClass || 'govuk-tag--grey'}">${statusIdToFrontendStatusMapping[claim.statusId]}</strong>`
-      const description = (claim) => `${claim.reference} - ${claim.data?.whichReview ? claim.data?.whichReview : ''} ${typeOfReviewTitle(claim.type)}`
+      const description = (claim) => `${claim.reference} - ${claim.data?.typeOfLivestock ? claim.data?.typeOfLivestock : claim.data?.whichReview} ${typeOfReviewTitle(claim.type)}`
       claims = [...(claims && sortByCreatedAt(claims)), ...(vetVisitApplicationsWithInLastTenMonths && sortByCreatedAt(vetVisitApplicationsWithInLastTenMonths))]
       claims = claims.slice(0, MAXIMUM_CLAIMS_TO_DISPLAY).map(claim => ([{ text: description(claim) }, { html: statusTag(claim) }]))
 
