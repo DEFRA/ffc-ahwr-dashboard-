@@ -353,4 +353,40 @@ describe('Claim vet-visits', () => {
     const statusTag = (claims) => `<strong class="govuk-tag ${'govuk-tag-- app-task-list__tag'}">${statusIdToFrontendStatusMapping[claims.statusId]}</strong>`
     expect(statusTag(claims)).toMatch('<strong class="govuk-tag govuk-tag-- app-task-list__tag">PAID</strong>')
   })
+  describe('description', () => {
+    const description = (claim) => {
+      const { reference, data, type } = claim
+      const livestock = data.typeOfLivestock || data.whichReview
+      const review = type === 'R' ? 'review' : 'follow-up'
+      return `${reference} - ${livestock} ${review} ${type}`
+    }
+
+    test('should return the correct description when typeOfLivestock is present', () => {
+      const claim = {
+        reference: 'AHWR-A94E-2CCE',
+        data: {
+          typeOfLivestock: 'sheep'
+        },
+        type: 'R'
+      }
+
+      const result = description(claim)
+
+      expect(result).toMatch('AHWR-A94E-2CCE - sheep review')
+    })
+
+    test('should return the correct description when typeOfLivestock is not present', () => {
+      const claim = {
+        reference: 'AHWR-A94E-2CCE',
+        data: {
+          whichReview: 'cattle'
+        },
+        type: 'E'
+      }
+
+      const result = description(claim)
+
+      expect(result).toMatch('AHWR-A94E-2CCE - cattle follow-up')
+    })
+  })
 })
