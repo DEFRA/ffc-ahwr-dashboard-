@@ -7,7 +7,6 @@ const status = {
   NOT_AGREED: 7,
   'NOT AGREED': 7,
   PAID: 8,
-  'PAID': 8,
   READY_TO_PAY: 9,
   'READY TO PAY': 9,
   REJECTED: 10,
