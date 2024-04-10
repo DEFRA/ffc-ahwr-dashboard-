@@ -12,7 +12,28 @@ jest.mock('../../../../app/api-requests/application-api')
 jest.mock('../../../../app/api-requests/claim-api')
 const HttpStatus = require('http-status-codes')
 const { claimType } = require('../../../../app/constants/claim')
+const { isWithInLastTenMonths } = require('../../../../app/api-requests/claim-api')
+const { checkStatusTenMonths } = require('../../../../app/routes/utils/checks')
+
 describe('Claim vet-visits', () => {
+  const MAXIMUM_CLAIMS_TO_DISPLAY = 6
+  const organisation = { sbi: '112670111' }
+  const attachedToMultipleBusinesses = true
+
+  const applications = [
+    {
+      id: 'b13676a0-3a57-428e-a903-9dcf6eca104b',
+      reference: 'AHWR-B136-76A0',
+      type: 'VV'
+    },
+    {
+      id: 'b13676a0-3a57-428e-a903-9dcf6eca104b',
+      reference: 'AHWR-B136-76A0',
+      type: 'EE'
+    }
+  ]
+
+  const latestEndemicsApplication = applications.find((application) => application.type === 'EE')
   const url = `/${vetVisits}`
   const claims = [
     {
@@ -387,6 +408,32 @@ describe('Claim vet-visits', () => {
       const result = description(claim)
 
       expect(result).toMatch('AHWR-A94E-2CCE - cattle follow-up')
+    })
+  })
+  describe('cover other lines of code ', () => {
+    test('test helper methods', async () => {
+      // const vetVisitApplicationsWithInLastTenMonths = [
+      //   {
+      //     id: 'b13676a0-3a57-428e-a903-9dcf6eca104b',
+      //     reference: 'AHWR-B136-76A0',
+      //     type: 'VV',
+      //     createdAt: '2024-02-28T14:14:43.632Z'
+      //   }
+      // ]
+
+      const hasMultipleBusinesses = true // Replace true with the appropriate value
+      getEndemicsClaim.mockReturnValueOnce({ organisation })
+      getCustomer.mockReturnValueOnce({ attachedToMultipleBusinesses })
+      getLatestApplicationsBySbi.mockReturnValueOnce(applications)
+      getClaimsByApplicationReference.mockReturnValueOnce(claims)
+      isWithInLastTenMonths.mockReturnValueOnce(true)
+
+      expect(getLatestApplicationsBySbi).toHaveBeenCalledWith(organisation.sbi)
+      expect(getClaimsByApplicationReference).toHaveBeenCalledWith(latestEndemicsApplication?.reference)
+      expect(isWithInLastTenMonths).toHaveBeenCalledWith('2024-02-28T00:00:00.000Z')
+      expect(claims.length).toBeLessThanOrEqual(MAXIMUM_CLAIMS_TO_DISPLAY)
+      expect(checkStatusTenMonths(claims)).toBeTruthy()
+      expect(hasMultipleBusinesses).toBe(attachedToMultipleBusinesses)
     })
   })
 })
