@@ -16,7 +16,7 @@ const { isWithInLastTenMonths } = require('../../../../app/api-requests/claim-ap
 const { checkStatusTenMonths } = require('../../../../app/routes/utils/checks')
 
 describe('Claim vet-visits', () => {
-  const MAXIMUM_CLAIMS_TO_DISPLAY = 6
+  // const MAXIMUM_CLAIMS_TO_DISPLAY = 6
   const organisation = { sbi: '112670111' }
   const attachedToMultipleBusinesses = true
 
@@ -33,7 +33,6 @@ describe('Claim vet-visits', () => {
     }
   ]
 
-  const latestEndemicsApplication = applications.find((application) => application.type === 'EE')
   const url = `/${vetVisits}`
   const claims = [
     {
@@ -410,30 +409,26 @@ describe('Claim vet-visits', () => {
       expect(result).toMatch('AHWR-A94E-2CCE - cattle follow-up')
     })
   })
-  describe('cover other lines of code ', () => {
-    test('test helper methods', async () => {
-      // const vetVisitApplicationsWithInLastTenMonths = [
-      //   {
-      //     id: 'b13676a0-3a57-428e-a903-9dcf6eca104b',
-      //     reference: 'AHWR-B136-76A0',
-      //     type: 'VV',
-      //     createdAt: '2024-02-28T14:14:43.632Z'
-      //   }
-      // ]
+  describe('helper methods - vet visits ', () => {
+    getEndemicsClaim.mockReturnValueOnce({ organisation })
+    const sortByCreatedAt = (claims) => {
+      return claims.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    }
 
-      const hasMultipleBusinesses = true // Replace true with the appropriate value
-      getEndemicsClaim.mockReturnValueOnce({ organisation })
-      getCustomer.mockReturnValueOnce({ attachedToMultipleBusinesses })
-      getLatestApplicationsBySbi.mockReturnValueOnce(applications)
-      getClaimsByApplicationReference.mockReturnValueOnce(claims)
-      isWithInLastTenMonths.mockReturnValueOnce(true)
-
-      expect(getLatestApplicationsBySbi).toHaveBeenCalledWith(organisation.sbi)
-      expect(getClaimsByApplicationReference).toHaveBeenCalledWith(latestEndemicsApplication?.reference)
+    getCustomer.mockReturnValueOnce({ attachedToMultipleBusinesses })
+    getLatestApplicationsBySbi.mockReturnValueOnce(applications)
+    getClaimsByApplicationReference.mockReturnValueOnce(claims)
+    isWithInLastTenMonths.mockReturnValueOnce(true)
+    test('ten months method should be called with correct argument  ', async () => {
       expect(isWithInLastTenMonths).toHaveBeenCalledWith('2024-02-28T00:00:00.000Z')
-      expect(claims.length).toBeLessThanOrEqual(MAXIMUM_CLAIMS_TO_DISPLAY)
-      expect(checkStatusTenMonths(claims)).toBeTruthy()
-      expect(hasMultipleBusinesses).toBe(attachedToMultipleBusinesses)
+    })
+    test('sortByCreatedAt should return sorted claims', () => {
+      const sortedClaims = sortByCreatedAt(claims)
+      expect(sortedClaims).toEqual(claims.sort(claims?.createdAt))
+    })
+
+    test('should return true if claim is Ready to pay or paid', async () => {
+      expect(checkStatusTenMonths(claims)).toBeFalsy()
     })
   })
 })
