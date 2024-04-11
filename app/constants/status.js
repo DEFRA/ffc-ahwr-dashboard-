@@ -6,6 +6,7 @@ const status = {
   ACCEPTED: 6,
   NOT_AGREED: 7,
   'NOT AGREED': 7,
+  PAID: 8,
   READY_TO_PAY: 9,
   'READY TO PAY': 9,
   REJECTED: 10,
@@ -42,7 +43,7 @@ const statusClass = {
     styleClass: 'govuk-tag--grey'
   },
   PAID: {
-    styleClass: 'govuk-tag--blue'
+    styleClass: 'govuk-tag-- app-task-list__tag'
   },
   'Recommended to Pay': {
     styleClass: 'govuk-tag--blue'
@@ -66,7 +67,7 @@ const statusClass = {
     styleClass: 'govuk-tag--purple'
   },
   CLAIMED: {
-    styleClass: 'govuk-tag--green'
+    styleClass: 'govuk-tag--turquoise'
   },
   'IN CHECK': {
     styleClass: 'govuk-tag--orange'

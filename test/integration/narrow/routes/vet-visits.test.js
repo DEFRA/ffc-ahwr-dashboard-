@@ -7,14 +7,99 @@ const {
   getClaimsByApplicationReference
 } = require('../../../../app/api-requests/claim-api')
 const cheerio = require('cheerio')
-
 jest.mock('../../../../app/session')
 jest.mock('../../../../app/api-requests/application-api')
 jest.mock('../../../../app/api-requests/claim-api')
 const HttpStatus = require('http-status-codes')
+const { claimType } = require('../../../../app/constants/claim')
+const { isWithInLastTenMonths } = require('../../../../app/api-requests/claim-api')
+const { checkStatusTenMonths } = require('../../../../app/routes/utils/checks')
 
 describe('Claim vet-visits', () => {
+  // const MAXIMUM_CLAIMS_TO_DISPLAY = 6
+  const organisation = { sbi: '112670111' }
+  const attachedToMultipleBusinesses = true
+
+  const applications = [
+    {
+      id: 'b13676a0-3a57-428e-a903-9dcf6eca104b',
+      reference: 'AHWR-B136-76A0',
+      type: 'VV'
+    },
+    {
+      id: 'b13676a0-3a57-428e-a903-9dcf6eca104b',
+      reference: 'AHWR-B136-76A0',
+      type: 'EE'
+    }
+  ]
+
   const url = `/${vetVisits}`
+  const claims = [
+    {
+      id: 'a94e2cce-b774-484f-95c0-94e93c82f311',
+      reference: 'AHWR-A94E-2CCE',
+      applicationReference: 'AHWR-B136-76A0',
+      data: {
+        vetsName: 'Afshin',
+        dateOfVisit: '2024-02-28T00:00:00.000Z',
+        dateOfTesting: '2024-02-28T00:00:00.000Z',
+        laboratoryURN: 'URN4567',
+        vetRCVSNumber: '1234567',
+        speciesNumbers: 'yes',
+        typeOfLivestock: 'sheep',
+        numberAnimalsTested: '21'
+      },
+      statusId: 8,
+      type: 'R',
+      createdAt: '2024-02-26T14:14:43.632Z',
+      updatedAt: '2024-02-28T15:09:03.185Z',
+      createdBy: 'admin',
+      updatedBy: null,
+      status: { status: 'ON HOLD' }
+    },
+    {
+      id: 'a94e2cce-b774-484f-95c0-94e93c82f311',
+      reference: 'AHWR-A94E-2CCE',
+      applicationReference: 'AHWR-B136-76A0',
+      data: {
+        vetsName: 'Afshin',
+        dateOfVisit: '2024-02-28T00:00:00.000Z',
+        dateOfTesting: '2024-02-28T00:00:00.000Z',
+        laboratoryURN: 'URN4567',
+        vetRCVSNumber: '1234567',
+        speciesNumbers: 'yes',
+        numberAnimalsTested: '21'
+      },
+      statusId: 18,
+      type: 'E',
+      createdAt: '2024-02-28T14:14:43.632Z',
+      updatedAt: '2024-02-28T15:09:03.185Z',
+      createdBy: 'admin',
+      updatedBy: null,
+      status: { status: 'ON HOLD' }
+    },
+    {
+      id: 'a94e2cce-b774-484f-95c0-94e93c82f311',
+      reference: 'AHWR-A94E-2CCE',
+      applicationReference: 'AHWR-B136-76A0',
+      data: {
+        vetsName: 'Afshin',
+        dateOfVisit: '2024-02-28T00:00:00.000Z',
+        dateOfTesting: '2024-02-28T00:00:00.000Z',
+        laboratoryURN: 'URN4567',
+        vetRCVSNumber: '1234567',
+        speciesNumbers: 'yes',
+        numberAnimalsTested: '21'
+      },
+      statusId: 18,
+      type: 'E',
+      createdAt: '2024-02-27T14:14:43.632Z',
+      updatedAt: '2024-02-28T15:09:03.185Z',
+      createdBy: 'admin',
+      updatedBy: null,
+      status: { status: 'ON HOLD' }
+    }
+  ]
 
   test('GET /vet-visits route returns 200', async () => {
     const applications = [
@@ -85,7 +170,7 @@ describe('Claim vet-visits', () => {
           typeOfLivestock: 'sheep',
           numberAnimalsTested: '21'
         },
-        statusId: 11,
+        statusId: 8,
         type: 'R',
         createdAt: '2024-02-26T14:14:43.632Z',
         updatedAt: '2024-02-28T15:09:03.185Z',
@@ -127,7 +212,7 @@ describe('Claim vet-visits', () => {
           speciesNumbers: 'yes',
           numberAnimalsTested: '21'
         },
-        statusId: 18,
+        statusId: 8,
         type: 'E',
         createdAt: '2024-02-27T14:14:43.632Z',
         updatedAt: '2024-02-28T15:09:03.185Z',
@@ -189,7 +274,7 @@ describe('Claim vet-visits', () => {
         updatedAt: '2024-02-28T14:45:13.112Z',
         createdBy: 'admin',
         updatedBy: null,
-        statusId: 1,
+        statusId: 9,
         type: 'EE'
       }
     ]
@@ -249,5 +334,101 @@ describe('Claim vet-visits', () => {
 
     const response = await global.__SERVER__.inject(options)
     expect(response.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
+  })
+  test('getClaimsByApplicationReference is called with the correct argument', async () => {
+    const options = {
+      method: 'GET',
+      url,
+      auth: false
+    }
+    const latestEndemicsApplication = {
+      reference: 'AHWR-B136-76A0'
+    }
+
+    await getClaimsByApplicationReference.mockReturnValueOnce()
+
+    await global.__SERVER__.inject(options)
+
+    expect(getClaimsByApplicationReference).toHaveBeenCalledWith(latestEndemicsApplication.reference)
+  })
+  test('typeOfReviewTitle returns review', () => {
+    const typeOfReviewTitle = (typeOfReview) => [claimType.review, 'VV'].includes(typeOfReview) ? 'review' : 'follow-up'
+    const typeOfReview = claimType.review
+    const result = typeOfReviewTitle(typeOfReview)
+    expect(result).toBe('review')
+  })
+
+  test('typeOfReviewTitle returns follow-up', () => {
+    const typeOfReviewTitle = (typeOfReview) => [claimType.review, 'VV'].includes(typeOfReview) ? 'review' : 'follow-up'
+    const typeOfReview = 'claimType.endemics'
+    const result = typeOfReviewTitle(typeOfReview)
+    expect(result).toBe('follow-up')
+  })
+  test('statusTag returns status tag', () => {
+    claims.statusId = 8
+
+    const statusIdToFrontendStatusMapping = {
+      8: 'PAID'
+    }
+    const statusTag = (claims) => `<strong class="govuk-tag ${'govuk-tag-- app-task-list__tag'}">${statusIdToFrontendStatusMapping[claims.statusId]}</strong>`
+    expect(statusTag(claims)).toMatch('<strong class="govuk-tag govuk-tag-- app-task-list__tag">PAID</strong>')
+  })
+  describe('description', () => {
+    const description = (claim) => {
+      const { reference, data, type } = claim
+      const livestock = data.typeOfLivestock || data.whichReview
+      const review = type === 'R' ? 'review' : 'follow-up'
+      return `${reference} - ${livestock} ${review} ${type}`
+    }
+
+    test('should return the correct description when typeOfLivestock is present', () => {
+      const claim = {
+        reference: 'AHWR-A94E-2CCE',
+        data: {
+          typeOfLivestock: 'sheep'
+        },
+        type: 'R'
+      }
+
+      const result = description(claim)
+
+      expect(result).toMatch('AHWR-A94E-2CCE - sheep review')
+    })
+
+    test('should return the correct description when typeOfLivestock is not present', () => {
+      const claim = {
+        reference: 'AHWR-A94E-2CCE',
+        data: {
+          whichReview: 'cattle'
+        },
+        type: 'E'
+      }
+
+      const result = description(claim)
+
+      expect(result).toMatch('AHWR-A94E-2CCE - cattle follow-up')
+    })
+  })
+  describe('helper methods - vet visits ', () => {
+    getEndemicsClaim.mockReturnValueOnce({ organisation })
+    const sortByCreatedAt = (claims) => {
+      return claims.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    }
+
+    getCustomer.mockReturnValueOnce({ attachedToMultipleBusinesses })
+    getLatestApplicationsBySbi.mockReturnValueOnce(applications)
+    getClaimsByApplicationReference.mockReturnValueOnce(claims)
+    isWithInLastTenMonths.mockReturnValueOnce(true)
+    test('ten months method should be called with correct argument  ', async () => {
+      expect(isWithInLastTenMonths).toHaveBeenCalledWith('2024-02-28T00:00:00.000Z')
+    })
+    test('sortByCreatedAt should return sorted claims', () => {
+      const sortedClaims = sortByCreatedAt(claims)
+      expect(sortedClaims).toEqual(claims.sort(claims?.createdAt))
+    })
+
+    test('should return true if claim is Ready to pay or paid', async () => {
+      expect(checkStatusTenMonths(claims)).toBeFalsy()
+    })
   })
 })
