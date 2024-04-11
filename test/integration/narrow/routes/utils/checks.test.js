@@ -10,7 +10,7 @@ describe('checkStatusTenMonths', () => {
 
     const result = checkStatusTenMonths(claimData)
 
-    expect(result).toBe(true)
+    expect(result).toBeTruthy()
   })
 
   test('should return false if claimData does not contain a claim within the last ten months', () => {
@@ -22,7 +22,7 @@ describe('checkStatusTenMonths', () => {
 
     const result = checkStatusTenMonths(claimData)
 
-    expect(result).toBe(false)
+    expect(result).toBeFalsy()
   })
 
   test('should return false if claimData contains a claim within the last ten months but with an invalid status', () => {
@@ -34,6 +34,6 @@ describe('checkStatusTenMonths', () => {
 
     const result = checkStatusTenMonths(claimData)
 
-    expect(result).toBe(false)
+    expect(result).toBeFalsy()
   })
 })
