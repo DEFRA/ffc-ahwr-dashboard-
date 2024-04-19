@@ -5,7 +5,7 @@ ignore:
   SNYK-JS-INFLIGHT-6095116:
     - "*":
         reason: None given
-        expires: "2024-04-14T00:00:00.000Z"
+        expires: "2024-05-14T00:00:00.000Z"
         created: "2024-02-14T00:00:00.000Z"
 patch: {}
 exclude:
