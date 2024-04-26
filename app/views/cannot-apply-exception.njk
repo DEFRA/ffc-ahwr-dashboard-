@@ -51,8 +51,10 @@
         <h2 class="govuk-heading-m">Get help with your application</h2>
         <p class="govuk-body">If you need help with your application, contact the Rural Payments Agency by email or phone.</p>
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
-        <h2 class="govuk-heading-m">Claim for another business</h2>
-        <p class="govuk-body">You can claim <a href='{{ backLink }}'>for another business</a> that has an agreement.</p>
+        {% if hasMultipleBusinesses %}
+          <h2 class="govuk-heading-m">Claim for another business</h2>
+          <p class="govuk-body">You can claim <a href='{{ backLink }}'>for another business</a> that has an agreement.</p>
+        {% endif %}
       {% endif %}
 
       {% if permissionError %}
