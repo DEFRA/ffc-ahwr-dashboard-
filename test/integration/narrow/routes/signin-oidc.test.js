@@ -24,6 +24,7 @@ const stateFromApply = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNk
 const stateFromClaim = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImNsYWltIn0='
 const stateFromDashboard = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9'
 const YOU_CAN_NOT_APPLY = 'You cannot apply for reviews or follow-ups for this business'
+const NO_ENDEMICS_AGREEMENT = 'You do not have an agreement for this business'
 
 describe('Defra ID redirection test', () => {
   function assertLoginAuth ($, expectedMessage = 'Login failed') {
@@ -174,7 +175,7 @@ describe('Defra ID redirection test', () => {
   function verifyResultForNoEndemicsAgreement (res, expectedError, consoleErrorSpy) {
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     const $ = cheerio.load(res.payload)
-    assertLoginFailed($, 'noEndemicsAgreementError')
+    assertLoginFailed($, NO_ENDEMICS_AGREEMENT)
     assertAuthenticateCalled()
     assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
