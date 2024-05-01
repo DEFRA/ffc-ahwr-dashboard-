@@ -12,8 +12,8 @@ services:
       - ./test-output/:/home/node/test-output/
 
   zap-baseline-scan:
-    image: owasp/zap2docker-stable:2.14.0
-    command: echo 12345
+    image: softwaresecurityproject/zap-bare:2.14.0
+    command: zap.sh -cmd -quickurl http://ffc-ahwr-dashboard:${PORT:-3000} -configfile wrk/config/zap.conf -quickout wrk/test-output/zap-report.html
     depends_on:
       - ffc-ahwr-dashboard
     volumes:
