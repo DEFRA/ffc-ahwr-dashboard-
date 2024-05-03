@@ -169,10 +169,10 @@ describe('Defra ID redirection test', () => {
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(2)
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name ${errorMessage} and message ${expectedError.message}.`)
   }
-  function verifyResultForNoEndemicsAgreement (res, expectedError, consoleErrorSpy, numberOfConsoleErrorSpyCalls) {
+  function verifyResultForNoEndemicsAgreement (res, expectedError, consoleErrorSpy) {
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     const $ = cheerio.load(res.payload)
     assertLoginFailed($, NO_ENDEMICS_AGREEMENT)
@@ -180,7 +180,7 @@ describe('Defra ID redirection test', () => {
     assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(numberOfConsoleErrorSpyCalls)
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   }
   function verifyResult302 (res, locationUrl = '/check-details') {
@@ -297,7 +297,7 @@ describe('Defra ID redirection test', () => {
       expect(personMock.getPersonSummary).toBeCalledTimes(1)
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(2)
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name InvalidPermissionsError and message ${expectedError.message}.`)
     })
     test('returns 400 and exception view when no eligible cph', async () => {
@@ -334,7 +334,7 @@ describe('Defra ID redirection test', () => {
       expect(personMock.getPersonSummary).toBeCalledTimes(1)
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(2)
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name LockedBusinessError and message ${expectedError.message}`)
     })
 
@@ -352,7 +352,7 @@ describe('Defra ID redirection test', () => {
       getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
       const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy, 2)
+      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
     })
 
     test('returns 400 and exception view when there is no agreement and user entered from dashboard directly', async () => {
@@ -369,7 +369,7 @@ describe('Defra ID redirection test', () => {
       getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
       const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy, 2)
+      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
     })
 
     test('returns 302 and redirects user to apply journey if no previous applications and user entered from apply journey', async () => {
@@ -437,7 +437,7 @@ describe('Defra ID redirection test', () => {
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       const $ = cheerio.load(res.payload)
       assertLoginFailed($, 'You have an existing agreement for this business')
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(4)
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name OutstandingAgreementError and message ${expectedError.message}`)
     })
 
@@ -529,7 +529,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('VV', status.READY_TO_PAY)
 
       const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy, 3)
+      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
     })
 
     test('returns 400 and and exception view if last application is a closed VV application and coming from dashboard', async () => {
@@ -546,7 +546,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('VV', status.READY_TO_PAY)
 
       const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy, 2)
+      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
     })
   })
 })

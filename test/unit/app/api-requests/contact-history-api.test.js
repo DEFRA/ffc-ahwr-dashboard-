@@ -4,7 +4,6 @@ const config = require('../../../../app/config')
 
 jest.mock('@hapi/wreck')
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
-const consoleErrorSpy = jest.spyOn(console, 'error')
 
 describe('updateContactHistory', () => {
   const mockConfig = {
@@ -55,7 +54,6 @@ describe('updateContactHistory', () => {
       }
     })
     const result = await updateContactHistory(data, mockConfig)
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(result).toBe(null)
   })
 

@@ -17,7 +17,6 @@ async function updateContactHistory (data) {
     }
     return response.payload
   } catch (error) {
-    console.error(`${new Date().toISOString()} updating contact history`)
     appInsights.defaultClient.trackException({ exception: error })
     return null
   }
