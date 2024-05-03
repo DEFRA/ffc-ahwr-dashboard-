@@ -437,7 +437,7 @@ describe('Defra ID redirection test', () => {
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       const $ = cheerio.load(res.payload)
       assertLoginFailed($, 'You have an existing agreement for this business')
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(3)
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(4)
       expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name OutstandingAgreementError and message ${expectedError.message}`)
     })
 
