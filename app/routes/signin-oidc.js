@@ -14,6 +14,7 @@ const { InvalidPermissionsError, NoEndemicsAgreementError, NoEligibleCphError, I
 const { raiseIneligibilityEvent } = require('../event')
 const appInsights = require('applicationinsights')
 const HttpStatus = require('http-status-codes')
+const { changeContactHistory } = require('../api/contact-history-api')
 
 function setOrganisationSessionData (request, personSummary, org) {
   const organisation = {
@@ -72,6 +73,7 @@ module.exports = [{
         const personSummary = await getPersonSummary(request, apimAccessToken)
         session.setCustomer(request, sessionKeys.customer.id, personSummary.id)
         const { organisation, organisationPermission } = await organisationIsEligible(request, personSummary.id, apimAccessToken)
+        changeContactHistory(personSummary, organisation)
         setOrganisationSessionData(request, personSummary, organisation)
 
         auth.setAuthCookie(request, personSummary.email, farmerApply)
