@@ -4,6 +4,15 @@ const expectPhaseBanner = require('../../../utils/phase-banner-expect')
 const url = '/cookies'
 const HttpStatus = require('http-status-codes')
 describe('cookies route', () => {
+  beforeAll(async () => {
+    jest.mock('../../../../app/config', () => ({
+      ...jest.requireActual('../../../../app/config'),
+      endemics: {
+        enabled: true
+      }
+    }))
+  })
+
   test('GET /cookies returns 200', async () => {
     const options = {
       method: 'GET',

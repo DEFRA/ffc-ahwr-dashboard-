@@ -47,6 +47,9 @@ describe('Org review page test', () => {
             getOrganisationPermissionsUrl: 'dummy-get-organisation-permissions-url',
             getOrganisationUrl: 'dummy-get-organisation-url'
           }
+        },
+        endemics: {
+          enabled: true
         }
       }))
       jest.mock('../../../../app/auth')

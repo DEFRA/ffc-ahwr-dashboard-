@@ -82,6 +82,9 @@ describe('Defra ID redirection test', () => {
         getOrganisationPermissionsUrl: 'dummy-get-organisation-permissions-url',
         getOrganisationUrl: 'dummy-get-organisation-url'
       }
+    },
+    endemics: {
+      enabled: true
     }
   }))
 

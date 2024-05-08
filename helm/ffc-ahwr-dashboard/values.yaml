@@ -70,7 +70,8 @@ container:
   apimClientId:
   apimClientSecret:
   apimScope:
- 
+  endemicsEnabled:
+
 ingress:
   class: nginx
   endpoint: ffc-ahwr-farmer

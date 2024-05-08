@@ -16,6 +16,15 @@ const { isWithInLastTenMonths } = require('../../../../app/api-requests/claim-ap
 const { checkStatusTenMonths } = require('../../../../app/routes/utils/checks')
 
 describe('Claim vet-visits', () => {
+  beforeAll(async () => {
+    jest.mock('../../../../app/config', () => ({
+      ...jest.requireActual('../../../../app/config'),
+      endemics: {
+        enabled: true
+      }
+    }))
+  })
+
   // const MAXIMUM_CLAIMS_TO_DISPLAY = 6
   const organisation = { sbi: '112670111' }
   const attachedToMultipleBusinesses = true

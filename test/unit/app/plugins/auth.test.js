@@ -21,6 +21,9 @@ describe('Auth plugin test', () => {
           ruralPaymentsAgency: {
             hostname: 'dummy-host-name'
           }
+        },
+        endemics: {
+          enabled: true
         }
       }))
     })
