@@ -35,4 +35,5 @@ data:
   APIM_SCOPE: {{ quote .Values.container.apimScope }}
   WRECK_HTTP_TIMEOUT_MILLISECONDS: {{ quote .Values.wreckHttp.timeoutMilliseconds }}
   TERMS_AND_CONDITIONS_URL: {{ quote .Values.container.termsAndConditionsUrl }}
+  ENDEMICS_ENABLED: {{ quote .Values.container.endemicsEnabled }}
 {{- end -}}

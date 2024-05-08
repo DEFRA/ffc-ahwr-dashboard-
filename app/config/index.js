@@ -65,6 +65,9 @@ const schema = Joi.object({
   wreckHttp: {
     timeoutMilliseconds: Joi.number().default(10000)
   },
+  endemics: Joi.object({
+    enabled: Joi.boolean().default(false)
+  }),
   latestTermsAndConditionsUri: Joi.string().required(),
   reapplyTimeLimitMonths: Joi.number()
 })
@@ -123,6 +126,9 @@ const config = {
   },
   wreckHttp: {
     timeoutMilliseconds: process.env.WRECK_HTTP_TIMEOUT_MILLISECONDS
+  },
+  endemics: {
+    enabled: process.env.ENDEMICS_ENABLED
   },
   latestTermsAndConditionsUri: process.env.TERMS_AND_CONDITIONS_URL,
   reapplyTimeLimitMonths: 10

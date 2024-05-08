@@ -1,4 +1,11 @@
 describe('routes plugin test', () => {
+  jest.mock('../../../../app/config', () => ({
+    ...jest.requireActual('../../../../app/config'),
+    endemics: {
+      enabled: false
+    }
+  }))
+
   beforeEach(() => {
     jest.resetModules()
     jest.clearAllMocks()
@@ -8,7 +15,26 @@ describe('routes plugin test', () => {
     const createServer = require('../../../../app/server')
     const server = await createServer()
     const routePaths = []
-    server.table().forEach(element => {
+    server.table().forEach((element) => {
+      routePaths.push(element.path)
+    })
+    expect(routePaths).toEqual([
+      '/healthy', '/healthz'
+    ])
+  })
+
+  test('routes included - endemics enabled', async () => {
+    jest.mock('../../../../app/config', () => ({
+      ...jest.requireActual('../../../../app/config'),
+      endemics: {
+        enabled: true
+      }
+    }))
+
+    const createServer = require('../../../../app/server')
+    const server = await createServer()
+    const routePaths = []
+    server.table().forEach((element) => {
       routePaths.push(element.path)
     })
     expect(routePaths).toEqual([

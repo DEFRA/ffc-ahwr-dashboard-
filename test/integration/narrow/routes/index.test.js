@@ -1,5 +1,14 @@
 const HttpStatus = require('http-status-codes')
 describe('Dashboard home page test', () => {
+  beforeAll(async () => {
+    jest.mock('../../../../app/config', () => ({
+      ...jest.requireActual('../../../../app/config'),
+      endemics: {
+        enabled: true
+      }
+    }))
+  })
+
   test('GET / route returns HttpStatus.StatusCodes.MOVED_TEMPORARILY when NOT logged in and redirects to signin', async () => {
     const options = {
       method: 'GET',
