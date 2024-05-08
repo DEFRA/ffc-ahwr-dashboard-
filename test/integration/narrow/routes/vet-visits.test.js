@@ -13,7 +13,7 @@ jest.mock('../../../../app/api-requests/claim-api')
 const HttpStatus = require('http-status-codes')
 const { claimType } = require('../../../../app/constants/claim')
 const { isWithInLastTenMonths } = require('../../../../app/api-requests/claim-api')
-const { checkStatusTenMonths } = require('../../../../app/routes/utils/checks')
+const { checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths } = require('../../../../app/routes/utils/checks')
 
 describe('Claim vet-visits', () => {
   beforeAll(async () => {
@@ -437,7 +437,7 @@ describe('Claim vet-visits', () => {
     })
 
     test('should return true if claim is Ready to pay or paid', async () => {
-      expect(checkStatusTenMonths(claims)).toBeFalsy()
+      expect(checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths(claims)).toBeFalsy()
     })
   })
 })

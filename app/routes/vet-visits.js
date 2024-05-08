@@ -5,7 +5,7 @@ const { getLatestApplicationsBySbi } = require('../api-requests/application-api'
 const { getClaimsByApplicationReference, isWithInLastTenMonths } = require('../api-requests/claim-api')
 const { claimType } = require('../constants/claim')
 const { statusIdToFrontendStatusMapping, statusClass } = require('../constants/status')
-const { checkStatusTenMonths } = require('./utils/checks')
+const { checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths } = require('./utils/checks')
 
 const pageUrl = `/${vetVisits}`
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
@@ -37,7 +37,7 @@ module.exports = {
 
       return h.view(vetVisits, {
         claims,
-        checkStatusTenMonths: checkStatusTenMonths(allClaims),
+        checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths: checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths(allClaims),
         hasMultipleBusinesses: attachedToMultipleBusinesses,
         claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
         ...organisation,

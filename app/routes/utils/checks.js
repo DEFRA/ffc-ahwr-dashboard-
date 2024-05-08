@@ -1,10 +1,9 @@
 const { status } = require('../../constants/status')
-const { getObjectKeyByValue } = require('./get-object-key-by-value')
 
 const isWithInLastTenMonths = require('../../api-requests/claim-api').isWithInLastTenMonths
 
-const checkStatusTenMonths = (claimData) => claimData?.some((claim) => ((isWithInLastTenMonths(claim?.data?.visitDate) || isWithInLastTenMonths(claim?.data?.dateOfVisit)) &&
-            (getObjectKeyByValue(status, claim?.statusId) === 'PAID' || getObjectKeyByValue(status, claim?.statusId) === 'READY TO PAY')) &&
+const checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths = (claimData) => claimData?.some((claim) => ((isWithInLastTenMonths(claim?.data?.visitDate) || isWithInLastTenMonths(claim?.data?.dateOfVisit)) &&
+            (claim?.statusId === status.PAID || claim?.statusId === status.READY_TO_PAY)) &&
             (claim?.type === 'VV' || claim?.type === 'R'))
 
-module.exports = { checkStatusTenMonths }
+module.exports = { checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths }
