@@ -26,7 +26,7 @@ describe('checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths', () => {
       { data: { visitDate: new Date('2021-01-01') }, statusId: 8, type: 'VV' },
       { data: { visitDate: new Date('2021-01-01') }, statusId: 8, type: 'VV' },
       { data: { visitDate: new Date('2021-02-01') }, statusId: 9, type: 'R' },
-      { data: { visitDate: new Date('2021-02-01') }, statusId: 9, type: 'R' },
+      { data: { visitDate: new Date('2021-02-01') }, statusId: 9, type: 'R' }
     ]
 
     const result = checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths(claimData)
@@ -40,7 +40,7 @@ describe('checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths', () => {
       { data: { visitDate: new Date('2022-01-01') }, statusId: 1, type: 'VV' },
       { data: { visitDate: new Date('2022-02-01') }, statusId: 2, type: 'R' },
       { data: { visitDate: new Date('2022-02-01') }, statusId: 5, type: 'VV' },
-      { data: { visitDate: new Date('2022-02-01') }, statusId: 3, type: 'R' },
+      { data: { visitDate: new Date('2022-02-01') }, statusId: 3, type: 'R' }
     ]
 
     const result = checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths(claimData)
