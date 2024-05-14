@@ -3,8 +3,7 @@ const Joi = require('joi')
 const boom = require('@hapi/boom')
 const session = require('../session')
 const config = require('../config')
-const auth = require('../auth')
-const { organisation: organisationKey, confirmCheckDetails } = require('../session/keys').endemicsClaim
+const { organisation: organisationKey, confirmCheckDetails: confirmCheckDetailsKey } = require('../session/keys').endemicsClaim
 const getOrganisation = require('./models/organisation')
 
 module.exports = [{
@@ -26,7 +25,7 @@ module.exports = [{
   options: {
     validate: {
       payload: Joi.object({
-        [confirmCheckDetails]: Joi.string().valid('yes', 'no').required()
+        confirmCheckDetails: Joi.string().valid('yes', 'no').required()
       }),
       failAction: (request, h, _err) => {
         const organisation = session.getEndemicsClaim(request, organisationKey)
@@ -40,20 +39,15 @@ module.exports = [{
       }
     },
     handler: async (request, h) => {
-      const answer = request.payload[confirmCheckDetails]
-      if (answer === 'yes') {
-        session.setEndemicsClaim(
-          request,
-          confirmCheckDetails,
-          request.payload[confirmCheckDetails]
-        )
+      const { confirmCheckDetails } = request.payload
+      session.setEndemicsClaim(request, confirmCheckDetailsKey, confirmCheckDetails)
+
+      if (confirmCheckDetails === 'yes') {
         return h.redirect('/vet-visits')
       }
+
       return h.view('update-details', {
-        ruralPaymentsAgency: config.ruralPaymentsAgency,
-        backLink: {
-          href: auth.requestAuthorizationCodeUrl(session, request)
-        }
+        ruralPaymentsAgency: config.ruralPaymentsAgency
       })
     }
   }
