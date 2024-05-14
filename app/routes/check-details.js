@@ -53,7 +53,7 @@ module.exports = [{
         ruralPaymentsAgency: config.ruralPaymentsAgency,
         backLink: {
           href: auth.requestAuthorizationCodeUrl(session, request)
-        },
+        }
       })
     }
   }
