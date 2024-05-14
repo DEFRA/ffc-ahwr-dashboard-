@@ -1,10 +1,11 @@
+const HttpStatus = require('http-status-codes')
+const Joi = require('joi')
 const boom = require('@hapi/boom')
+const session = require('../session')
+const config = require('../config')
+const auth = require('../auth')
 const { organisation: organisationKey, confirmCheckDetails } = require('../session/keys').endemicsClaim
 const getOrganisation = require('./models/organisation')
-const session = require('../session')
-const Joi = require('joi')
-const config = require('../config')
-const HttpStatus = require('http-status-codes')
 
 module.exports = [{
   method: 'GET',
@@ -49,7 +50,10 @@ module.exports = [{
         return h.redirect('/vet-visits')
       }
       return h.view('update-details', {
-        ruralPaymentsAgency: config.ruralPaymentsAgency
+        ruralPaymentsAgency: config.ruralPaymentsAgency,
+        backLink: {
+          href: auth.requestAuthorizationCodeUrl(session, request)
+        },
       })
     }
   }
