@@ -14,6 +14,7 @@ const status = {
   'ON HOLD': 11
 }
 const statusIdToFrontendStatusMapping = {
+  2: 'WITHDRAWN',
   5: 'CLAIMED',
   9: 'CLAIMED',
   11: 'CLAIMED',
