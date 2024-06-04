@@ -1,16 +1,16 @@
 {% extends './layouts/layout.njk' %}
 
-{% block pageTitle %}AHWR Dashboard - {{ serviceName }}
+{% block pageTitle %}Manage your claims - {{ serviceName }}
 {% endblock %}
 
 {% block content %}
   <div class="govuk-grid-row govuk-width-container">
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
-      <h3 class="govuk-heading-m govuk-!-static-margin-bottom-1">{{name}}</h3>
+      <p class="bold-paragraph govuk-!-static-margin-bottom-1">{{name}}</p>
       <p class="govuk-body" id="SBI">Single Business Identifier (SBI): {{sbi}}</p>
     </div>
     <div class="govuk-grid-column-one-third govuk-!-static-padding-0">
-      <h3 class="govuk-heading-m govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{farmerName}}</h3>
+      <p class="bold-paragraph govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{farmerName}}</p>
       {% if hasMultipleBusinesses %}
         <p class="govuk-!-text-align-right">
           <a id="MBILink" href={{hostname}}>Apply for a different business</a>
@@ -22,7 +22,7 @@
   <div class="govuk-grid-row govuk-width-container govuk-!-static-margin-top-6">
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
       <h1 class="govuk-heading-xl">Manage your claims</h1>
-      <h1 class="govuk-caption-l govuk-!-static-margin-bottom-4">Agreement number: {{reference}}</h1>
+      <p class="govuk-caption-l govuk-!-static-margin-bottom-4">Agreement number: {{reference}}</p>
       {% if checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths %}
         <p class="govuk-body-m">You have claimed for a review. You can now claim for a follow-up.</p>
 
@@ -39,7 +39,7 @@
           preventDoubleClick: true
         }) }}
       {% endif %}
-      <h3 class="govuk-heading-m govuk-!-static-margin-top-2">Your previous claims</h3>
+      <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Your previous claims</h2>
       <hr/>
       {% if claims | length %}
         {{ govukTable({
@@ -50,7 +50,7 @@
         <p class="govuk-caption-m">Your claims will appear here when you have made them</p>
         <hr/>
       {% endif %}
-      <h3 class="govuk-heading-m govuk-!-static-margin-top-4">More information</h3>
+      <h2 class="govuk-heading-m govuk-!-static-margin-top-4">More information</h2>
       <p class="govuk-body">
         <a href="#" class="govuk-link">Terms and conditions</a>
       </p>
