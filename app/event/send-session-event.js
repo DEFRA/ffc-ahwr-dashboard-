@@ -1,6 +1,10 @@
 const raiseEvent = require('./raise-event')
 
+const renameClaimEntryKeyForEventReporting = (entryKey) => entryKey === 'endemicsClaim' ? 'claim' : entryKey
+
 const sendSessionEvent = (organisation, sessionId, entryKey, key, value, ip) => {
+  entryKey = renameClaimEntryKeyForEventReporting(entryKey)
+
   if (sessionId && organisation) {
     const event = {
       id: sessionId,
