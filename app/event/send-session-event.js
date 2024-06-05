@@ -4,7 +4,7 @@ const renameClaimEntryKeyForEventReporting = (entryKey) => entryKey === 'endemic
 
 const sendSessionEvent = (organisation, sessionId, entryKey, key, value, ip) => {
   entryKey = renameClaimEntryKeyForEventReporting(entryKey)
-  
+
   if (sessionId && organisation) {
     const event = {
       id: sessionId,
