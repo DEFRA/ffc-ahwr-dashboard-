@@ -1,6 +1,7 @@
 const auth = require('../auth')
 const session = require('../session')
 const { vetVisits, claimServiceUri } = require('../config/routes')
+const { latestTermsAndConditionsUri } = require('../config')
 const { getLatestApplicationsBySbi } = require('../api-requests/application-api')
 const { getClaimsByApplicationReference, isWithInLastTenMonths } = require('../api-requests/claim-api')
 const { claimType } = require('../constants/claim')
@@ -42,7 +43,8 @@ module.exports = {
         claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
         ...organisation,
         ...(latestEndemicsApplication?.reference && { reference: latestEndemicsApplication?.reference }),
-        ...(attachedToMultipleBusinesses && { hostname: auth.requestAuthorizationCodeUrl(session, request) })
+        ...(attachedToMultipleBusinesses && { hostname: auth.requestAuthorizationCodeUrl(session, request) }),
+        latestTermsAndConditionsUri
       })
     }
   }

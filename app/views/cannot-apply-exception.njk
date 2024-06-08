@@ -14,7 +14,7 @@
         <p class="govuk-body">Before you can apply for this updated service, you can either:</p>
         <ul class='govuk-list govuk-list--bullet'>
           <li>
-            <a href='{{ claimLink }}'>complete the claim for your current review</a>
+            <a class="govuk-link" href='{{ claimLink }}'>complete the claim for your current review</a>
           </li>
           <li>withdraw your existing agreement by contacting the Rural Payments Agency (RPA)</li>
         </ul>
@@ -38,7 +38,7 @@
       {% if noEndemicsAgreementError %}
         <a class="govuk-back-link" href='{{backLink}}'>Back</a>
         <h1 class="govuk-heading-l">You do not have an agreement for this business</h1>
-        <p class="govuk-body">The {{ organisationName }} – {{ sbiText }} does not have an agreement for this service.</p>
+        <p class="govuk-body">The {{ organisationName }} - {{ sbiText }} does not have an agreement for this service.</p>
         <h2 class="govuk-heading-m">What to do next</h2>
         <p class="govuk-body">Before you can claim you need to:</p>
         <ul class="govuk-list govuk-list--bullet">
@@ -66,7 +66,7 @@
         <p class="govuk-body">To apply for this business, the business owner must give you either:</p>
         <ul class="govuk-list govuk-list--bullet">
           <li>full permission level for business details</li>
-          <li>‘submit’ permission level for the basic payment scheme</li>
+          <li>'submit' permission level for the basic payment scheme</li>
         </ul>
 
         {% if hasMultipleBusinesses %}
@@ -106,7 +106,7 @@
 
         <p class="govuk-body">This may be because:</p>
         <ul class="govuk-list govuk-list--bullet">
-          <li>you have told us you do not need this record – this could be because you're no longer claiming from the Rural Payments Agency (RPA) or you do not need a county parish holding (CPH) number anymore</li>
+          <li>you have told us you do not need this record - this could be because you're no longer claiming from the Rural Payments Agency (RPA) or you do not need a county parish holding (CPH) number anymore</li>
           <li>{{ organisationName }} has a new business record</li>
           <li>you have made changes to your business structure, so this record is no longer needed</li>
           <li>{{ organisationName }} has stopped trading</li>
