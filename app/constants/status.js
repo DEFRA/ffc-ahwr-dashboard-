@@ -14,17 +14,16 @@ const status = {
   'ON HOLD': 11
 }
 const statusIdToFrontendStatusMapping = {
-  2: 'WITHDRAWN',
-  5: 'CLAIMED',
-  9: 'CLAIMED',
-  11: 'CLAIMED',
-  12: 'CLAIMED',
-  13: 'CLAIMED',
-  14: 'CLAIMED',
-  15: 'CLAIMED',
-  16: 'CLAIMED',
-  10: 'REJECTED',
-  8: 'PAID'
+  2: 'WITHDRAWN', // withdrawn
+  5: 'CLAIM SUBMITTED', // in check
+  8: 'PAID', // paid
+  9: 'CLAIM APPROVED', // ready to pay
+  10: 'REJECTED', // rejected
+  11: 'CLAIM SUBMITTED', // on hold
+  12: 'CLAIM SUBMITTED', // recommended to pay
+  13: 'CLAIM SUBMITTED', // recommended to reject
+  15: 'CLAIM APPROVED', // sent to finance
+  16: 'CLAIM APPROVED' // payment held
 }
 
 const closedStatuses = [status.WITHDRAWN, status.REJECTED, status.NOT_AGREED, status.READY_TO_PAY]
@@ -67,8 +66,11 @@ const statusClass = {
   ACCEPTED: {
     styleClass: 'govuk-tag--purple'
   },
-  CLAIMED: {
+  'CLAIM SUBMITTED': {
     styleClass: 'govuk-tag--turquoise'
+  },
+  'CLAIM APPROVED': {
+    styleClass: 'govuk-tag-- app-task-list__tag'
   },
   'IN CHECK': {
     styleClass: 'govuk-tag--orange'
