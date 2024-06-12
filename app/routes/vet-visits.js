@@ -6,6 +6,7 @@ const { getLatestApplicationsBySbi } = require('../api-requests/application-api'
 const { getClaimsByApplicationReference, isWithInLastTenMonths } = require('../api-requests/claim-api')
 const { claimType } = require('../constants/claim')
 const { statusIdToFrontendStatusMapping, statusClass } = require('../constants/status')
+const { checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths } = require('./utils/checks')
 
 const pageUrl = `/${vetVisits}`
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
@@ -22,6 +23,7 @@ module.exports = {
       const applications = await getLatestApplicationsBySbi(organisation.sbi)
       const vetVisitApplications = applications?.filter((application) => application.type === 'VV')
       const latestEndemicsApplication = applications?.find((application) => application.type === 'EE')
+      const allClaims = await getClaimsByApplicationReference(latestEndemicsApplication?.reference)
 
       let claims = latestEndemicsApplication ? await getClaimsByApplicationReference(latestEndemicsApplication?.reference) || [] : []
       const vetVisitApplicationsWithInLastTenMonths = vetVisitApplications.filter((application) => isWithInLastTenMonths(application?.createdAt))
@@ -36,6 +38,7 @@ module.exports = {
 
       return h.view(vetVisits, {
         claims,
+        checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths: checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths(allClaims),
         hasMultipleBusinesses: attachedToMultipleBusinesses,
         claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
         ...organisation,
