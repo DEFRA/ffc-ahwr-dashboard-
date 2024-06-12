@@ -257,7 +257,7 @@ describe('Claim vet-visits', () => {
     const SBIText = 'Single Business Identifier (SBI): 112670111'
 
     expect($('#SBI').text()).toEqual(SBIText)
-    expect($('#MBILink').text()).toEqual('Apply for a different business')
+    expect($('#MBILink').text()).toEqual('Claim for a different business')
     expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
   })
   test('GET /vet-visits route without any claim returns 200', async () => {
@@ -314,7 +314,7 @@ describe('Claim vet-visits', () => {
     const SBIText = 'Single Business Identifier (SBI): 112670111'
 
     expect($('#SBI').text()).toEqual(SBIText)
-    expect($('#MBILink').text()).toEqual('Apply for a different business')
+    expect($('#MBILink').text()).toEqual('Claim for a different business')
     const button = $('.govuk-main-wrapper .govuk-button')
     expect(button.text()).toMatch('Start a new claim')
     expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
@@ -375,7 +375,7 @@ describe('Claim vet-visits', () => {
     const SBIText = 'Single Business Identifier (SBI): 112670111'
 
     expect($('#SBI').text()).toEqual(SBIText)
-    expect($('#MBILink').text()).toEqual('Apply for a different business')
+    expect($('#MBILink').text()).toEqual('Claim for a different business')
     const button = $('.govuk-main-wrapper .govuk-button')
     expect(button.text()).toMatch('Claim for endemics follow-up')
     expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
