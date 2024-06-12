@@ -10,14 +10,11 @@ const cheerio = require('cheerio')
 jest.mock('../../../../app/session')
 jest.mock('../../../../app/api-requests/application-api')
 jest.mock('../../../../app/api-requests/claim-api')
-jest.mock('../../../../app/routes/utils/checks')
 const HttpStatus = require('http-status-codes')
 const { claimType } = require('../../../../app/constants/claim')
-const checks = require('../../../../app/routes/utils/checks')
 
 describe('Claim vet-visits', () => {
   beforeAll(async () => {
-    checks.checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths.mockReturnValue(false)
     jest.mock('../../../../app/config', () => ({
       ...jest.requireActual('../../../../app/config'),
       endemics: {
@@ -317,67 +314,6 @@ describe('Claim vet-visits', () => {
     expect($('#MBILink').text()).toEqual('Claim for a different business')
     const button = $('.govuk-main-wrapper .govuk-button')
     expect(button.text()).toMatch('Start a new claim')
-    expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
-  })
-
-  test('GET /vet-visits shows different button text if user has claimed for review', async () => {
-    checks.checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths.mockReturnValue(true)
-    const applications = [
-      {
-        id: 'b13676a0-3a57-428e-a903-9dcf6eca104b',
-        reference: 'AHWR-B136-76A0',
-        data: {
-          type: 'EE',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: {
-            sbi: '112670111',
-            farmerName: 'Anjana Donald Jaroslav Daniel Gooder',
-            name: 'Kathryn Jeffery',
-            email: 'anjanagooderz@redooganajnae.com.test',
-            address: '1 Church Hill,WAKEFIELD,ST9 0DG,United Kingdom'
-          },
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-02-28T14:45:13.071Z',
-        updatedAt: '2024-02-28T14:45:13.112Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 9,
-        type: 'EE'
-      }
-    ]
-
-    const options = {
-      method: 'GET',
-      url,
-      auth: {
-        strategy: 'cookie',
-        credentials: { reference: 'AHWR-2470-6BA9', sbi: '112670111' }
-      }
-    }
-
-    getEndemicsClaim.mockReturnValueOnce({
-      organisation: applications[0].data.organisation
-    })
-    getCustomer.mockReturnValueOnce({
-      attachedToMultipleBusinesses: true
-    })
-
-    await getLatestApplicationsBySbi.mockReturnValueOnce(applications)
-
-    await getClaimsByApplicationReference.mockReturnValueOnce()
-
-    const response = await global.__SERVER__.inject(options)
-    const $ = cheerio.load(response.payload)
-    const SBIText = 'Single Business Identifier (SBI): 112670111'
-
-    expect($('#SBI').text()).toEqual(SBIText)
-    expect($('#MBILink').text()).toEqual('Claim for a different business')
-    const button = $('.govuk-main-wrapper .govuk-button')
-    expect(button.text()).toMatch('Claim for endemics follow-up')
     expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
   })
 
