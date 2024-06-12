@@ -1,6 +1,6 @@
 {
   "name": "ffc-ahwr-dashboard",
-  "version": "0.3.51",
+  "version": "0.3.52",
   "description": "Dashboard service for AHWP service",
   "homepage": "https://github.com/DEFRA/ffc-ahwr-dashboard",
   "main": "app/index.js",
@@ -24,7 +24,7 @@
   ],
   "license": "OGL-UK-3.0",
   "dependencies": {
-    "@azure/identity": "^3.1.2",
+    "@azure/identity": "^4.2.1",
     "@hapi/boom": "^9.1.4",
     "@hapi/catbox-redis": "^6.0.2",
     "@hapi/cookie": "^11.0.2",
@@ -45,19 +45,16 @@
     "joi": "17.11.0",
     "jsonwebtoken": "^9.0.0",
     "jwk-to-pem": "^2.0.5",
-    "mssql": "^10.0.1",
-    "notifications-node-client": "^7.0.6",
+    "mssql": "^10.0.2",
+    "notifications-node-client": "^8.1.0",
     "nunjucks": "^3.2.3",
     "pg-promise": "^11.5.5",
     "uuid": "^8.3.2",
     "webdriverio": "^8.16.12"
   },
   "overrides": {
-    "notifications-node-client": {
-      "jsonwebtoken": "9.0.0"
-    },
-    "@azure/identity": {
-      "jsonwebtoken": "9.0.0"
+    "mssql" : {
+      "@azure/identity": "4.2.1"
     },
     "semver": "7.5.2"
   },
