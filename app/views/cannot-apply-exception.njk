@@ -8,7 +8,7 @@
     <div class="govuk-grid-column-two-thirds">
       {% if outstandingAgreementError %}
         <h1 class="govuk-heading-l">You have an existing agreement for this business</h1>
-        <p class="govuk-body">{{ organisationName }}{{ sbiText }} has an agreement on the old health and welfare review service.</p>
+        <p class="govuk-body">{{ organisationName }} &#8212; {{ sbiText }} has an agreement on the old health and welfare review service.</p>
 
         <h2 class="govuk-heading-m">What to do next apply for this business</h2>
         <p class="govuk-body">Before you can apply for this updated service, you can either:</p>
@@ -25,7 +25,7 @@
         {% endif %}
 
         <h2 class="govuk-heading-m">Contact RPA</h2>
-        <p class="govuk-body">You can contact the RPA by email or phone.</p>
+        <p class="govuk-body">You can contact the RPA.</p>
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
         <p class="govuk-body">Have your agreement number with you when you call or include it in your email.</p>
 
@@ -38,7 +38,7 @@
       {% if noEndemicsAgreementError %}
         <a class="govuk-back-link" href='{{backLink}}'>Back</a>
         <h1 class="govuk-heading-l">You do not have an agreement for this business</h1>
-        <p class="govuk-body">The {{ organisationName }} - {{ sbiText }} does not have an agreement for this service.</p>
+        <p class="govuk-body">The {{ organisationName }} &#8212; {{ sbiText }} does not have an agreement for this service.</p>
         <h2 class="govuk-heading-m">What to do next</h2>
         <p class="govuk-body">Before you can claim you need to:</p>
         <ul class="govuk-list govuk-list--bullet">
@@ -49,7 +49,7 @@
           </li>
         </ul>
         <h2 class="govuk-heading-m">Get help with your application</h2>
-        <p class="govuk-body">If you need help with your application, contact the Rural Payments Agency by email or phone.</p>
+        <p class="govuk-body">If you need help with your application, contact the Rural Payments Agency.</p>
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
         {% if hasMultipleBusinesses %}
           <h2 class="govuk-heading-m">Claim for another business</h2>
@@ -59,10 +59,12 @@
 
       {% if permissionError %}
         <h1 class="govuk-heading-l">You cannot apply for reviews or follow-ups for this business</h1>
-        <p class="govuk-body">You do not have the required permission to act for {{ organisationName }}{{ sbiText }}.</p>
+        <p class="govuk-body">You do not have the required permission to act for {{ organisationName }} &#8212; {{ sbiText }}.</p>
 
         <h2 class="govuk-heading-m">What to do next</h2>
+        {% if hasMultipleBusinesses %}
         <p class="govuk-body">You can apply for another business that does have an eligible CPH</p>
+        {% endif %}
         <p class="govuk-body">To apply for this business, the business owner must give you either:</p>
         <ul class="govuk-list govuk-list--bullet">
           <li>full permission level for business details</li>
@@ -75,13 +77,13 @@
         {% endif %}
 
         <h2 class="govuk-heading-m">Get help with your application</h2>
-        <p class="govuk-body">If you need help with your application, contact the Rural Payments Agency by email or phone.</p>
+        <p class="govuk-body">If you need help with your application, contact the Rural Payments Agency.</p>
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
       {% endif %}
 
       {% if cphError %}
         <h1 class="govuk-heading-l">You cannot apply for reviews or follow-ups for this business</h1>
-        <p class="govuk-body">{{ organisationName }}{{ sbiText }} has no eligible county parish holding (CPH) number registered to it.</p>
+        <p class="govuk-body">{{ organisationName }} &#8212; {{ sbiText }} has no eligible county parish holding (CPH) number registered to it.</p>
 
         <p class="govuk-body">To be eligible a CPH must be registered in England.</p>
         <p class="govuk-body">The CPH number cannot be:</p>
@@ -96,7 +98,7 @@
         {% endif %}
 
         <h2 class="govuk-heading-m">Get help with your application</h2>
-        <p class="govuk-body">If you need help with your application, contact the Rural Payments Agency by email or phone.</p>
+        <p class="govuk-body">If you need help with your application, contact the Rural Payments Agency.</p>
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
       {% endif %}
 
@@ -113,7 +115,7 @@
         </ul>
 
         <h2 class="govuk-heading-m">Unlocking the business record</h2>
-        <p class="govuk-body">If you need help with your application, contact the Rural Payments Agency by email or phone.</p>
+        <p class="govuk-body">If you need help with your application, contact the Rural Payments Agency.</p>
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
         {% if not hasMultipleBusinesses %}
           <p class="govuk-body">Have your agreement number with you when you call or include it in your email.</p>
