@@ -196,4 +196,17 @@ describe('session', () => {
       expect(yarMock.get).toHaveBeenCalledWith(undefined)
     })
   })
+  describe('ReturnRoute', () => {
+    test('set called with correct variables', () => {
+      const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
+      session.setReturnRoute(request, 'setReturnRoute', 'test value')
+      expect(yarMock.set).toHaveBeenCalledWith('returnRoute', { setReturnRoute: 'test value' })
+    })
+
+    test('get called with correct variables', () => {
+      const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
+      session.getReturnRoute(request)
+      expect(yarMock.get).toHaveBeenCalledWith('returnRoute')
+    })
+  })
 })

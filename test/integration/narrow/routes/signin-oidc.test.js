@@ -201,6 +201,9 @@ describe('Defra ID redirection test', () => {
       { code: 'sads', state: '' },
       { code: '', state: 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9' }
     ])('returns 400 and login failed view when empty required query parameters - %p', async ({ code, state }) => {
+      if (state !== '') {
+        sessionMock.getReturnRoute.mockResolvedValueOnce({ returnRoute: 'apply' })
+      }
       const baseUrl = `${url}?code=${code}&state=${state}`
       const options = {
         method: 'GET',
