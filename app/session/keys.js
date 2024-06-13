@@ -47,5 +47,8 @@ module.exports = {
     searchType: 'searchType',
     filterStatus: 'status',
     sort: 'sort'
+  },
+  returnRoute: {
+    returnRoute: 'returnRoute'
   }
 }

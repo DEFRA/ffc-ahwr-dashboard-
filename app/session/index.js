@@ -9,7 +9,8 @@ const entries = {
   answers: 'answers',
   pkcecodes: 'pkcecodes',
   tokens: 'tokens',
-  customer: 'customer'
+  customer: 'customer',
+  returnRoute: 'returnRoute'
 }
 
 function lacksAny (request, entryKey, keys) {
@@ -46,6 +47,7 @@ function clear (request) {
   request.yar.clear(entries.answers)
   request.yar.clear(entries.selectYourBusiness)
   request.yar.clear(entries.customer)
+  request.yar.clear(entries.returnRoute)
 }
 
 function setApplication (request, key, value) {
@@ -112,6 +114,14 @@ function getAppSearch (request, key) {
   return get(request, entries.appSearch, key)
 }
 
+const setReturnRoute = (request, key, value) => {
+  set(request, entries.returnRoute, key, value)
+}
+
+const getReturnRoute = (request, key) => {
+  return get(request, entries.returnRoute, key)
+}
+
 module.exports = {
   entries,
   lacksAny,
@@ -131,5 +141,7 @@ module.exports = {
   setCustomer,
   getCustomer,
   setAppSearch,
-  getAppSearch
+  getAppSearch,
+  getReturnRoute,
+  setReturnRoute
 }
