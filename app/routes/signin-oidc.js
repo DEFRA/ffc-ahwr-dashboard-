@@ -186,7 +186,7 @@ module.exports = [{
           backLink: auth.requestAuthorizationCodeUrl(session, request, loginSource),
           claimLink: `${config.claimServiceUri}/endemics/`,
           applyLink: `${config.applyServiceUri}/endemics/start`,
-          sbiText: ` - SBI ${organisation?.sbi ?? ''}`,
+          sbiText: `SBI ${organisation?.sbi ?? ''}`,
           organisationName: organisation?.name,
           guidanceLink: config.serviceUri
         }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()

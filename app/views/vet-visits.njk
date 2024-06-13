@@ -23,22 +23,17 @@
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
       <h1 class="govuk-heading-xl">Manage your claims</h1>
       <p class="govuk-caption-l govuk-!-static-margin-bottom-4">Agreement number: {{reference}}</p>
+
+      {{ govukButton({
+        text: "Start a new claim",
+        href: claimServiceRedirectUri,
+        preventDoubleClick: true
+      }) }}
+
       {% if checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths %}
         <p class="govuk-body-m">Your review has been approved. You can now claim for a follow-up.</p>
-
-        {{ govukButton({
-          text: "Claim for endemics follow-up",
-          href: claimServiceRedirectUri,
-          preventDoubleClick: true
-        }) }}
-
-      {% else %}
-        {{ govukButton({
-          text: "Start a new claim",
-          href: claimServiceRedirectUri,
-          preventDoubleClick: true
-        }) }}
       {% endif %}
+      
       <h2 class="govuk-heading-m govuk-!-static-margin-top-2">Your previous claims</h2>
       <hr/>
       {% if claims | length %}

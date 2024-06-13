@@ -8,13 +8,13 @@
     <div class="govuk-grid-column-two-thirds">
       {% if outstandingAgreementError %}
         <h1 class="govuk-heading-l">You have an existing agreement for this business</h1>
-        <p class="govuk-body">{{ organisationName }}{{ sbiText }} has an agreement on the old health and welfare review service.</p>
+        <p class="govuk-body">{{ organisationName }} &#8212; {{ sbiText }} has an agreement on the old health and welfare review service.</p>
 
-        <h2 class="govuk-heading-m">What to do next</h2>
+        <h2 class="govuk-heading-m">What to do next apply for this business</h2>
         <p class="govuk-body">Before you can apply for this updated service, you can either:</p>
         <ul class='govuk-list govuk-list--bullet'>
           <li>
-            <a class="govuk-link" href='{{ claimLink }}'>complete the claim for your current review</a>
+            <a class="govuk-link" href='{{ claimLink }}'>complete the claim for your current review</a> once it's done
           </li>
           <li>withdraw your existing agreement by contacting the Rural Payments Agency (RPA)</li>
         </ul>
@@ -38,7 +38,7 @@
       {% if noEndemicsAgreementError %}
         <a class="govuk-back-link" href='{{backLink}}'>Back</a>
         <h1 class="govuk-heading-l">You do not have an agreement for this business</h1>
-        <p class="govuk-body">The {{ organisationName }} - {{ sbiText }} does not have an agreement for this service.</p>
+        <p class="govuk-body">The {{ organisationName }} &#8212; {{ sbiText }} does not have an agreement for this service.</p>
         <h2 class="govuk-heading-m">What to do next</h2>
         <p class="govuk-body">Before you can claim you need to:</p>
         <ul class="govuk-list govuk-list--bullet">
@@ -59,10 +59,12 @@
 
       {% if permissionError %}
         <h1 class="govuk-heading-l">You cannot apply for reviews or follow-ups for this business</h1>
-        <p class="govuk-body">You do not have the required permission to act for {{ organisationName }}{{ sbiText }}.</p>
+        <p class="govuk-body">You do not have the required permission to act for {{ organisationName }} &#8212; {{ sbiText }}.</p>
 
         <h2 class="govuk-heading-m">What to do next</h2>
+        {% if hasMultipleBusinesses %}
         <p class="govuk-body">You can apply for another business that does have an eligible CPH</p>
+        {% endif %}
         <p class="govuk-body">To apply for this business, the business owner must give you either:</p>
         <ul class="govuk-list govuk-list--bullet">
           <li>full permission level for business details</li>
@@ -81,7 +83,7 @@
 
       {% if cphError %}
         <h1 class="govuk-heading-l">You cannot apply for reviews or follow-ups for this business</h1>
-        <p class="govuk-body">{{ organisationName }}{{ sbiText }} has no eligible county parish holding (CPH) number registered to it.</p>
+        <p class="govuk-body">{{ organisationName }} &#8212; {{ sbiText }} has no eligible county parish holding (CPH) number registered to it.</p>
 
         <p class="govuk-body">To be eligible a CPH must be registered in England.</p>
         <p class="govuk-body">The CPH number cannot be:</p>
