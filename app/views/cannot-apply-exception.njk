@@ -10,7 +10,7 @@
         <h1 class="govuk-heading-l">You have an existing agreement for this business</h1>
         <p class="govuk-body">{{ organisationName }} &#8212; {{ sbiText }} has an agreement on the old health and welfare review service.</p>
 
-        <h2 class="govuk-heading-m">What to do next apply for this business</h2>
+        <h2 class="govuk-heading-m">What to do next to apply for this business</h2>
         <p class="govuk-body">Before you can apply for this updated service, you can either:</p>
         <ul class='govuk-list govuk-list--bullet'>
           <li>
@@ -25,13 +25,11 @@
         {% endif %}
 
         <h2 class="govuk-heading-m">Contact RPA</h2>
-        <p class="govuk-body">You can contact the RPA.</p>
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
-        <p class="govuk-body">Have your agreement number with you when you call or include it in your email.</p>
 
         {% if hasMultipleBusinesses %}
           <h2 class="govuk-heading-m">Apply for another business</h2>
-          <p class="govuk-body">You can <a href='{{ backLink }}'>apply for another business</a> that has not already applied.</p>
+          <p class="govuk-body">You can <a href='{{ backLink }}'>apply for another business</a> that does not have an existing agreement.</p>
         {% endif %}
       {% endif %}
 
@@ -62,9 +60,6 @@
         <p class="govuk-body">You do not have the required permission to act for {{ organisationName }} &#8212; {{ sbiText }}.</p>
 
         <h2 class="govuk-heading-m">What to do next</h2>
-        {% if hasMultipleBusinesses %}
-        <p class="govuk-body">You can apply for another business that does have an eligible CPH</p>
-        {% endif %}
         <p class="govuk-body">To apply for this business, the business owner must give you either:</p>
         <ul class="govuk-list govuk-list--bullet">
           <li>full permission level for business details</li>
@@ -117,15 +112,10 @@
         <h2 class="govuk-heading-m">Unlocking the business record</h2>
         <p class="govuk-body">To unlock the business record, contact the RPA.</p>
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
-        {% if not hasMultipleBusinesses %}
-          <p class="govuk-body">Have your agreement number with you when you call or include it in your email.</p>
-        {% endif %}
 
-        <h2 class="govuk-heading-m">Apply for another business</h2>
         {% if hasMultipleBusinesses %}
+        <h2 class="govuk-heading-m">Apply for another business</h2>
           <p class="govuk-body">You can <a href='{{ backLink }}'>apply for another business</a> that does not have a locked business record.</p>
-        {% else %}
-          <p class="govuk-body">You can apply for another business that does not have an existing agreement.</p>
         {% endif %}
 
       {% endif %}
