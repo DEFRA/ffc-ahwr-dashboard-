@@ -85,7 +85,8 @@ module.exports = [{
           properties: {
             sbi: organisation.sbi,
             crn: session.getCustomer(request, sessionKeys.customer.crn),
-            email: personSummary.email
+            email: personSummary.email,
+            returnRoute: `${returnRoute?.returnRoute} -> from Dashboard Repo`
           }
         })
 
