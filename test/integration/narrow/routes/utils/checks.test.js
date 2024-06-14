@@ -45,5 +45,4 @@ describe('checkReviewIsPaidOrReadyToPay', () => {
 
     expect(result).toBeFalsy()
   })
-
 })
