@@ -68,6 +68,7 @@ module.exports = [{
     handler: async (request, h) => {
       try {
         const returnRoute = getReturnRoute(request)
+        console.log("🚀 ~ handler: ~ returnRoute:", returnRoute)
         await crumbCache.generateNewCrumb(request, h)
         const loginSource = returnRoute?.returnRoute || JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source
 
@@ -104,6 +105,7 @@ module.exports = [{
 
         const latestApplicationsForSbi = await applicationApi.getLatestApplicationsBySbi(organisation.sbi)
 
+        console.log("🚀 ~ handler: ~ loginSource:", loginSource)
         if (latestApplicationsForSbi.length === 0) {
           if (loginSource === loginSources.apply) {
             // send to endemics apply journey
