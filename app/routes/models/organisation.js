@@ -3,7 +3,7 @@ const auth = require('../../auth')
 const { confirmCheckDetails } = require('../../session/keys').endemicsClaim
 const { getYesNoRadios } = require('./form-component/yes-no-radios')
 
-const labelText = 'Are your details correct?'
+const labelText = 'Are these details correct?'
 
 const formatAddressForDisplay = (organisation) => {
   return organisation?.address?.replaceAll(',', '<br>')

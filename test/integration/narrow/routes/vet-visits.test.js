@@ -17,7 +17,7 @@ const checks = require('../../../../app/routes/utils/checks')
 
 describe('Claim vet-visits', () => {
   beforeAll(async () => {
-    checks.checkReviewIsPaidOrReadyToPayAndWithinLastTenMonths.mockReturnValue(false)
+    checks.checkReviewIsPaidOrReadyToPay.mockReturnValue(false)
     jest.mock('../../../../app/config', () => ({
       ...jest.requireActual('../../../../app/config'),
       endemics: {
@@ -26,7 +26,6 @@ describe('Claim vet-visits', () => {
     }))
   })
 
-  // const MAXIMUM_CLAIMS_TO_DISPLAY = 6
   const organisation = { sbi: '112670111' }
   const attachedToMultipleBusinesses = true
 

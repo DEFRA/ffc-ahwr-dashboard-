@@ -42,7 +42,7 @@ describe('Claim Service API', () => {
 
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(result).toBe(null)
-    expect(claimServiceApi.isWithInLastTenMonths(Date.now())).toBe(true)
-    expect(claimServiceApi.isWithInLastTenMonths()).toBe(false)
+    expect(claimServiceApi.isWithinLastTenMonths(Date.now())).toBe(true)
+    expect(claimServiceApi.isWithinLastTenMonths()).toBe(false)
   })
 })

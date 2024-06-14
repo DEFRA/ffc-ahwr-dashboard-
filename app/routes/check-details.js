@@ -33,8 +33,8 @@ module.exports = [{
           return boom.notFound()
         }
         return h.view('check-details', {
-          errorMessage: { text: 'Select if your details are correct' },
-          ...getOrganisation(request, organisation, 'Select if your details are correct')
+          errorMessage: { text: 'Select if these details are correct' },
+          ...getOrganisation(request, organisation, 'Select if these details are correct')
         }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()
       }
     },

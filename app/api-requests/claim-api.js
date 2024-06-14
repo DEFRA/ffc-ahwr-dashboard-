@@ -21,7 +21,7 @@ async function getClaimsByApplicationReference (applicationReference) {
   }
 }
 
-function isWithInLastTenMonths (date) {
+function isWithinLastTenMonths (date) {
   if (!date) {
     return false // Date of visit was introduced more than 10 months ago
   }
@@ -36,6 +36,6 @@ function isWithInLastTenMonths (date) {
 }
 
 module.exports = {
-  isWithInLastTenMonths,
+  isWithinLastTenMonths,
   getClaimsByApplicationReference
 }
