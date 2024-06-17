@@ -10,6 +10,7 @@ const formatAddressForDisplay = (organisation) => {
 }
 
 const getOrganisation = (request, organisation, errorText) => {
+  const returnRoute = session.getReturnRoute(request)
   const prevAnswer = session.getEndemicsClaim(request, confirmCheckDetails)
   const { crn } = session.getCustomer(request)
 
@@ -27,7 +28,7 @@ const getOrganisation = (request, organisation, errorText) => {
   ]
   return {
     backLink: {
-      href: auth.requestAuthorizationCodeUrl(session, request)
+      href: auth.requestAuthorizationCodeUrl(session, request, returnRoute?.returnRoute)
     },
     organisation,
     listData: { rows },
