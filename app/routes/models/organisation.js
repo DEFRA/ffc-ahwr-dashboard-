@@ -11,7 +11,7 @@ const formatAddressForDisplay = (organisation) => {
 
 const getOrganisation = (request, organisation, errorText) => {
   const returnRoute = session.getReturnRoute(request)
-  console.log("🚀 Dashboard Repo -> returnRoute:= ", returnRoute)
+  console.log('🚀 Dashboard Repo -> returnRoute:= ', returnRoute)
   const prevAnswer = session.getEndemicsClaim(request, confirmCheckDetails)
   const { crn } = session.getCustomer(request)
 
