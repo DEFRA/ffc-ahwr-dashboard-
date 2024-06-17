@@ -19,11 +19,6 @@
           <li>withdraw your existing agreement by contacting the Rural Payments Agency (RPA)</li>
         </ul>
 
-        {% if not hasMultipleBusinesses %}
-          <h2 class="govuk-heading-m">Apply for another business</h2>
-          <p class="govuk-body">You can apply for another business that you have permission to act for.</p>
-        {% endif %}
-
         <h2 class="govuk-heading-m">Contact RPA</h2>
         {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
 
