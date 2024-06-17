@@ -10,7 +10,11 @@
         <h1 class="govuk-heading-l">You have an existing agreement for this business</h1>
         <p class="govuk-body">{{ organisationName }} &#8212; {{ sbiText }} has an agreement on the old health and welfare review service.</p>
 
-        <h2 class="govuk-heading-m">What to do next to apply for this business</h2>
+        {% if hasMultipleBusinesses %}
+          <h2 class="govuk-heading-m">What to do next to apply for this business</h2>
+        {% else %}
+          <h2 class="govuk-heading-m">What to do next</h2>
+        {% endif %}
         <p class="govuk-body">Before you can apply for this updated service, you can either:</p>
         <ul class='govuk-list govuk-list--bullet'>
           <li>
