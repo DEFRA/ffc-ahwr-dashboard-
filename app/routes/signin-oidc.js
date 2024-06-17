@@ -15,7 +15,6 @@ const { raiseIneligibilityEvent } = require('../event')
 const appInsights = require('applicationinsights')
 const HttpStatus = require('http-status-codes')
 const { changeContactHistory } = require('../api/contact-history-api')
-const { getReturnRoute } = require('../session')
 
 function setOrganisationSessionData (request, personSummary, org) {
   const organisation = {
@@ -54,10 +53,9 @@ module.exports = [{
         stripUnknown: true
       }),
       failAction (request, h, err) {
-        const returnRoute = getReturnRoute(request)
         console.log(`Validation error caught during DEFRA ID redirect - ${err.message}.`)
         appInsights.defaultClient.trackException({ exception: err })
-        const loginSource = returnRoute?.returnRoute || request?.query?.state ? JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source : undefined
+        const loginSource = request?.query?.state ? JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source : undefined
 
         return h.view('verify-login-failed', {
           backLink: auth.requestAuthorizationCodeUrl(session, request, loginSource),
@@ -67,9 +65,8 @@ module.exports = [{
     },
     handler: async (request, h) => {
       try {
-        const returnRoute = getReturnRoute(request)
         await crumbCache.generateNewCrumb(request, h)
-        const loginSource = returnRoute?.returnRoute || JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source
+        const loginSource = JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source
 
         await auth.authenticate(request, session)
         const apimAccessToken = await auth.retrieveApimAccessToken()
@@ -85,8 +82,7 @@ module.exports = [{
           properties: {
             sbi: organisation.sbi,
             crn: session.getCustomer(request, sessionKeys.customer.crn),
-            email: personSummary.email,
-            returnRoute: `${returnRoute?.returnRoute} -> from Dashboard Repo`
+            email: personSummary.email
           }
         })
 
