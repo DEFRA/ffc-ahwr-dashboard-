@@ -56,6 +56,9 @@
     "mssql": {
       "@azure/identity": "4.2.1"
     },
+    "webdriverio": {
+      "puppeteer-core": "22.13.0"
+    },
     "semver": "7.5.2"
   },
   "devDependencies": {
