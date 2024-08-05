@@ -6,14 +6,14 @@
 {% block content %}
   <div class="govuk-grid-row govuk-width-container">
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
-      <p class="bold-paragraph govuk-!-static-margin-bottom-1">{{name}}</p>
-      <p class="govuk-body" id="SBI">Single Business Identifier (SBI): {{sbi}}</p>
+      <p class="bold-paragraph govuk-!-static-margin-bottom-1">{{ name }}</p>
+      <p class="govuk-body" id="SBI">Single Business Identifier (SBI): {{ sbi }}</p>
     </div>
     <div class="govuk-grid-column-one-third govuk-!-static-padding-0">
-      <p class="bold-paragraph govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{farmerName}}</p>
+      <p class="bold-paragraph govuk-!-static-margin-bottom-1 govuk-!-text-align-right">{{ farmerName }}</p>
       {% if hasMultipleBusinesses %}
         <p class="govuk-!-text-align-right">
-          <a id="MBILink" href={{hostname}}>Claim for a different business</a>
+          <a id="MBILink" href={{ hostname }}>Claim for a different business</a>
         </p>
       {% endif %}
     </div>
@@ -22,7 +22,9 @@
   <div class="govuk-grid-row govuk-width-container govuk-!-static-margin-top-6">
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
       <h1 class="govuk-heading-xl">Manage your claims</h1>
-      <p class="govuk-caption-l govuk-!-static-margin-bottom-4">Agreement number: {{reference}}</p>
+        <p class="govuk-caption-l govuk-!-static-margin-bottom-4">
+          Agreement number: <a href={{ applicationLinkUrl }}>{{ reference }}</a>  
+        </p>
 
       {{ govukButton({
         text: "Start a new claim",

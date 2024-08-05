@@ -72,6 +72,12 @@ container:
   apimScope:
   endemicsEnabled:
 
+storage:
+  azureStorageConnectionString:
+  azureStorageAccountName:
+  azureStorageAccountKey:
+  azureStorageApplicationDocuments:
+
 ingress:
   class: nginx
   endpoint: ffc-ahwr-farmer

@@ -8,6 +8,7 @@ const { claimType } = require('../constants/claim')
 const { statusIdToFrontendStatusMapping, statusClass } = require('../constants/status')
 const { checkReviewIsPaidOrReadyToPay } = require('./utils/checks')
 const applicationType = require('../constants/application-type')
+const getApplicationUrl = require('../storage/storage')
 
 const pageUrl = `/${vetVisits}`
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
@@ -35,6 +36,9 @@ module.exports = {
       const allClaims = [...(claims && sortByCreatedAt(claims)), ...(vetVisitApplicationsWithinLastTenMonths && sortByCreatedAt(vetVisitApplicationsWithinLastTenMonths))]
       const claimsToDisplay = allClaims.slice(0, MAXIMUM_CLAIMS_TO_DISPLAY).map(claim => ([{ text: description(claim) }, { html: statusTag(claim) }]))
 
+      const applicationUrl = await getApplicationUrl(organisation.sbi, latestEndemicsApplication?.reference)
+      const applicationLinkUrl = applicationUrl != 'urlError' ? applicationUrl : ''
+
       return h.view(vetVisits, {
         claims: claimsToDisplay,
         checkReviewIsPaidOrReadyToPay: checkReviewIsPaidOrReadyToPay(allClaims),
@@ -42,6 +46,7 @@ module.exports = {
         claimServiceRedirectUri: `${claimServiceRedirectUri}&sbi=${organisation.sbi}`,
         ...organisation,
         ...(latestEndemicsApplication?.reference && { reference: latestEndemicsApplication?.reference }),
+        ...(latestEndemicsApplication?.reference && { applicationLinkUrl }),
         ...(attachedToMultipleBusinesses && { hostname: auth.requestAuthorizationCodeUrl(session, request) }),
         latestTermsAndConditionsUri
       })
