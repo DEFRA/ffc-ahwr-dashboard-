@@ -11,12 +11,12 @@ const getApplicationUrl = async (sbi, reference) => {
 
     const sharedKeyCredential = new StorageSharedKeyCredential(accountName, accountKey)
     const sasToken = generateBlobSASQueryParameters({
-        containerName,
-        blobName,
-        permissions: BlobSASPermissions.parse('r'),
-        startsOn: new Date(),
-        expiresOn: new Date(new Date().valueOf() + 3600 * 1000 * 2), // 1 hour
-      }, sharedKeyCredential).toString()
+      containerName,
+      blobName,
+      permissions: BlobSASPermissions.parse('r'),
+      startsOn: new Date(),
+      expiresOn: new Date(new Date().valueOf() + 3600 * 1000 * 2) // 2 hour (allows for time differences)
+    }, sharedKeyCredential).toString()
 
     const applicationUrl = `${blobClient.url}?${sasToken}`
 

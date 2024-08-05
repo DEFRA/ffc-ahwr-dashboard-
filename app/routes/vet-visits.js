@@ -37,7 +37,7 @@ module.exports = {
       const claimsToDisplay = allClaims.slice(0, MAXIMUM_CLAIMS_TO_DISPLAY).map(claim => ([{ text: description(claim) }, { html: statusTag(claim) }]))
 
       const applicationUrl = await getApplicationUrl(organisation.sbi, latestEndemicsApplication?.reference)
-      const applicationLinkUrl = applicationUrl != 'urlError' ? applicationUrl : ''
+      const applicationLinkUrl = applicationUrl !== 'urlError' ? applicationUrl : ''
 
       return h.view(vetVisits, {
         claims: claimsToDisplay,
