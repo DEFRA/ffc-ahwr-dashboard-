@@ -7,28 +7,30 @@
     <div class="govuk-grid-column-two-thirds">
       {% if outstandingAgreementError %}
         <h1 class="govuk-heading-l">You have an existing agreement for this business</h1>
-        <p class="govuk-body">{{ organisationName }} &#8212; {{ sbiText }} has an agreement on the old health and welfare review service.</p>
+        <p class="govuk-body">{{ organisationName }} &#8212; {{ sbiText }} has an agreement on the old health and welfare review service. On 19 June 2024, we replaced that service with the expanded service 'Get funding to improve animal health and welfare</p>
 
-        {% if hasMultipleBusinesses %}
-          <h2 class="govuk-heading-m">What to do next to apply for this business</h2>
-        {% else %}
-          <h2 class="govuk-heading-m">What to do next</h2>
-        {% endif %}
-        <p class="govuk-body">Before you can apply for this updated service, you can either:</p>
+        <h2 class="govuk-heading-m">If you have already done your review</h2>
+
+        <p class="govuk-body">You should:</p>
+
         <ul class='govuk-list govuk-list--bullet'>
-          <li>
-            <a class="govuk-link" href='{{ claimLink }}'>complete the claim for your current review</a> once it's done
-          </li>
-          <li>withdraw your existing agreement by contacting the Rural Payments Agency (RPA)</li>
+          <li><a class="govuk-link" href='https://apply-for-an-annual-health-and-welfare-review.defra.gov.uk/apply/claim-guidance-for-farmers'>claim for the review onder your current agreement</a></li>
+          <li><a class="govuk-link" href='https://www.gov.uk/guidance/farmers-how-to-apply-for-funding-to-improve-animal-health-and-welfare'>apply for a new agreement in the expanded service</a></li>
+          <li>if your review claim was succesful, consider going a <a class="govuk-link" href=' https://www.gov.uk/guidance/farmers-and-vets-what-happens-on-an-endemic-disease-follow-up'>follow-up in the expanded service</a> within 10 months of the date your last review was done</li>
         </ul>
 
-        <h2 class="govuk-heading-m">Contact RPA</h2>
-        {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
+        <h2 class="govuk-heading-m">If you have not done your review</h2>
 
-        {% if hasMultipleBusinesses %}
-          <h2 class="govuk-heading-m">Apply for another business</h2>
-          <p class="govuk-body">You can <a href='{{ backLink }}'>apply for another business</a> that does not have an existing agreement.</p>
-        {% endif %}
+        <p class="govuk-body">You should:</p>
+
+        <ul class='govuk-list govuk-list--bullet'>
+          <li>withdraw your current agreement by contacting the Rural Payments Agency (RPA) by email or letter</li>
+          <li><a class="govuk-link" href='https://www.gov.uk/guidance/farmers-how-to-apply-for-funding-to-improve-animal-health-and-welfare'>apply for a new agreement in the expanded service</a></li>
+          <li><a class="govuk-link" href='https://www.gov.uk/guidance/farmers-and-vets-what-happens-on-an-animal-health-and-welfare-review'>do a review in the expanded service</a></li>
+          <li><a class="govuk-link" href='https://www.gov.uk/guidance/farmers-how-to-claim-funding-to-improve-animal-health-and-welfare'>claim for your review in the expanded service</a></li>
+          <li>if your review claim was succesful, consider going a <a class="govuk-link" href=' https://www.gov.uk/guidance/farmers-and-vets-what-happens-on-an-endemic-disease-follow-up'>follow-up in the expanded service</a> within 10 months of the date your last review was done</li>
+        </ul>
+
       {% endif %}
 
       {% if noEndemicsAgreementError %}
