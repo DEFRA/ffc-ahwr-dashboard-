@@ -30,6 +30,10 @@
           <li><a class="govuk-link" href='https://www.gov.uk/guidance/farmers-how-to-claim-funding-to-improve-animal-health-and-welfare'>claim for your review in the expanded service</a></li>
           <li>if your review claim was succesful, consider doing a <a class="govuk-link" href=' https://www.gov.uk/guidance/farmers-and-vets-what-happens-on-an-endemic-disease-follow-up'>follow-up in the expanded service</a> within 10 months of the date your last review was done</li>
         </ul>
+
+        <h2 class="govuk-heading-m">Contact the RPA</h2>
+        {{ rpaContactDetails({email: ruralPaymentsAgency.email, callChargesUri: ruralPaymentsAgency.callChargesUri, telephone: ruralPaymentsAgency.telephone}) }}
+
 	{% if hasMultipleBusinesses %}
           <h2 class="govuk-heading-m">Apply for another business</h2>
           <p class="govuk-body">You can apply <a href='{{ backLink }}'>for another business</a> that does not have an existing agreement.</p>
