@@ -26,7 +26,6 @@ function setOrganisationSessionData (request, personSummary, org) {
     address: getOrganisationAddress(org.address)
   }
 
-  // todo: only use one of these, but currently apply uses one and journey uses the other
   session.setEndemicsClaim(
     request,
     sessionKeys.endemicsClaim.organisation,
