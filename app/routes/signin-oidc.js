@@ -39,6 +39,37 @@ function setOrganisationSessionData (request, personSummary, org) {
     organisation
   )
 }
+function sendToApplyJourney (latestApplicationsForSbi, loginSource, h, endemicsApplyJourney, organisation) {
+  if (latestApplicationsForSbi.length === 0) {
+    if (loginSource === loginSources.apply) {
+      // send to endemics apply journey
+      return endemicsApplyJourney
+    } else {
+      // show the 'You need to complete an endemics application' error page
+      throw new NoEndemicsAgreementError(`Business with SBI ${organisation.sbi} must complete an endemics agreement`)
+    }
+  }
+
+  const latestApplication = latestApplicationsForSbi[0]
+  if (latestApplication.type === applicationType.ENDEMICS) {
+    if (latestApplication.statusId === status.AGREED) {
+      return '/check-details'
+    } else {
+      // send to endemics apply journey
+      return endemicsApplyJourney
+    }
+  }
+
+  if (closedStatuses.includes(latestApplication.statusId)) {
+    if (loginSource === loginSources.apply) {
+      // send to endemics apply journey
+      return endemicsApplyJourney
+    } else {
+      // show the 'You need to complete an endemics application' error page
+      throw new NoEndemicsAgreementError(`Business with SBI ${organisation.sbi} must complete an endemics agreement`)
+    }
+  }
+}
 
 module.exports = [{
   method: 'GET',
@@ -98,37 +129,11 @@ module.exports = [{
 
         const endemicsApplyJourney = `${config.applyServiceUri}/endemics/check-details`
         const oldClaimJourney = `${config.claimServiceUri}/signin-oidc?state=${request.query.state}&code=${request.query.code}`
-
         const latestApplicationsForSbi = await applicationApi.getLatestApplicationsBySbi(organisation.sbi)
+        const applyRedirectionLink = sendToApplyJourney(latestApplicationsForSbi, loginSource, h, endemicsApplyJourney, organisation)
 
-        if (latestApplicationsForSbi.length === 0) {
-          if (loginSource === loginSources.apply) {
-            // send to endemics apply journey
-            return h.redirect(endemicsApplyJourney)
-          } else {
-            // show the 'You need to complete an endemics application' error page
-            throw new NoEndemicsAgreementError(`Business with SBI ${organisation.sbi} must complete an endemics agreement`)
-          }
-        }
-
-        const latestApplication = latestApplicationsForSbi[0]
-        if (latestApplication.type === applicationType.ENDEMICS) {
-          if (latestApplication.statusId === status.AGREED) {
-            return h.redirect('/check-details')
-          } else {
-            // send to endemics apply journey
-            return h.redirect(endemicsApplyJourney)
-          }
-        }
-
-        if (closedStatuses.includes(latestApplication.statusId)) {
-          if (loginSource === loginSources.apply) {
-            // send to endemics apply journey
-            return h.redirect(endemicsApplyJourney)
-          } else {
-            // show the 'You need to complete an endemics application' error page
-            throw new NoEndemicsAgreementError(`Business with SBI ${organisation.sbi} must complete an endemics agreement`)
-          }
+        if (typeof applyRedirectionLink === 'string') {
+          return h.redirect(applyRedirectionLink)
         }
 
         // they have an open old world application/claim
