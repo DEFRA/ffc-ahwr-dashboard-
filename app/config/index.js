@@ -1,6 +1,7 @@
 const Joi = require('joi')
 const authConfig = require('./auth')
 const mqConfig = require('./messaging')
+const storageConfig = require('./storage')
 
 const schema = Joi.object({
   appInsights: Joi.object(),
@@ -145,5 +146,6 @@ if (result.error) {
 const value = result.value
 value.mqConfig = mqConfig
 value.authConfig = authConfig
+value.storage = storageConfig
 
 module.exports = value

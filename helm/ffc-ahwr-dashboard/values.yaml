@@ -71,6 +71,11 @@ container:
   apimClientSecret:
   apimScope:
   endemicsEnabled:
+  azureStorageConnectionString:
+  azureStorageAccountName:
+  azureStorageApplicationDocumentsContainerName:
+  azureStorageUseConnectionString: true
+
 
 ingress:
   class: nginx

@@ -13,7 +13,8 @@ if (config.endemics.enabled) {
     require('../routes/check-details'),
     require('../routes/update-details'),
     require('../routes/signin-oidc'),
-    require('../routes/vet-visits')
+    require('../routes/vet-visits'),
+    require('../routes/download-application')
   )
 }
 

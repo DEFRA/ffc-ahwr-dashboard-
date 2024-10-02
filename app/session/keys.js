@@ -19,7 +19,8 @@ module.exports = {
     vetRCVSNumber: 'vetRCVSNumber',
     laboratoryURN: 'laboratoryURN',
     numberAnimalsTested: 'numberAnimalsTested',
-    minimumNumberAnimalsRequired: 'minimumNumberAnimalsRequired'
+    minimumNumberAnimalsRequired: 'minimumNumberAnimalsRequired',
+    LatestEndemicsApplicationReference: 'LatestEndemicsApplicationReference'
   },
   selectYourBusiness: {
     eligibleBusinesses: 'eligibleBusinesses',

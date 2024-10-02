@@ -8,3 +8,7 @@ beforeEach(async () => {
   await server.initialize()
   global.__SERVER__ = server
 })
+
+jest.mock('../app/config/storage', () => ({
+  storageAccount: 'mockStorageAccount'
+}))
