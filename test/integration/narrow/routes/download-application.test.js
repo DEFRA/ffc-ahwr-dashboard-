@@ -79,27 +79,4 @@ describe('Download Application Route', () => {
     expect(response.statusCode).toBe(404)
     expect(getBlob).not.toHaveBeenCalled()
   })
-
-  // test('returns 404 when SBI does not match', async () => {
-  //   session.getEndemicsClaim.mockReturnValue({
-  //     LatestEndemicsApplicationReference: 'TEST-REF-001',
-  //     organisation: { sbi: '987654321' }
-  //   })
-
-  //   const result = await downloadApplicationRoute.handler(request, h)
-
-  //   expect(result).toEqual(boom.notFound())
-  //   expect(getBlob).not.toHaveBeenCalled()
-  // })
-
-  // test('handles getBlob error', async () => {
-  //   getBlob.mockRejectedValue(new Error('Storage error'))
-
-  //   await expect(downloadApplicationRoute.handler(request, h)).rejects.toThrow('Storage error')
-  // })
-
-  // test('route configuration is correct', () => {
-  //   expect(downloadApplicationRoute.method).toBe('GET')
-  //   expect(downloadApplicationRoute.path).toBe('/download-application/{sbi}/{reference}')
-  // })
 })
