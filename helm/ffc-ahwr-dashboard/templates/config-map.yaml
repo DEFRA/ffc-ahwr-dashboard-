@@ -39,5 +39,5 @@ data:
   AZURE_STORAGE_CONNECTION_STRING: {{ quote .Values.container.azureStorageConnectionString }}
   AZURE_STORAGE_ACCOUNT_NAME: {{ quote .Values.container.azureStorageAccountName }}
   AZURE_STORAGE_ACCOUNT_KEY: {{ quote .Values.container.azureStorageAccountKey }}
-  AZURE_STORAGE_APPLICATION_DOCUMENTS: {{ quote .Values.azureStorageApplicationDocuments }}
+  AZURE_STORAGE_APPLICATION_CONTAINER: {{ quote .Values.container.azureStorageApplicationDocumentsContainerName }}
 {{- end -}}
