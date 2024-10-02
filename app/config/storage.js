@@ -5,15 +5,19 @@ const schema = Joi.object({
   connectionString: Joi.string().required(),
   accountName: Joi.string().required(),
   accountKey: Joi.string().required(),
-  applicationDocumentsStorage: Joi.string().default('documents')
+  applicationDocumentsContainer: Joi.string().default('documents'),
+  useConnectionString: Joi.bool().default(true),
+  storageAccount: Joi.string().required()
 })
 
 // Build config
 const storageConfig = {
   connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+  useConnectionString: process.env.AZURE_STORAGE_USE_CONNECTION_STRING,
   accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME,
   accountKey: process.env.AZURE_STORAGE_ACCOUNT_KEY,
-  applicationDocumentsStorage: process.env.AZURE_STORAGE_APPLICATION_DOCUMENTS
+  applicationDocumentsContainer: process.env.AZURE_STORAGE_APPLICATION_CONTAINER,
+  storageAccount: process.env.AZURE_STORAGE_ACCOUNT_NAME
 }
 
 // Validate config
