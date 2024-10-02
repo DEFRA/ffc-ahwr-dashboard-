@@ -22,7 +22,7 @@
     <div class="govuk-grid-column-two-thirds govuk-!-static-padding-0">
       <h1 class="govuk-heading-xl">Manage your claims</h1>
         <p class="govuk-caption-l govuk-!-static-margin-bottom-4">
-          Agreement number: <a href={{ applicationLinkUrl }}>{{ reference }}</a>  
+          Agreement number:{{ reference }}  
         </p>
 
       {{ govukButton({
@@ -52,6 +52,9 @@
       </p>
       <p class="govuk-body">
         <a  class="govuk-link" rel="external" href="https://www.gov.uk/government/collections/funding-to-improve-animal-health-and-welfare-guidance-for-farmers-and-vets">Guidance for funding to improve animal health and welfare</a>
+      </p>
+      <p class="govuk-body">
+        <a class="govuk-link" rel="external" target=”_blank”  href={{ downloadedDocument }}>Agreement summary</a>
       </p>
     </div>
   </div>
