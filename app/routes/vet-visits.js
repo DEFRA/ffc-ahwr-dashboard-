@@ -36,8 +36,6 @@ module.exports = {
       const allClaims = [...(claims && sortByCreatedAt(claims)), ...(vetVisitApplicationsWithinLastTenMonths && sortByCreatedAt(vetVisitApplicationsWithinLastTenMonths))]
       const claimsToDisplay = allClaims.slice(0, MAXIMUM_CLAIMS_TO_DISPLAY).map(claim => ([{ text: description(claim) }, { html: statusTag(claim) }]))
 
-      // const applicationUrl = await getApplicationUrl(organisation.sbi, latestEndemicsApplication?.reference)
-      // const applicationLinkUrl = applicationUrl !== 'urlError' ? applicationUrl : ''
       session.setEndemicsClaim(request, sessionKeys.endemicsClaim.LatestEndemicsApplicationReference, latestEndemicsApplication?.reference)
       const downloadedDocument = `/download-application/${organisation.sbi}/${latestEndemicsApplication?.reference}`
       return h.view(vetVisits, {
