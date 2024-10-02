@@ -3,8 +3,6 @@ const Joi = require('joi')
 // Define config schema
 const schema = Joi.object({
   connectionString: Joi.string().required(),
-  accountName: Joi.string().required(),
-  accountKey: Joi.string().required(),
   applicationDocumentsContainer: Joi.string().default('documents'),
   useConnectionString: Joi.bool().default(true),
   storageAccount: Joi.string().required()
@@ -14,8 +12,6 @@ const schema = Joi.object({
 const storageConfig = {
   connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
   useConnectionString: process.env.AZURE_STORAGE_USE_CONNECTION_STRING,
-  accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME,
-  accountKey: process.env.AZURE_STORAGE_ACCOUNT_KEY,
   applicationDocumentsContainer: process.env.AZURE_STORAGE_APPLICATION_CONTAINER,
   storageAccount: process.env.AZURE_STORAGE_ACCOUNT_NAME
 }
