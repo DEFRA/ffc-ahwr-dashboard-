@@ -19,22 +19,11 @@ describe('decodeJwt function', () => {
     expect(decodedToken).toEqual(mockDecodedToken)
   })
 
-  it('should return undefined and log an error if the token cannot be decoded', () => {
-    // Mock jwt.decode to simulate failure to decode
+  it('should return throw an error if the token cannot be decoded', () => {
     jwt.decode.mockReturnValue(null)
 
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
-    const decodedToken = decodeJwt(mockToken)
-
-    expect(jwt.decode).toHaveBeenCalledWith(mockToken, { complete: true })
-    expect(decodedToken).toBeUndefined()
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Error while decoding JWT token:'))
-    expect(errorSpy).toHaveBeenCalled()
-
-    // Clean up
-    logSpy.mockRestore()
-    errorSpy.mockRestore()
+    expect(() => {
+      decodeJwt(mockToken)
+    }).toThrow('The token has not been decoded')
   })
 })

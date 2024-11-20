@@ -38,7 +38,7 @@ jest.mock('../../../../../app/session/keys', () => ({
   }
 }))
 
-const Wreck = require('@hapi/wreck')
+const wreck = require('@hapi/wreck')
 const FormData = require('form-data')
 const config = require('../../../../../app/config')
 const session = require('../../../../../app/session')
@@ -48,6 +48,9 @@ describe('redeemAuthorizationCodeForAccessToken', () => {
   const mockRequest = {
     query: {
       code: 'test-code'
+    },
+    logger: {
+      setBindings: jest.fn()
     }
   }
 
@@ -58,14 +61,14 @@ describe('redeemAuthorizationCodeForAccessToken', () => {
 
   it('successfully redeems authorization code for access token', async () => {
     const mockResponsePayload = { access_token: 'test-access-token' }
-    Wreck.post.mockResolvedValue({
+    wreck.post.mockResolvedValue({
       res: { statusCode: 200 },
       payload: mockResponsePayload
     })
 
     const result = await redeemAuthorizationCodeForAccessToken(mockRequest)
     expect(result).toEqual(mockResponsePayload)
-    expect(Wreck.post).toHaveBeenCalledWith(
+    expect(wreck.post).toHaveBeenCalledWith(
       `${config.authConfig.defraId.hostname}/${config.authConfig.defraId.policy}/oauth2/v2.0/token`,
       expect.anything()
     )
@@ -73,17 +76,19 @@ describe('redeemAuthorizationCodeForAccessToken', () => {
   })
 
   it('throws an error when HTTP request fails', async () => {
-    Wreck.post.mockResolvedValue({
+    const response = {
       res: { statusCode: 400, statusMessage: 'Bad Request' },
       payload: {}
-    })
+    }
+    wreck.post.mockRejectedValue(response)
 
-    await expect(redeemAuthorizationCodeForAccessToken(mockRequest)).rejects.toThrow('HTTP 400 (Bad Request)')
+    await expect(redeemAuthorizationCodeForAccessToken(mockRequest))
+      .rejects.toEqual(response)
   })
 
   it('sends correct form data in the request', async () => {
     const mockResponsePayload = { access_token: 'test-access-token' }
-    Wreck.post.mockResolvedValue({
+    wreck.post.mockResolvedValue({
       res: { statusCode: 200 },
       payload: mockResponsePayload
     })
@@ -101,13 +106,8 @@ describe('redeemAuthorizationCodeForAccessToken', () => {
   })
   it('handles network or other errors during HTTP request', async () => {
     const errorMessage = 'Network error'
-    Wreck.post.mockRejectedValue(new Error(errorMessage))
+    wreck.post.mockRejectedValue(new Error(errorMessage))
 
     await expect(redeemAuthorizationCodeForAccessToken(mockRequest)).rejects.toThrow(errorMessage)
-  })
-  it('handles unexpected response structure', async () => {
-    Wreck.post.mockResolvedValue({}) // Missing `res` or `payload`
-    const result = "Cannot read properties of undefined (reading 'statusCode')"
-    await expect(redeemAuthorizationCodeForAccessToken(mockRequest)).rejects.toThrow(result)
   })
 })

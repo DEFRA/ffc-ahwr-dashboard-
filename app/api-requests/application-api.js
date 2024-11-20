@@ -1,23 +1,18 @@
-const Wreck = require('@hapi/wreck')
+const wreck = require('@hapi/wreck')
 const config = require('../config')
-const HttpStatus = require('http-status-codes')
 
-async function getLatestApplicationsBySbi (sbi) {
-  console.log(`${new Date().toISOString()} Getting latest applications by: ${JSON.stringify({ sbi })}`)
+async function getLatestApplicationsBySbi (sbi, logger) {
+  const endpoint = `${config.applicationApi.uri}/applications/latest?sbi=${sbi}`
   try {
-    const response = await Wreck.get(
-      `${config.applicationApi.uri}/applications/latest?sbi=${sbi}`,
+    const { payload } = await wreck.get(
+      endpoint,
       { json: true }
     )
-    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
-      throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
-    }
-    return response.payload
-  } catch (error) {
-    console.error(`${new Date().toISOString()} Getting latest applications failed: ${JSON.stringify({
-      sbi
-    })}`, error)
-    throw new Error(`Error retreiving latest application for SBI ${sbi} - ${error.message}`)
+
+    return payload
+  } catch (err) {
+    logger.setBindings({ err })
+    throw err
   }
 }
 

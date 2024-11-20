@@ -1,5 +1,5 @@
 const mockSession = require('../../../../../app/session/index')
-const Wreck = require('@hapi/wreck')
+const wreck = require('@hapi/wreck')
 const base = require('../../../../../app/api-requests/rpa-api/base')
 const mockJwtDecode = require('../../../../../app/auth/token-verify/jwt-decode')
 jest.mock('../../../../../app/session/index')
@@ -35,20 +35,17 @@ describe('Base', () => {
       rejectUnauthorized: false,
       timeout: 10000
     }
-    Wreck.get = jest.fn(async function (_url, _options) {
-      return wreckResponse
-    })
+    wreck.get = jest.fn().mockResolvedValueOnce(wreckResponse)
 
     mockSession.getToken.mockResolvedValueOnce(accessToken)
     mockJwtDecode.mockResolvedValue(contactId)
 
-    const result = await base.get(hostname, url, expect.anything(), expect.anything())
+    const request = { logger: { setBindings: jest.fn() } }
+    const result = await base.get(hostname, url, request, headers)
 
-    expect(result).not.toBeNull()
-    expect(result.name).toMatch(contactName)
-    expect(result.id).toEqual(contactId)
-    expect(Wreck.get).toHaveBeenCalledTimes(1)
-    expect(Wreck.get).toHaveBeenCalledWith(`${hostname}${url}`, options)
+    expect(result).toEqual(wreckResponse.payload)
+    expect(wreck.get).toHaveBeenCalledTimes(1)
+    expect(wreck.get).toHaveBeenCalledWith(`${hostname}${url}`, options)
   })
 
   test('when called and error occurs, throwns error', async () => {
@@ -58,15 +55,14 @@ describe('Base', () => {
     const accessToken = 'access_token'
     const error = new Error('Test error in base')
 
-    Wreck.get = jest.fn(async function (_url, _options) {
-      throw error
-    })
+    wreck.get = jest.fn().mockRejectedValueOnce(error)
 
     mockSession.getToken.mockResolvedValueOnce(accessToken)
     mockJwtDecode.mockResolvedValue(contactId)
 
+    const request = { logger: { setBindings: jest.fn() } }
     expect(async () =>
-      await base.get(hostname, url, expect.anything(), expect.anything())
+      await base.get(hostname, url, request)
     ).rejects.toThrowError(error)
   })
 })

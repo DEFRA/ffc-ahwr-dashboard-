@@ -1,23 +1,21 @@
-const Wreck = require('@hapi/wreck')
+const wreck = require('@hapi/wreck')
 const config = require('../config')
 
-async function getClaimsByApplicationReference (applicationReference) {
+async function getClaimsByApplicationReference (applicationReference, logger) {
+  const endpoint = `${config.applicationApiUri}/claim/get-by-application-reference/${applicationReference}`
   try {
-    const response = await Wreck.get(
-      `${config.applicationApiUri}/claim/get-by-application-reference/${applicationReference}`,
+    const { payload } = await wreck.get(
+      endpoint,
       { json: true }
     )
-    if (response.res.statusCode !== 200) {
-      throw new Error(
-        `HTTP ${response.res.statusCode} (${response.res.statusMessage})`
-      )
+
+    return payload
+  } catch (err) {
+    if (err.output.statusCode === 404) {
+      return []
     }
-    return response.payload
-  } catch (error) {
-    console.error(
-      `${new Date().toISOString()} Getting claims for application with reference ${applicationReference} failed`
-    )
-    return null
+    logger.setBindings({ err })
+    throw err
   }
 }
 

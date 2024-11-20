@@ -18,7 +18,7 @@ jest.mock('../../../../app/api-requests/application-api')
 const HttpStatus = require('http-status-codes')
 const { status } = require('../../../../app/constants/status')
 
-const { InvalidPermissionsError, InvalidStateError, NoEligibleCphError, OutstandingAgreementError, LockedBusinessError, NoEndemicsAgreementError } = require('../../../../app/exceptions')
+const { InvalidStateError, NoEligibleCphError } = require('../../../../app/exceptions')
 
 const stateFromApply = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImFwcGx5In0='
 const stateFromClaim = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImNsYWltIn0='
@@ -160,7 +160,7 @@ describe('Defra ID redirection test', () => {
     ])
   }
 
-  function verifyResult (res, expectedError, consoleErrorSpy, errorMessage = 'NoEligibleCphError', isLoginFailed = false) {
+  function verifyResult (res, errorMessage = 'NoEligibleCphError', isLoginFailed = false) {
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     const $ = cheerio.load(res.payload)
     if (isLoginFailed) {
@@ -172,10 +172,8 @@ describe('Defra ID redirection test', () => {
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
     expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name ${errorMessage} and message ${expectedError.message}.`)
   }
-  function verifyResultForNoEndemicsAgreement (res, expectedError, consoleErrorSpy) {
+  function verifyResultForNoEndemicsAgreement (res) {
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
     const $ = cheerio.load(res.payload)
     assertLoginFailed($, NO_ENDEMICS_AGREEMENT)
@@ -183,8 +181,6 @@ describe('Defra ID redirection test', () => {
     assertRetrieveApimAccessTokenCalled()
     expect(personMock.getPersonSummary).toBeCalledTimes(1)
     expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-    expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name NoEndemicsAgreementError and message ${expectedError.message}`)
   }
   function verifyResult302 (res, locationUrl = '/check-details') {
     expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
@@ -263,8 +259,6 @@ describe('Defra ID redirection test', () => {
     })
 
     test('returns 400 and login failed view when apim access token auth fails', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error')
-      const expectedError = new Error('APIM Access Token Retrieval Failed')
       const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
       const options = {
         method: 'GET',
@@ -281,13 +275,9 @@ describe('Defra ID redirection test', () => {
       const $ = cheerio.load(res.payload)
       assertRetrieveApimAccessTokenCalled()
       assertLoginAuth($)
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-      expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name Error and message ${expectedError.message}.`)
     })
 
     test('returns 400 and exception view when permissions failed', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error')
-      const expectedError = new InvalidPermissionsError('Person id 1234567 does not have the required permissions for organisation id 7654321')
       const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
       const options = {
         method: 'GET',
@@ -303,11 +293,8 @@ describe('Defra ID redirection test', () => {
       expect(personMock.getPersonSummary).toBeCalledTimes(1)
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-      expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name InvalidPermissionsError and message ${expectedError.message}.`)
     })
     test('returns 400 and exception view when no eligible cph', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error')
       const expectedError = new NoEligibleCphError('Customer must have at least one valid CPH')
       const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
       const options = {
@@ -319,11 +306,9 @@ describe('Defra ID redirection test', () => {
 
       cphCheckMock.mockRejectedValueOnce(expectedError)
       const res = await global.__SERVER__.inject(options)
-      verifyResult(res, expectedError, consoleErrorSpy, 'NoEligibleCphError', true)
+      verifyResult(res, 'NoEligibleCphError', true)
     })
     test('returns 400 and exception view when business is locked', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error')
-      const expectedError = new LockedBusinessError('Organisation id 7654321 is locked by RPA.')
       const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
       const options = {
         method: 'GET',
@@ -340,13 +325,9 @@ describe('Defra ID redirection test', () => {
       expect(personMock.getPersonSummary).toBeCalledTimes(1)
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-      expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name LockedBusinessError and message ${expectedError.message}`)
     })
 
     test('returns 400 and exception view when there is no agreement and user entered from claim journey', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error')
-      const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
       const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
       const options = {
         method: 'GET',
@@ -358,12 +339,10 @@ describe('Defra ID redirection test', () => {
       getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
       const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
+      verifyResultForNoEndemicsAgreement(res)
     })
 
     test('returns 400 and exception view when there is no agreement and user entered from dashboard directly', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error')
-      const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
       const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
       const options = {
         method: 'GET',
@@ -375,7 +354,7 @@ describe('Defra ID redirection test', () => {
       getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
 
       const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
+      verifyResultForNoEndemicsAgreement(res)
     })
 
     test('returns 302 and redirects user to apply journey if no previous applications and user entered from apply journey', async () => {
@@ -423,8 +402,6 @@ describe('Defra ID redirection test', () => {
     })
 
     test('returns 400 and exception view if open application/claim and user entered from apply journey', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error')
-      const expectedError = new OutstandingAgreementError('Business with SBI 101122201 must claim or withdraw agreement before creating another.')
       const baseUrl = `${url}?code=432432&state=${stateFromApply}`
       const options = {
         method: 'GET',
@@ -443,8 +420,6 @@ describe('Defra ID redirection test', () => {
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       const $ = cheerio.load(res.payload)
       assertLoginFailed($, 'You have an existing agreement for this business')
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-      expect(consoleErrorSpy).toHaveBeenCalledWith(`Received error with name OutstandingAgreementError and message ${expectedError.message}`)
     })
 
     test('returns 302 and redirects user to dashboard if endemics agreement and user entered from apply', async () => {
@@ -522,8 +497,6 @@ describe('Defra ID redirection test', () => {
     })
 
     test('returns 400 and and exception view if last application is a closed VV application and coming from claim', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error')
-      const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
       const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
       const options = {
         method: 'GET',
@@ -535,12 +508,10 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('VV', status.READY_TO_PAY)
 
       const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
+      verifyResultForNoEndemicsAgreement(res)
     })
 
     test('returns 400 and and exception view if last application is a closed VV application and coming from dashboard', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error')
-      const expectedError = new NoEndemicsAgreementError('Business with SBI 101122201 must complete an endemics agreement.')
       const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
       const options = {
         method: 'GET',
@@ -552,7 +523,7 @@ describe('Defra ID redirection test', () => {
       mockGetLatestApplicationsBySbiMock('VV', status.READY_TO_PAY)
 
       const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res, expectedError, consoleErrorSpy)
+      verifyResultForNoEndemicsAgreement(res)
     })
   })
 })

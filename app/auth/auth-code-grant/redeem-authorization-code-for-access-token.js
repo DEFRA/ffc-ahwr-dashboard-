@@ -1,13 +1,12 @@
-const Wreck = require('@hapi/wreck')
+const wreck = require('@hapi/wreck')
 const FormData = require('form-data')
 const config = require('../../config')
 const session = require('../../session')
 const sessionKeys = require('../../session/keys')
-const HttpStatus = require('http-status-codes')
 const appInsights = require('applicationinsights')
 
 const redeemAuthorizationCodeForAccessToken = async (request) => {
-  console.log(`${new Date().toISOString()} Requesting an access token with a client_secret`)
+  const endpoint = `${config.authConfig.defraId.hostname}/${config.authConfig.defraId.policy}/oauth2/v2.0/token`
   try {
     const data = new FormData()
     // The Application (client) ID
@@ -23,24 +22,19 @@ const redeemAuthorizationCodeForAccessToken = async (request) => {
     data.append('redirect_uri', config.authConfig.defraId.redirectUri)
     // The same code_verifier that was used to obtain the authorization_code.
     data.append('code_verifier', session.getPkcecodes(request, sessionKeys.pkcecodes.verifier))
-    const response = await Wreck.post(
-      `${config.authConfig.defraId.hostname}/${config.authConfig.defraId.policy}/oauth2/v2.0/token`,
+    const { payload } = await wreck.post(
+      endpoint,
       {
         headers: data.getHeaders(),
         payload: data,
         json: true
       }
     )
-    if (response.res.statusCode !== HttpStatus.StatusCodes.OK) {
-      appInsights.defaultClient.trackException({ exception: response.res })
-      throw new Error(`HTTP ${response.res.statusCode} (${response.res.statusMessage})`)
-    }
-    return response.payload
-  } catch (error) {
-    appInsights.defaultClient.trackException({ exception: error })
-    console.log(`${new Date().toISOString()} Error while requesting an access token: ${error.message}`)
-    console.error(error)
-    throw error
+    return payload
+  } catch (err) {
+    request.logger.setBindings({ err, endpoint })
+    appInsights.defaultClient.trackException({ exception: err })
+    throw err
   }
 }
 

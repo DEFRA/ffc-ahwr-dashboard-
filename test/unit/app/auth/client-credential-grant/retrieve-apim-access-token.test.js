@@ -1,5 +1,5 @@
 const retrieveApimAccessToken = require('../../../../../app/auth/client-credential-grant/retrieve-apim-access-token')
-const Wreck = require('@hapi/wreck')
+const wreck = require('@hapi/wreck')
 jest.mock('@hapi/wreck')
 const HttpStatus = require('http-status-codes')
 
@@ -17,19 +17,15 @@ describe('Retrieve apim access token', () => {
       }
     }
 
-    Wreck.post = jest.fn(async function (_url, _options) {
-      return wreckResponse
-    })
+    wreck.post = jest.fn().mockResolvedValueOnce(wreckResponse)
 
-    const result = await retrieveApimAccessToken()
+    const request = { logger: { setBindings: jest.fn() } }
+    const result = await retrieveApimAccessToken(request)
 
-    expect(result).not.toBeNull()
     expect(result).toMatch(`${tokenType} ${token}`)
-    expect(Wreck.post).toHaveBeenCalledTimes(1)
   })
 
   test('when retrieveApimAccessToken called - error thrown when not HttpStatus.StatusCodes.OK status code', async () => {
-    const error = new Error('HTTP 404 (Call failed)')
     const wreckResponse = {
       res: {
         statusCode: 404,
@@ -37,14 +33,11 @@ describe('Retrieve apim access token', () => {
       }
     }
 
-    Wreck.post = jest.fn(async function (_url, _options) {
-      return wreckResponse
-    })
+    wreck.post = jest.fn().mockRejectedValueOnce(wreckResponse)
 
+    const request = { logger: { setBindings: jest.fn() } }
     expect(async () =>
-      await retrieveApimAccessToken()
-    ).rejects.toThrowError(error)
-
-    expect(Wreck.post).toHaveBeenCalledTimes(1)
+      await retrieveApimAccessToken(request)
+    ).rejects.toEqual(wreckResponse)
   })
 })

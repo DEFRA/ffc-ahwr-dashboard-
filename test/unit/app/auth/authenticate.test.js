@@ -8,10 +8,8 @@ const MOCK_JWT_VERIFY = jest.fn()
 const MOCK_COOKIE_AUTH_SET = jest.fn()
 
 describe('authenticate', () => {
-  let Wreck
+  let wreck
   let jwktopem
-  let logSpy
-  let errorSpy
   let session
   let authenticate
 
@@ -55,7 +53,7 @@ describe('authenticate', () => {
     session = require('../../../../app/session')
 
     jest.mock('@hapi/wreck')
-    Wreck = require('@hapi/wreck')
+    wreck = require('@hapi/wreck')
 
     jest.mock('jwk-to-pem')
     jwktopem = require('jwk-to-pem')
@@ -64,9 +62,6 @@ describe('authenticate', () => {
       verify: MOCK_JWT_VERIFY,
       decode: MOCK_USE_ACTUAL_DECODE
     }))
-
-    logSpy = jest.spyOn(console, 'log')
-    errorSpy = jest.spyOn(console, 'error')
 
     authenticate = require('../../../../app/auth/authenticate')
   })
@@ -211,25 +206,7 @@ describe('authenticate', () => {
         }
       },
       expect: {
-        error: new Error('Issuer not trusted: https://tenantname.b2clogin.com/WRONG_JWT_ISSUER_ID/v2.0/'),
-        consoleLogs: [
-          `${MOCK_NOW.toISOString()} Requesting an access token with a client_secret`,
-          `${MOCK_NOW.toISOString()} Verifying JWT token: ${JSON.stringify({
-            token: 'eyJhb...n-6jI'
-          })}`,
-          `${MOCK_NOW.toISOString()} Acquiring the signing key data necessary to validate the signature`,
-          `${MOCK_NOW.toISOString()} Decoding JWT token: ${JSON.stringify({
-            token: 'eyJhb...n-6jI'
-          })}`,
-          `${MOCK_NOW.toISOString()} Decoding JWT token: ${JSON.stringify({
-            token: 'eyJhb...uRrzk'
-          })}`,
-          `${MOCK_NOW.toISOString()} Verifying the issuer`,
-          `${MOCK_NOW.toISOString()} Error while verifying the issuer: Issuer not trusted: https://tenantname.b2clogin.com/WRONG_JWT_ISSUER_ID/v2.0/`
-        ],
-        errorLogs: [
-          new Error('Issuer not trusted: https://tenantname.b2clogin.com/WRONG_JWT_ISSUER_ID/v2.0/')
-        ]
+        error: new Error('Issuer not trusted: https://tenantname.b2clogin.com/WRONG_JWT_ISSUER_ID/v2.0/')
       }
     },
     {
@@ -287,18 +264,7 @@ describe('authenticate', () => {
         }
       },
       expect: {
-        error: new Error('The token has not been verified'),
-        consoleLogs: [
-          `${MOCK_NOW.toISOString()} Requesting an access token with a client_secret`,
-          `${MOCK_NOW.toISOString()} Verifying JWT token: ${JSON.stringify({
-            token: 'eyJhb...n-6jI'
-          })}`,
-          `${MOCK_NOW.toISOString()} Acquiring the signing key data necessary to validate the signature`,
-          `${MOCK_NOW.toISOString()} Error while verifying JWT token: The token has not been verified`
-        ],
-        errorLogs: [
-          new Error('The token has not been verified')
-        ]
+        error: new Error('The token has not been verified')
       }
     }
   ])('%s', async (testCase) => {
@@ -308,7 +274,7 @@ describe('authenticate', () => {
     when(session.getPkcecodes)
       .calledWith(testCase.given.request, sessionKeys.pkcecodes.verifier)
       .mockReturnValue(testCase.when.session.pkcecodes.verifier)
-    when(Wreck.post)
+    when(wreck.post)
       .calledWith(
         'https://tenantname.b2clogin.com/tenantname.onmicrosoft.com/b2c_1a_signupsigninsfi/oauth2/v2.0/token',
         {
@@ -318,7 +284,7 @@ describe('authenticate', () => {
         }
       )
       .mockResolvedValue(testCase.when.redeemResponse)
-    when(Wreck.get)
+    when(wreck.get)
       .calledWith(
         'https://tenantname.b2clogin.com/tenantname.onmicrosoft.com/discovery/v2.0/keys?p=b2c_1a_signupsigninsfi',
         { json: true }
@@ -400,13 +366,5 @@ describe('authenticate', () => {
         }
       })
     }
-    testCase.expect.consoleLogs.forEach(
-      (consoleLog, idx) => expect(logSpy).toHaveBeenNthCalledWith(idx + 1, consoleLog)
-    )
-    expect(logSpy).toHaveBeenCalledTimes(testCase.expect.consoleLogs.length)
-    testCase.expect.errorLogs.forEach(
-      (errorLog, idx) => expect(errorSpy).toHaveBeenNthCalledWith(idx + 1, errorLog)
-    )
-    expect(errorSpy).toHaveBeenCalledTimes(testCase.expect.errorLogs.length)
   })
 })

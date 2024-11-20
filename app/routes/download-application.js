@@ -7,6 +7,7 @@ module.exports = {
   path: '/download-application/{sbi}/{reference}',
   handler: async (request, h) => {
     const { sbi, reference } = request.params
+    request.logger.setBindings({ sbi, reference })
     const { LatestEndemicsApplicationReference, organisation } = session.getEndemicsClaim(request)
     const blobName = `${sbi}/${reference}.pdf`
     if (LatestEndemicsApplicationReference === reference && organisation.sbi === sbi) {

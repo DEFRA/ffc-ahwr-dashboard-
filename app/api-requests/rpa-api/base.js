@@ -5,14 +5,14 @@ const config = require('../../config')
 const apiHeaders = require('../../constants/api-headers')
 
 const get = async (hostname, url, request, headers = {}) => {
-  const token = session.getToken(request, tokens.accessToken)
+  const token = await session.getToken(request, tokens.accessToken)
+
   headers[apiHeaders.xForwardedAuthorization] = token
   headers[apiHeaders.ocpSubscriptionKey] = config.authConfig.apim.ocpSubscriptionKey
-  const hostNameUrl = JSON.stringify(`${hostname}${url}`)
-  console.log(`${new Date().toISOString()} Request message to RPA: ${hostNameUrl}`)
+  const endpoint = `${hostname}${url}`
 
   try {
-    const response = await wreck.get(`${hostname}${url}`,
+    const { payload } = await wreck.get(endpoint,
       {
         headers,
         json: true,
@@ -20,11 +20,10 @@ const get = async (hostname, url, request, headers = {}) => {
         timeout: config.wreckHttp.timeoutMilliseconds
       })
 
-    console.log(`${new Date().toISOString()} Response status code from RPA: ${JSON.stringify(response.res.statusCode)}`)
-    return response?.payload
-  } catch (error) {
-    console.log(`${new Date().toISOString()} Response message from RPA: ${JSON.stringify(error.message)}`)
-    throw error
+    return payload
+  } catch (err) {
+    request.logger.setBindings({ err, endpoint })
+    throw err
   }
 }
 

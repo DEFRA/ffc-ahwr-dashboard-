@@ -1,4 +1,4 @@
-const { updateContactHistory } = require('../../../../app/api/contact-history-api')
+const { updateContactHistory } = require('../../../../app/api-requests/contact-history-api')
 const Wreck = require('@hapi/wreck')
 const config = require('../../../../app/config')
 
@@ -47,13 +47,14 @@ describe('updateContactHistory', () => {
       email: 'test@example.com'
     }
 
-    Wreck.put.mockResolvedValueOnce({
+    Wreck.put.mockRejectedValueOnce({
       res: {
         statusCode: 500,
         statusMessage: 'Internal Server Error'
       }
     })
-    const result = await updateContactHistory(data, mockConfig)
+    const logger = { setBindings: jest.fn() }
+    const result = await updateContactHistory(data, logger)
     expect(result).toBe(null)
   })
 

@@ -25,9 +25,6 @@ describe('Crumb Functions', () => {
     }
 
     h = {} // Mock response toolkit if needed
-
-    // Mock console.log to suppress logs during tests
-    global.console.log = jest.fn()
   })
 
   test('lookupSubmissionCrumb returns cached crumb', async () => {
@@ -52,7 +49,6 @@ describe('Crumb Functions', () => {
     await cacheSubmissionCrumb(request)
 
     expect(request.server.app.submissionCrumbCache.set).toHaveBeenCalledWith('test-crumb', { crumb: 'test-crumb' })
-    expect(console.log).toHaveBeenCalledWith('Crumb cached: %s', 'test-crumb')
   })
 
   test('generateNewCrumb generates and logs a new crumb', async () => {
@@ -62,6 +58,5 @@ describe('Crumb Functions', () => {
     await generateNewCrumb(request, h)
 
     expect(request.server.plugins.crumb.generate).toHaveBeenCalledWith(request, h)
-    expect(console.log).toHaveBeenCalledWith('New crumb generated: %s', newCrumb)
   })
 })

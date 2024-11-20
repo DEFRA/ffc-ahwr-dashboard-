@@ -27,7 +27,8 @@ module.exports = [{
       payload: Joi.object({
         confirmCheckDetails: Joi.string().valid('yes', 'no').required()
       }),
-      failAction: (request, h, _err) => {
+      failAction: (request, h, err) => {
+        request.logger.setBindings({ err })
         const organisation = session.getEndemicsClaim(request, organisationKey)
         if (!organisation) {
           return boom.notFound()
