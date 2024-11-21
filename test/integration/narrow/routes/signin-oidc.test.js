@@ -15,6 +15,8 @@ const cphCheckMock = require('../../../../app/api-requests/rpa-api/cph-check').c
 jest.mock('../../../../app/api-requests/rpa-api/cph-check')
 const getLatestApplicationsBySbiMock = require('../../../../app/api-requests/application-api').getLatestApplicationsBySbi
 jest.mock('../../../../app/api-requests/application-api')
+jest.mock('../../../../app/api-requests/contact-history-api')
+
 const HttpStatus = require('http-status-codes')
 const { status } = require('../../../../app/constants/status')
 

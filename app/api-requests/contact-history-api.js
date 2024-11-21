@@ -13,9 +13,12 @@ async function updateContactHistory (data, logger) {
 
     return payload
   } catch (err) {
+    if (err.output.statusCode === 404) {
+      return []
+    }
     logger.setBindings({ err, endpoint })
     appInsights.defaultClient.trackException({ exception: err })
-    return null
+    throw err
   }
 }
 

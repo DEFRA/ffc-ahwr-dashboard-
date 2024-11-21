@@ -180,13 +180,17 @@ module.exports = [{
             }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()
         }
 
-        raiseIneligibilityEvent(
-          request.yar.id,
-          organisation?.sbi,
-          crn,
-          organisation?.email,
-          err.name
-        )
+        try {
+          await raiseIneligibilityEvent(
+            request.yar.id,
+            organisation?.sbi,
+            crn,
+            organisation?.email,
+            err.name
+          )
+        } catch (err) {
+          request.logger.setBindings({ err })
+        }
 
         return h.view('cannot-apply-exception', {
           ruralPaymentsAgency: config.ruralPaymentsAgency,

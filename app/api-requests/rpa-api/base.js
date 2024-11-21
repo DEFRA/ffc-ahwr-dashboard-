@@ -5,7 +5,7 @@ const config = require('../../config')
 const apiHeaders = require('../../constants/api-headers')
 
 const get = async (hostname, url, request, headers = {}) => {
-  const token = await session.getToken(request, tokens.accessToken)
+  const token = session.getToken(request, tokens.accessToken)
 
   headers[apiHeaders.xForwardedAuthorization] = token
   headers[apiHeaders.ocpSubscriptionKey] = config.authConfig.apim.ocpSubscriptionKey
