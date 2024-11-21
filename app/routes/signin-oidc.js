@@ -104,7 +104,7 @@ module.exports = [{
 
         request.logger.setBindings({ personSummaryId: personSummary.id })
 
-        await session.setCustomer(request, sessionKeys.customer.id, personSummary.id)
+        session.setCustomer(request, sessionKeys.customer.id, personSummary.id)
         const { organisation, organisationPermission } = await organisationIsEligible(request, personSummary.id, apimAccessToken)
 
         request.logger.setBindings({
@@ -112,7 +112,7 @@ module.exports = [{
         })
 
         await changeContactHistory(personSummary, organisation, request.logger)
-        await setOrganisationSessionData(request, personSummary, organisation)
+        setOrganisationSessionData(request, personSummary, organisation)
 
         auth.setAuthCookie(request, personSummary.email, farmerApply)
         appInsights.defaultClient.trackEvent({
