@@ -9,22 +9,16 @@ const get = async (hostname, url, request, headers = {}) => {
 
   headers[apiHeaders.xForwardedAuthorization] = token
   headers[apiHeaders.ocpSubscriptionKey] = config.authConfig.apim.ocpSubscriptionKey
-  const endpoint = `${hostname}${url}`
 
-  try {
-    const { payload } = await wreck.get(endpoint,
-      {
-        headers,
-        json: true,
-        rejectUnauthorized: false,
-        timeout: config.wreckHttp.timeoutMilliseconds
-      })
+  const { payload } = await wreck.get(`${hostname}${url}`,
+    {
+      headers,
+      json: true,
+      rejectUnauthorized: false,
+      timeout: config.wreckHttp.timeoutMilliseconds
+    })
 
-    return payload
-  } catch (err) {
-    request.logger.setBindings({ err, endpoint })
-    throw err
-  }
+  return payload
 }
 
 module.exports = {
