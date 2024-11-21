@@ -296,6 +296,22 @@ describe('Defra ID redirection test', () => {
       expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
       expect(sendIneligibilityEventMock).toBeCalledTimes(1)
     })
+
+    test('ineligibility event failure is tolerated', async () => {
+      const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
+      const options = {
+        method: 'GET',
+        url: baseUrl
+      }
+
+      sendIneligibilityEventMock.mockRejectedValueOnce('ineligible event error')
+
+      setupMock()
+      const res = await global.__SERVER__.inject(options)
+      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
+      expect(sendIneligibilityEventMock).toBeCalledTimes(1)
+    })
+
     test('returns 400 and exception view when no eligible cph', async () => {
       const expectedError = new NoEligibleCphError('Customer must have at least one valid CPH')
       const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
