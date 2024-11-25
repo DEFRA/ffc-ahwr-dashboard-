@@ -361,7 +361,8 @@ describe('Claim vet-visits', () => {
 
     await global.__SERVER__.inject(options)
 
-    expect(getClaimsByApplicationReference).toHaveBeenCalledWith(latestEndemicsApplication.reference)
+    expect(getClaimsByApplicationReference)
+      .toHaveBeenCalledWith(latestEndemicsApplication.reference, expect.any(Object))
   })
   test('typeOfReviewTitle returns review', () => {
     const typeOfReviewTitle = (typeOfReview) => [claimType.review, 'VV'].includes(typeOfReview) ? 'review' : 'follow-up'

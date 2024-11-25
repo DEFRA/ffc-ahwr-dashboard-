@@ -63,10 +63,10 @@ class CommonActions {
   }
 
   async switchToWindow() {
-    
+
     const windowHandles = await browser.getWindowHandles();
     await browser.switchToWindow(windowHandles[1]);
-    
+
   }
 
   async switchToOldWindow() {
@@ -79,7 +79,7 @@ class CommonActions {
     const actualUrl = await browser.getUrl()
     expect(actualUrl).to.include(expectedUrl)
   }
- 
+
   async screenShot(){
     const sleep = (waitTimeInMs) => new Promise(resolve => setTimeout(resolve, waitTimeInMs))
     await sleep(5000)
@@ -95,7 +95,7 @@ class CommonActions {
   async checkAccessibility () {
 
     const results = await new AxeBuilder({ client:browser }).analyze();
-    //console.log(results);
+
 expect (results.violations.length).to.be.greaterThan(0)
 try {
   fs.mkdirSync('./accessibility-report', { recursive: true });
@@ -120,10 +120,10 @@ browser.closeWindow()
   // Check if the error is due to an invalid session ID
   if (error.message.includes('invalid session id')) {
     console.error('Encountered an invalid session ID. Starting a new session...');
-    
+
     // Start a new WebDriver session (replace with your specific setup)
     // Example: browser = webdriverio.remote(options);
-    
+
     // Retry closing the window after starting a new session
     browser.closeWindow()
       .then(() => {

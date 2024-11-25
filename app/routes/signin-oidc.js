@@ -14,7 +14,7 @@ const { InvalidPermissionsError, NoEndemicsAgreementError, NoEligibleCphError, I
 const { raiseIneligibilityEvent } = require('../event')
 const appInsights = require('applicationinsights')
 const HttpStatus = require('http-status-codes')
-const { changeContactHistory } = require('../api/contact-history-api')
+const { changeContactHistory } = require('../api-requests/contact-history-api')
 
 function setOrganisationSessionData (request, personSummary, org) {
   const organisation = {
@@ -83,7 +83,7 @@ module.exports = [{
         stripUnknown: true
       }),
       failAction (request, h, err) {
-        console.log(`Validation error caught during DEFRA ID redirect - ${err.message}.`)
+        request.logger.setBindings({ err })
         appInsights.defaultClient.trackException({ exception: err })
         const loginSource = request?.query?.state ? JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source : undefined
 
@@ -98,12 +98,20 @@ module.exports = [{
         await crumbCache.generateNewCrumb(request, h)
         const loginSource = JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source
 
-        await auth.authenticate(request, session)
-        const apimAccessToken = await auth.retrieveApimAccessToken()
+        await auth.authenticate(request)
+        const apimAccessToken = await auth.retrieveApimAccessToken(request)
         const personSummary = await getPersonSummary(request, apimAccessToken)
+
+        request.logger.setBindings({ personSummaryId: personSummary.id })
+
         session.setCustomer(request, sessionKeys.customer.id, personSummary.id)
         const { organisation, organisationPermission } = await organisationIsEligible(request, personSummary.id, apimAccessToken)
-        changeContactHistory(personSummary, organisation)
+
+        request.logger.setBindings({
+          sbi: organisation.sbi
+        })
+
+        await changeContactHistory(personSummary, organisation, request.logger)
         setOrganisationSessionData(request, personSummary, organisation)
 
         auth.setAuthCookie(request, personSummary.email, farmerApply)
@@ -128,7 +136,7 @@ module.exports = [{
 
         const endemicsApplyJourney = `${config.applyServiceUri}/endemics/check-details`
         const oldClaimJourney = `${config.claimServiceUri}/signin-oidc?state=${request.query.state}&code=${request.query.code}`
-        const latestApplicationsForSbi = await applicationApi.getLatestApplicationsBySbi(organisation.sbi)
+        const latestApplicationsForSbi = await applicationApi.getLatestApplicationsBySbi(organisation.sbi, request.logger)
         const applyRedirectionLink = sendToApplyJourney(latestApplicationsForSbi, loginSource, h, endemicsApplyJourney, organisation)
 
         if (typeof applyRedirectionLink === 'string') {
@@ -144,7 +152,8 @@ module.exports = [{
           return h.redirect(oldClaimJourney)
         }
       } catch (err) {
-        console.error(`Received error with name ${err.name} and message ${err.message}.`)
+        request.logger.setBindings({ err })
+
         const loginSource = JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source
         const attachedToMultipleBusinesses = session.getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses)
         const organisation = session.getEndemicsClaim(request, sessionKeys.endemicsClaim.organisation)
@@ -171,13 +180,17 @@ module.exports = [{
             }).code(HttpStatus.StatusCodes.BAD_REQUEST).takeover()
         }
 
-        raiseIneligibilityEvent(
-          request.yar.id,
-          organisation?.sbi,
-          crn,
-          organisation?.email,
-          err.name
-        )
+        try {
+          await raiseIneligibilityEvent(
+            request.yar.id,
+            organisation?.sbi,
+            crn,
+            organisation?.email,
+            err.name
+          )
+        } catch (err) {
+          request.logger.setBindings({ err })
+        }
 
         return h.view('cannot-apply-exception', {
           ruralPaymentsAgency: config.ruralPaymentsAgency,

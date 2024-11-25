@@ -1,8 +1,6 @@
-const Wreck = require('@hapi/wreck')
+const wreck = require('@hapi/wreck')
 const mockConfig = require('../../../../app/config')
 jest.mock('@hapi/wreck')
-const consoleLogSpy = jest.spyOn(console, 'log')
-const consoleErrorSpy = jest.spyOn(console, 'error')
 const mockApplicationApiUri = 'http://internal:3333/api'
 const HttpStatus = require('http-status-codes')
 
@@ -125,16 +123,16 @@ describe('Application API', () => {
         json: true
       }
       const SBI = 106501001
-      Wreck.get = jest.fn().mockResolvedValue(expectedResponse)
+      wreck.get = jest.fn().mockResolvedValue(expectedResponse)
       const response = await applicationApi.getLatestApplicationsBySbi(SBI)
       expect(response).not.toBeNull()
-      expect(Wreck.get).toHaveBeenCalledTimes(1)
-      expect(Wreck.get).toHaveBeenCalledWith(
+      expect(wreck.get).toHaveBeenCalledTimes(1)
+      expect(wreck.get).toHaveBeenCalledWith(
           `${mockApplicationApiUri}/applications/latest?sbi=${SBI}`,
           options
       )
     })
-    test('given Wreck.get returns 400 it logs the issue and throws error', async () => {
+    test('given wreck.get returns 400 it throws an error', async () => {
       const statusCode = HttpStatus.StatusCodes.BAD_REQUEST
       const statusMessage = 'The SBI number must have 9 digits'
       const expectedResponse = {
@@ -152,40 +150,17 @@ describe('Application API', () => {
         json: true
       }
       const SBI = 12345678
-      Wreck.get = jest.fn().mockResolvedValue(expectedResponse)
-      try {
-        await applicationApi.getLatestApplicationsBySbi(SBI)
-      } catch (error) {
-        expect(consoleLogSpy).toHaveBeenCalledTimes(1)
-        expect(consoleLogSpy).toHaveBeenCalledWith(`${MOCK_NOW.toISOString()} Getting latest applications by: ${JSON.stringify({
-          sbi: SBI
-        })}`)
-        expect(Wreck.get).toHaveBeenCalledWith(
-          `${mockApplicationApiUri}/applications/latest?sbi=${SBI}`,
-          options
-        )
-      }
-    })
+      wreck.get = jest.fn().mockRejectedValueOnce(expectedResponse)
 
-    test('given Wreck.get throws an error it logs the error and returns empty array', async () => {
-      const expectedError = new Error('msg')
-      const options = {
-        json: true
-      }
-      const SBI = 123456789
-      Wreck.get = jest.fn().mockRejectedValue(expectedError)
-      try {
-        await applicationApi.getLatestApplicationsBySbi(SBI)
-      } catch (error) {
-        expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-        expect(consoleErrorSpy).toHaveBeenCalledWith(`${MOCK_NOW.toISOString()} Getting latest applications failed: ${JSON.stringify({
-          sbi: SBI
-        })}`, expectedError)
-        expect(Wreck.get).toHaveBeenCalledWith(
-          `${mockApplicationApiUri}/applications/latest?sbi=${SBI}`,
-          options
-        )
-      }
+      const logger = { setBindings: jest.fn() }
+      expect(async () => {
+        await applicationApi.getLatestApplicationsBySbi(SBI, logger)
+      }).rejects.toEqual(expectedResponse)
+
+      expect(wreck.get).toHaveBeenCalledWith(
+        `${mockApplicationApiUri}/applications/latest?sbi=${SBI}`,
+        options
+      )
     })
   })
 })

@@ -1,8 +1,5 @@
-// Import the actual HttpStatus for readability and to ensure consistency in your tests
-const HttpStatus = require('http-status-codes')
-const Wreck = require('@hapi/wreck')
+const wreck = require('@hapi/wreck')
 
-// Mock the dependencies
 jest.mock('@hapi/wreck', () => ({
   get: jest.fn()
 }))
@@ -20,34 +17,22 @@ jest.mock('../../../../../app/config', () => ({
   }
 }))
 
-// The actual test
 describe('acquireSigningKey error scenario', () => {
-  it('should return undefined and log an error when an error occurs', async () => {
-    // Setup Wreck to simulate an error response
-    Wreck.get.mockResolvedValue({
+  it('should return throw errors', async () => {
+    const response = {
       res: {
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: 500,
         statusMessage: 'Internal Server Error'
       },
       payload: null
-    })
+    }
+    wreck.get.mockRejectedValueOnce(response)
 
-    // Import the module after mocking its dependencies
     const acquireSigningKey = require('../../../../../app/auth/token-verify/acquire-signing-key')
 
-    // Spy on console.log and console.error to verify they were called
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
-    const result = await acquireSigningKey()
-
-    expect(result).toBeUndefined()
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Error while acquiring the signing key data:'))
-    expect(errorSpy).toHaveBeenCalled()
-
-    // Clean up
-    logSpy.mockRestore()
-    errorSpy.mockRestore()
+    expect(async () => {
+      await acquireSigningKey()
+    }).rejects.toEqual(response)
   })
 })
 
@@ -63,9 +48,9 @@ describe('acquireSigningKey success scenario', () => {
     }
 
     // Setup Wreck to simulate a successful response
-    Wreck.get.mockResolvedValue({
+    wreck.get.mockResolvedValue({
       res: {
-        statusCode: HttpStatus.OK,
+        statusCode: 200,
         statusMessage: 'OK'
       },
       payload: mockSigningKeys

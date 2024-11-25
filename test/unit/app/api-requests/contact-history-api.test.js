@@ -1,5 +1,5 @@
-const { updateContactHistory } = require('../../../../app/api/contact-history-api')
-const Wreck = require('@hapi/wreck')
+const { updateContactHistory } = require('../../../../app/api-requests/contact-history-api')
+const wreck = require('@hapi/wreck')
 const config = require('../../../../app/config')
 
 jest.mock('@hapi/wreck')
@@ -25,7 +25,7 @@ describe('updateContactHistory', () => {
       user: 'admin'
     }
 
-    Wreck.put.mockResolvedValueOnce({
+    wreck.put.mockResolvedValueOnce({
       res: {
         statusCode: 200
       },
@@ -36,25 +36,43 @@ describe('updateContactHistory', () => {
 
     await updateContactHistory(data, mockConfig)
 
-    expect(Wreck.put).toHaveBeenCalledWith(`${mockConfig.applicationApiUri}/application/contact-history`, {
+    expect(wreck.put).toHaveBeenCalledWith(`${mockConfig.applicationApiUri}/application/contact-history`, {
       payload: data,
       json: true
     })
   })
 
-  test('throws an error on non-200 response', async () => {
+  test('update returns empty array for 404 response', async () => {
     const data = {
       email: 'test@example.com'
     }
 
-    Wreck.put.mockResolvedValueOnce({
-      res: {
+    wreck.put.mockRejectedValueOnce({
+      output: {
+        statusCode: 404
+      }
+    })
+    const logger = { setBindings: jest.fn() }
+    const result = await updateContactHistory(data, logger)
+    expect(result).toEqual([])
+  })
+
+  test('throws errors', async () => {
+    const data = {
+      email: 'test@example.com'
+    }
+
+    const response = {
+      output: {
         statusCode: 500,
         statusMessage: 'Internal Server Error'
       }
-    })
-    const result = await updateContactHistory(data, mockConfig)
-    expect(result).toBe(null)
+    }
+    wreck.put.mockRejectedValueOnce(response)
+    const logger = { setBindings: jest.fn() }
+    expect(async () => {
+      await updateContactHistory(data, logger)
+    }).rejects.toEqual(response)
   })
 
   test('returns the response payload on success', async () => {
@@ -66,7 +84,7 @@ describe('updateContactHistory', () => {
       success: true
     }
 
-    Wreck.put.mockResolvedValueOnce({
+    wreck.put.mockResolvedValueOnce({
       res: {
         statusCode: 200
       },

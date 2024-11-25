@@ -11,9 +11,10 @@ const formatAddressForDisplay = (organisation) => {
 
 const getOrganisation = (request, organisation, errorText) => {
   const returnRoute = session.getReturnRoute(request)
-  console.log('🚀 Dashboard Repo -> returnRoute:= ', returnRoute)
+  request.logger.setBindings({ returnRoute })
   const prevAnswer = session.getEndemicsClaim(request, confirmCheckDetails)
   const { crn } = session.getCustomer(request)
+  request.logger.setBindings({ crn })
 
   const rows = [
     { key: { text: 'Farmer name' }, value: { text: organisation.farmerName } },

@@ -16,9 +16,9 @@ const getCphNumbers = async (request, apimAccessToken) => {
       Authorization: apimAccessToken
     }
   )
+
   if (!response.success) {
-    console.error(`${new Date().toISOString()} Getting CPH numbers failed: ${response.errorString}`)
-    return []
+    throw new Error(response.errorString)
   }
   return response.data.map(cph => cph.cphNumber)
 }

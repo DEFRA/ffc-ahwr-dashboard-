@@ -1,5 +1,4 @@
-const Wreck = require('@hapi/wreck')
-const consoleErrorSpy = jest.spyOn(console, 'error')
+const wreck = require('@hapi/wreck')
 
 jest.mock('applicationinsights', () => ({
   defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() },
@@ -16,7 +15,7 @@ describe('Claim Service API', () => {
       },
       payload: 'payload'
     }
-    Wreck.get.mockResolvedValue(mockResponse)
+    wreck.get.mockResolvedValue(mockResponse)
 
     const claimServiceApi = require('../../../../app/api-requests/claim-api')
     const result = await claimServiceApi.getClaimsByApplicationReference(
@@ -25,24 +24,37 @@ describe('Claim Service API', () => {
 
     expect(result).toBe('payload')
   })
-  test('Get claims by application reference should return null with status 404', async () => {
+
+  test('return empty array when statusCode is 404', async () => {
     const mockResponse = {
-      res: {
-        statusCode: 404,
-        statusMessage: 'not found'
-      },
-      payload: 'payload'
+      output: {
+        statusCode: 404
+      }
     }
-    Wreck.get.mockResolvedValue(mockResponse)
+    wreck.get.mockRejectedValue(mockResponse)
 
     const claimServiceApi = require('../../../../app/api-requests/claim-api')
-    const result = await claimServiceApi.getClaimsByApplicationReference(
-      'applicationReference'
-    )
 
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
-    expect(result).toBe(null)
+    const payload = await claimServiceApi.getClaimsByApplicationReference('applicationReference')
+
+    expect(payload).toEqual([])
     expect(claimServiceApi.isWithinLastTenMonths(Date.now())).toBe(true)
     expect(claimServiceApi.isWithinLastTenMonths()).toBe(false)
+  })
+
+  test('throws non 404 error responses', async () => {
+    const mockResponse = {
+      output: {
+        statusCode: 500
+      }
+    }
+    wreck.get.mockRejectedValue(mockResponse)
+
+    const claimServiceApi = require('../../../../app/api-requests/claim-api')
+
+    const logger = { setBindings: jest.fn() }
+    expect(async () => {
+      await claimServiceApi.getClaimsByApplicationReference('applicationReference', logger)
+    }).rejects.toEqual(mockResponse)
   })
 })

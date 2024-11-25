@@ -234,7 +234,6 @@ describe('Org review page test', () => {
 
     test("returns 400 and show error summary if user didn't select answer", async () => {
       session.getEndemicsClaim.mockImplementationOnce((_req, key) => {
-        console.log(_req.length, key)
         if (key === sessionKeys.endemicsClaim.organisation) {
           return org
         } else if (key === sessionKeys.endemicsClaim.confirmCheckDetails) {

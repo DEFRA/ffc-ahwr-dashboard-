@@ -12,16 +12,11 @@ if (useConnectionString === true) {
 }
 
 const getBlob = async (filename) => {
-  try {
-    const container = blobServiceClient.getContainerClient(applicationDocumentsContainer)
-    const blobClient = container.getBlobClient(filename)
-    const downloadResponse = await blobClient.download()
-    const downloaded = await streamToBuffer(downloadResponse.readableStreamBody)
-    return downloaded
-  } catch (error) {
-    console.error('Error:', error)
-    throw error
-  }
+  const container = blobServiceClient.getContainerClient(applicationDocumentsContainer)
+  const blobClient = container.getBlobClient(filename)
+  const downloadResponse = await blobClient.download()
+  const downloaded = await streamToBuffer(downloadResponse.readableStreamBody)
+  return downloaded
 }
 
 module.exports = {
