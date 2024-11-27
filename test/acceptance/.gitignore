@@ -5,3 +5,6 @@ reporter
 /.env.dev
 /.env.test
 /.env.pre
+reports/
+html-reports/
+

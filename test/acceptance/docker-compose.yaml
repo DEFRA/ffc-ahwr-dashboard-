@@ -3,6 +3,8 @@ services:
   wdio-cucumber:
     build: .
     image: ffc-ahwr-farmer-apply-acceptance
+    depends_on:
+      - selenium
     container_name: webdriver-cuke
     environment:
       TEST_ENVIRONMENT_ROOT_URL: ${TEST_ENVIRONMENT_ROOT_URL}
@@ -11,25 +13,25 @@ services:
       BROWSERSTACK_ACCESS_KEY: ${BROWSERSTACK_ACCESS_KEY}
       BROWSERSTACK_PARALLEL_RUNS: ${BROWSERSTACK_PARALLEL_RUNS}
       NODE_TLS_REJECT_UNAUTHORIZED: 0
-      CRN_USERNAME: ${FFC_AHWR_CRN_USERNAME}
-      CRN_PASSWORD: ${FFC_AHWR_CRN_PASSWORD}
+      CRN_USERNAME: ${FFC_AHWR_CRN_USERNAME:-1103043659}
+      CRN_PASSWORD: ${FFC_AHWR_CRN_PASSWORD:-Password456}
       CRN_MULTI_USERNAME: ${FFC_AHWR_CRN_MULTI_USERNAME}
       CRN_EXCEPTION_USERNAME: ${FFC_AHWR_CRN_EXCEPTION_USERNAME}
       CRN_EXCEPTION_USERNAME_NOCPH: ${FFC_AHWR_CRN_EXCEPTION_USERNAME_NOCPH}
       CRN_EXCEPTION_USERNAME_MB_NP: ${FFC_EXCEPTION_USERNAME_MB_NP}
       CRN_EXCEPTION_USERNAME_MB_NOCPH: ${FFC_AHWR_CRN_EXCEPTION_USERNAME_MB_NOCPH}
       DB_PASSWORD: ${FFC_AHWR_DB_PASSWORD}
-
-      FFC_AHWR_AUTOMATION_ENABLED: ${FFC_AHWR_AUTOMATION_ENABLED}
+      FFC_AHWR_AUTOMATION_ENABLED: "true"
+      RUNNING_IN_CONTAINER: "true"
+    ports:
+      - "9228:9229"
     volumes:
-      - ./features/:/home/node/features/
-      - ./pageobjects/:/home/node/pageobjects/
-      - ./scratch/:/home/node/scratch/
-      - ./steps/:/home/node/steps/
-      - ./support/:/home/node/support/
-      - ./babel.config.js:/home/node/babel.config.js
-      - ./wdio.conf:/home/node/wdio.conf
-      - ./package.json:/home/node/package.json
-      - ./html-reports/:/home/node/html-reports/
-      - ./allure-report/:/home/node/allure-report/index.html
+      - ./html-reports:/html-reports
 
+  selenium:
+    image: selenium/standalone-chrome
+    # change to the following image for ARM architectures based machines
+    # image: seleniarm/standalone-chromium
+    container_name: chrome-browser
+    volumes:
+      - /dev/shm:/dev/shm
