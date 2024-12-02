@@ -29,9 +29,7 @@ services:
       - ./html-reports:/html-reports
 
   selenium:
-    image: selenium/standalone-chrome
-    # change to the following image for ARM architectures based machines
-    # image: seleniarm/standalone-chromium
+    image: ${SELENIUM_IMAGE:-selenium/standalone-chrome}
     container_name: chrome-browser
     volumes:
       - /dev/shm:/dev/shm

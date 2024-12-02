@@ -39,7 +39,9 @@ Docker is used to create containers for both the tests (`wdio-cucumber`) and the
 
   selenium:
     image: seleniarm/standalone-chromium
-```   
+```
+
+Or pass the value for the env variable SELENIUM_IMAGE based on the machine architecture.
 
 2. If running against `localhost` ensure the application container is running with `docker-compose up --build` from the root folder of the repository.
 
