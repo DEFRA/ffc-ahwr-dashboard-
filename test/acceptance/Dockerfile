@@ -1,4 +1,4 @@
-ARG PARENT_VERSION=1.2.16-node16.14.2
+ARG PARENT_VERSION=2.3.0-node22.4.0
 ARG PORT_DEBUG=9229
 
 # Development
@@ -8,6 +8,7 @@ LABEL uk.gov.defra.ffc.parent-image=defradigital/node-development:${PARENT_VERSI
 ARG PORT_DEBUG
 EXPOSE ${PORT_DEBUG}
 COPY --chown=node:node package*.json ./
-RUN npm install
+RUN npm install --ignore-scripts
+COPY wdio.conf.js ./
 COPY --chown=node:node . .
-CMD [ "npm", "run", "test" ]
+CMD [ "npm", "run", "test-ci" ]
