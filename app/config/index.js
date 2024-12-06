@@ -137,7 +137,7 @@ const config = {
   },
   multiSpecies: {
     enabled: process.env.MULTI_SPECIES_ENABLED === 'true',
-    releaseDate: process.env.MULTI_SPECIES_RELEASE_DATE
+    releaseDate: process.env.MULTI_SPECIES_RELEASE_DATE || '2024-12-06'
   },
   latestTermsAndConditionsUri: process.env.TERMS_AND_CONDITIONS_URL,
   reapplyTimeLimitMonths: 10
