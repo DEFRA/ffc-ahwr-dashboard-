@@ -71,7 +71,7 @@ const schema = Joi.object({
   }),
   multiSpecies: Joi.object({
     enabled: Joi.boolean().required(),
-    releaseDate: Joi.string().raw().required()
+    releaseDate: Joi.string().required()
   }),
   latestTermsAndConditionsUri: Joi.string().required(),
   reapplyTimeLimitMonths: Joi.number()
@@ -137,7 +137,7 @@ const config = {
   },
   multiSpecies: {
     enabled: process.env.MULTI_SPECIES_ENABLED === 'true',
-    releaseDate: process.env.MULTI_SPECIES_RELEASE_DATE || '3000-01-01'
+    releaseDate: process.env.MULTI_SPECIES_RELEASE_DATE
   },
   latestTermsAndConditionsUri: process.env.TERMS_AND_CONDITIONS_URL,
   reapplyTimeLimitMonths: 10
