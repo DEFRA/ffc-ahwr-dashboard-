@@ -2,17 +2,4 @@
 version: v1.25.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-JS-INFLIGHT-6095116:
-    - "*":
-        reason: None given
-        expires: "2024-07-17T00:00:00.000Z"
-        created: "2024-05-14T00:00:00.000Z"
-  SNYK-JS-WS-7266574:
-    - "*":
-        reason: None given
-        expires: "2024-07-17T00:00:00.000Z"
-        created: "2024-06-17T00:00:00.000Z"
 patch: {}
-exclude:
-  global:
-    - app/auth/token-verify
