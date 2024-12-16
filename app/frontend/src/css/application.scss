@@ -1,6 +1,7 @@
 $govuk-assets-path: "~govuk-frontend/dist/govuk/assets/";
 $govuk-global-styles: true; // https://frontend.design-system.service.gov.uk/sass-api-reference/#global-styles
 @import "~govuk-frontend/dist/govuk/all";
+@import "@ministryofjustice/frontend/moj/components/sortable-table/sortable-table";
 
 .nojs-hidden {
   display: none;
@@ -144,7 +145,6 @@ $govuk-global-styles: true; // https://frontend.design-system.service.gov.uk/sas
   color: white;
 }
 
-
 hr.related-content {
   margin: 0  0 18px 0;
 }
@@ -165,4 +165,10 @@ hr.related-content {
   display: block;
   margin-top: 0;
   margin-bottom: 15px
+}
+
+.scroll-horizontally {
+  display: block;
+  width: 100%;
+  overflow-y: auto;
 }
