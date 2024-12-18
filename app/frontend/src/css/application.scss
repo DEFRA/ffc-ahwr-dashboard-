@@ -171,4 +171,8 @@ hr.related-content {
   display: block;
   width: 100%;
   overflow-y: auto;
+
+  th td {
+    white-space: nowrap;
+  }
 }
