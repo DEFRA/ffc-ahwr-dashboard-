@@ -1,39 +1,32 @@
-const HttpStatus = require('http-status-codes')
-describe('Dashboard home page test', () => {
-  beforeAll(async () => {
-    jest.mock('../../../../app/config', () => ({
-      ...jest.requireActual('../../../../app/config'),
-      endemics: {
-        enabled: true
-      }
-    }))
-  })
+const createServer = require('../../../../app/server')
+const { authConfig } = require('../../../../app/config')
 
-  test('GET / route returns HttpStatus.StatusCodes.MOVED_TEMPORARILY when NOT logged in and redirects to signin', async () => {
-    const options = {
-      method: 'GET',
-      url: '/',
-      auth: false
+test('get /', async () => {
+  const server = await createServer()
+  const res = await server.inject({
+    url: '/',
+    auth: {
+      credentials: {},
+      strategy: 'cookie'
     }
-
-    const res = await global.__SERVER__.inject(options)
-
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
   })
 
-  test('GET / route returns HttpStatus.StatusCodes.MOVED_TEMPORARILY when logged in and redirects to /vet-visits', async () => {
-    const options = {
-      method: 'GET',
-      url: '/',
-      auth: {
-        strategy: 'cookie',
-        credentials: { reference: 'AHWR-2470-6BA9', sbi: '112670111' }
-      }
-    }
+  expect(res.statusCode).toBe(302)
+  expect(res.headers.location).toBe('/vet-visits')
+})
 
-    const res = await global.__SERVER__.inject(options)
+test('get /: no auth', async () => {
+  const hostname = 'http://www.auth.test'
+  const path = '/auth-test'
 
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    expect(res.headers.location).toBe('/vet-visits')
+  jest.replaceProperty(authConfig.defraId, 'hostname', hostname)
+  jest.replaceProperty(authConfig.defraId, 'oAuthAuthorisePath', path)
+
+  const server = await createServer()
+  const res = await server.inject({
+    url: '/'
   })
+
+  expect(res.statusCode).toBe(302)
+  expect(res.headers.location.href).toMatch(`${hostname}${path}`)
 })

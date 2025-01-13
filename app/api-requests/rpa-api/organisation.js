@@ -3,9 +3,6 @@ const config = require('../../config')
 const session = require('../../session')
 const { tokens } = require('../../session/keys')
 const jwtDecode = require('../../auth/token-verify/jwt-decode')
-const hostname = config.authConfig.ruralPaymentsAgency.hostname
-const getOrganisationPermissionsUrl = config.authConfig.ruralPaymentsAgency.getOrganisationPermissionsUrl
-const getOrganisationUrl = config.authConfig.ruralPaymentsAgency.getOrganisationUrl
 const validPermissions = ['Submit - bps', 'Full permission - business']
 let apimToken
 
@@ -34,6 +31,8 @@ function parsedAccessToken (request) {
 }
 
 const getOrganisationAuthorisation = async (request, organisationId) => {
+  const { hostname, getOrganisationPermissionsUrl } = config.authConfig.ruralPaymentsAgency
+
   const response = await get(hostname, getOrganisationPermissionsUrl.replace('organisationId', organisationId), request, { Authorization: apimToken })
   return response?.data
 }
@@ -50,6 +49,7 @@ const organisationHasPermission = async (request, permissions, personId, organis
 }
 
 const getOrganisation = async (request, organisationId) => {
+  const { hostname, getOrganisationUrl } = config.authConfig.ruralPaymentsAgency
   const response = await get(hostname, getOrganisationUrl.replace('organisationId', organisationId), request, { Authorization: apimToken })
   return response?._data
 }

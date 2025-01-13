@@ -24,6 +24,7 @@ module.exports = {
 
       const { attachedToMultipleBusinesses } = session.getCustomer(request)
       const applications = await getLatestApplicationsBySbi(organisation.sbi, request.logger)
+
       const vetVisitApplications = applications?.filter((application) => application.type === applicationType.VET_VISITS)
       const latestEndemicsApplication = applications?.find((application) => application.type === applicationType.ENDEMICS)
 
@@ -38,7 +39,9 @@ module.exports = {
 
       const claimsRows = allClaims
         .map(claim => {
-          const dateOfVisit = new Date(claim.data.dateOfVisit)
+          const newClaimVisitDate = claim.data.dateOfVisit
+          const oldClaimVisitDate = claim.data.visitDate
+          const dateOfVisit = new Date(newClaimVisitDate || oldClaimVisitDate)
           const formattedDateOfVisit = dateOfVisit
             .toLocaleString('en-gb', {
               day: 'numeric',
@@ -65,7 +68,7 @@ module.exports = {
 
       const showNotificationBanner =
         multiSpecies.enabled &&
-        latestEndemicsApplication &&
+        Boolean(latestEndemicsApplication) &&
         userNeedsNotification(applications, claims)
 
       return h.view(vetVisits, {

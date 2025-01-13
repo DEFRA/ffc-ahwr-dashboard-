@@ -4,7 +4,7 @@ const { tokens } = require('../../session/keys')
 const config = require('../../config')
 const apiHeaders = require('../../constants/api-headers')
 
-const get = async (hostname, url, request, headers = {}) => {
+const get = async (hostname, url, request, headers) => {
   const token = session.getToken(request, tokens.accessToken)
 
   headers[apiHeaders.xForwardedAuthorization] = token

@@ -21,6 +21,7 @@ module.exports = {
             'node_modules/govuk-frontend/dist'
           ], {
             autoescape: true,
+            trimBlocks: true,
             watch: false
           })
 

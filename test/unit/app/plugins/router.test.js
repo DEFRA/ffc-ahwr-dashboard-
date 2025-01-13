@@ -8,7 +8,6 @@ describe('routes plugin test', () => {
 
   beforeEach(() => {
     jest.resetModules()
-    jest.clearAllMocks()
   })
 
   test('routes included', async () => {

@@ -1,342 +1,214 @@
-const { getEndemicsClaim, getCustomer } = require('../../../../app/session')
-const { vetVisits } = require('../../../../app/config/routes')
-const {
-  getLatestApplicationsBySbi
-} = require('../../../../app/api-requests/application-api')
-const {
-  getClaimsByApplicationReference
-} = require('../../../../app/api-requests/claim-api')
-const { multiSpecies } = require('../../../../app/config/index')
-const cheerio = require('cheerio')
-jest.mock('../../../../app/session')
-jest.mock('../../../../app/api-requests/application-api')
-jest.mock('../../../../app/api-requests/claim-api')
-const HttpStatus = require('http-status-codes')
+const { http, HttpResponse } = require('msw')
+const globalJsdom = require('global-jsdom')
+const { setupServer } = require('msw/node')
+const { getByRole, queryByRole } = require('@testing-library/dom')
+const config = require('../../../../app/config')
+const createServer = require('../../../../app/server')
+const { setServerState } = require('../../../helpers/set-server-state')
+const { getTableCells } = require('../../../helpers/get-table-cells')
 
-describe('Claim vet-visits', () => {
-  beforeAll(async () => {
-    jest.mock('../../../../app/config', () => ({
-      ...jest.requireActual('../../../../app/config'),
-      endemics: {
-        enabled: true
-      }
-    }))
-  })
+const nunJucksInternalTimerMethods = ['nextTick']
 
-  const url = `/${vetVisits}`
+const mswServer = setupServer()
+mswServer.listen()
 
-  test('GET /vet-visits route returns 200', async () => {
-    const applications = [
-      {
-        id: 'b13676a0-3a57-428e-a903-9dcf6eca104b',
-        reference: 'AHWR-B136-76A0',
-        data: {
-          type: 'EE',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: {
-            sbi: '112670111',
-            farmerName: 'Anjana Donald Jaroslav Daniel Gooder',
-            name: 'Kathryn Jeffery',
-            email: 'anjanagooderz@redooganajnae.com.test',
-            address: '1 Church Hill,WAKEFIELD,ST9 0DG,United Kingdom'
-          },
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-02-28T14:45:13.071Z',
-        updatedAt: '2024-02-28T14:45:13.112Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 1,
-        type: 'EE'
-      },
-      {
-        id: 'b13676a0-3a57-428e-a903-9dcf6eca104b',
-        reference: 'AHWR-B136-76A0',
-        data: {
-          type: 'EE',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: {
-            sbi: '112670111',
-            farmerName: 'Anjana Donald Jaroslav Daniel Gooder',
-            name: 'Kathryn Jeffery',
-            email: 'anjanagooderz@redooganajnae.com.test',
-            address: '1 Church Hill,WAKEFIELD,ST9 0DG,United Kingdom'
-          },
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-02-26T14:45:13.071Z',
-        updatedAt: '2024-02-28T14:45:13.112Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 1,
-        type: 'VV'
-      }
-    ]
+afterEach(() => {
+  mswServer.resetHandlers()
+})
 
-    const claims = [
-      {
-        id: 'a94e2cce-b774-484f-95c0-94e93c82f311',
-        reference: 'AHWR-A94E-2CCE',
-        applicationReference: 'AHWR-B136-76A0',
-        data: {
-          vetsName: 'Afshin',
-          dateOfVisit: '2024-02-28T00:00:00.000Z',
-          dateOfTesting: '2024-02-28T00:00:00.000Z',
-          laboratoryURN: 'URN4567',
-          vetRCVSNumber: '1234567',
-          speciesNumbers: 'yes',
-          typeOfLivestock: 'sheep',
-          numberAnimalsTested: '21'
-        },
-        statusId: 8,
-        type: 'R',
-        createdAt: '2024-02-26T14:14:43.632Z',
-        updatedAt: '2024-02-28T15:09:03.185Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        status: { status: 'ON HOLD' }
-      },
-      {
-        id: 'a94e2cce-b774-484f-95c0-94e93c82f311',
-        reference: 'AHWR-A94E-2CCE',
-        applicationReference: 'AHWR-B136-76A0',
-        data: {
-          vetsName: 'Afshin',
-          dateOfVisit: '2024-02-28T00:00:00.000Z',
-          dateOfTesting: '2024-02-28T00:00:00.000Z',
-          laboratoryURN: 'URN4567',
-          vetRCVSNumber: '1234567',
-          speciesNumbers: 'yes',
-          numberAnimalsTested: '21'
-        },
-        statusId: 18,
-        type: 'E',
-        createdAt: '2024-02-28T14:14:43.632Z',
-        updatedAt: '2024-02-28T15:09:03.185Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        status: { status: 'ON HOLD' }
-      },
-      {
-        id: 'a94e2cce-b774-484f-95c0-94e93c82f311',
-        reference: 'AHWR-A94E-2CCE',
-        applicationReference: 'AHWR-B136-76A0',
-        data: {
-          vetsName: 'Afshin',
-          dateOfVisit: '2024-02-28T00:00:00.000Z',
-          dateOfTesting: '2024-02-28T00:00:00.000Z',
-          laboratoryURN: 'URN4567',
-          vetRCVSNumber: '1234567',
-          speciesNumbers: 'yes',
-          numberAnimalsTested: '21'
-        },
-        statusId: 8,
-        type: 'E',
-        createdAt: '2024-02-27T14:14:43.632Z',
-        updatedAt: '2024-02-28T15:09:03.185Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        status: { status: 'ON HOLD' }
-      }
-    ]
+afterAll(() => {
+  mswServer.close()
+})
 
-    const options = {
-      method: 'GET',
-      url,
-      auth: {
-        strategy: 'cookie',
-        credentials: { reference: 'AHWR-2470-6BA9', sbi: '112670111' }
-      }
-    }
+test('get /vet-visits: new world, multiple businesses', async () => {
+  const server = await createServer()
 
-    getEndemicsClaim.mockReturnValueOnce({
-      organisation: applications[0].data.organisation
-    })
-    getCustomer.mockReturnValueOnce({
+  const sbi = '106354662'
+  const state = {
+    customer: {
       attachedToMultipleBusinesses: true
-    })
-
-    getLatestApplicationsBySbi.mockReturnValueOnce(applications)
-
-    getClaimsByApplicationReference.mockReturnValueOnce(claims)
-
-    const response = await global.__SERVER__.inject(options)
-    const $ = cheerio.load(response.payload)
-    const SBIText = 'Single Business Identifier (SBI): 112670111'
-
-    expect($('#SBI').text()).toEqual(SBIText)
-    expect($('#MBILink').text()).toEqual('Claim for a different business')
-    expect($('tbody tr').length).toBe(3)
-    expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
-  })
-
-  test('GET /vet-visits route without any claim returns 200', async () => {
-    const applications = [
-      {
-        id: 'b13676a0-3a57-428e-a903-9dcf6eca104b',
-        reference: 'AHWR-B136-76A0',
-        data: {
-          type: 'EE',
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: {
-            sbi: '112670111',
-            farmerName: 'Anjana Donald Jaroslav Daniel Gooder',
-            name: 'Kathryn Jeffery',
-            email: 'anjanagooderz@redooganajnae.com.test',
-            address: '1 Church Hill,WAKEFIELD,ST9 0DG,United Kingdom'
-          },
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-02-28T14:45:13.071Z',
-        updatedAt: '2024-02-28T14:45:13.112Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId: 9,
-        type: 'EE'
-      }
-    ]
-
-    const options = {
-      method: 'GET',
-      url,
-      auth: {
-        strategy: 'cookie',
-        credentials: { reference: 'AHWR-2470-6BA9', sbi: '112670111' }
-      }
-    }
-
-    getEndemicsClaim.mockReturnValueOnce({
-      organisation: applications[0].data.organisation
-    })
-    getCustomer.mockReturnValueOnce({
-      attachedToMultipleBusinesses: true
-    })
-
-    getLatestApplicationsBySbi.mockReturnValueOnce(applications)
-    getCustomer.mockReturnValueOnce({ attachedToMultipleBusinesses: true })
-    getClaimsByApplicationReference.mockReturnValueOnce([])
-
-    const response = await global.__SERVER__.inject(options)
-    const $ = cheerio.load(response.payload)
-
-    const button = $('.govuk-grid-row > .govuk-button')
-    expect(button.text()).toMatch('Start a new claim')
-    expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
-    expect($('tbody tr').length).toBe(0)
-  })
-
-  test('GET /vet-visits route returns 302', async () => {
-    const options = {
-      method: 'GET',
-      url,
-      auth: false
-    }
-
-    getEndemicsClaim.mockReturnValueOnce({
+    },
+    endemicsClaim: {
       organisation: {
-        sbi: '112670111',
-        farmerName: 'Anjana Donald Jaroslav Daniel Gooder',
-        name: 'Kathryn Jeffery'
+        sbi,
+        name: 'PARTRIDGES',
+        farmerName: 'Janice Harrison'
       }
-    })
-    getCustomer.mockReturnValueOnce({
+    }
+  }
+
+  setServerState(server, state)
+
+  const applicationReference = 'AHWR-TEST-NEW1'
+  const newWorldApplications = [{
+    sbi,
+    type: 'EE',
+    reference: applicationReference
+  }]
+  const applicationsLatest = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    () => HttpResponse.json(newWorldApplications)
+  )
+
+  const claims = [{
+    applicationReference,
+    reference: 'RESH-A89F-7776',
+    data: {
+      dateOfVisit: '2024-12-29',
+      typeOfLivestock: 'beef',
+      claimType: 'R'
+    },
+    statusId: '2'
+  }]
+  const claimByReference = http.get(
+    `${config.applicationApi.uri}/claim/get-by-application-reference/${applicationReference}`,
+    () => HttpResponse.json(claims)
+  )
+
+  mswServer.use(applicationsLatest, claimByReference)
+
+  const { payload } = await server.inject({
+    url: '/vet-visits',
+    auth: {
+      credentials: {},
+      strategy: 'cookie'
+    }
+  })
+  globalJsdom(payload)
+
+  expect(queryByRole(document.body, 'region', { name: 'Important' }))
+    .toBe(null)
+
+  expect(getTableCells(document.body)).toEqual([
+    ['Visit date', 'Species', 'Type', 'Claim number', 'Status'],
+    ['29 December 2024', 'Beef cattle', 'Review', 'RESH-A89F-7776', 'Withdrawn']
+  ])
+
+  expect(getByRole(document.body, 'link', { name: 'agreement summary' }))
+    .toHaveProperty(
+      'href',
+      `${document.location.href}download-application/${sbi}/${applicationReference}`
+    )
+
+  expect(getByRole(document.body, 'button', { name: 'Start a new claim' }))
+    .toHaveProperty('href', `${config.claimServiceUri}/endemics?from=dashboard&sbi=${sbi}`)
+
+  expect(getByRole(document.body, 'link', { name: 'Claim for a different business' }))
+    .toHaveProperty('href', expect.stringContaining(config.authConfig.defraId.hostname))
+})
+
+test('get /vet-visits: new world, no claims made, show banner', async () => {
+  const server = await createServer()
+  jest.replaceProperty(config.multiSpecies, 'releaseDate', '2024-12-04')
+  jest.replaceProperty(config.multiSpecies, 'enabled', true)
+
+  const sbi = '123123123'
+  const state = {
+    customer: {
+      attachedToMultipleBusinesses: true
+    },
+    endemicsClaim: {
+      organisation: {
+        sbi,
+        name: 'TEST FARM',
+        farmerName: 'Farmer Joe'
+      }
+    }
+  }
+
+  setServerState(server, state)
+
+  const beforeMultiSpeciesReleaseDate = '2024-12-03'
+  const newWorldApplications = [{
+    sbi,
+    type: 'EE',
+    reference: 'AHWR-TEST-NEW2',
+    createdAt: beforeMultiSpeciesReleaseDate
+  }]
+  const applicationsLatest = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    () => HttpResponse.json(newWorldApplications)
+  )
+
+  const claimByReference = http.get(
+    `${config.applicationApi.uri}/claim/get-by-application-reference/AHWR-TEST-NEW2`,
+    () => HttpResponse.json([])
+  )
+
+  mswServer.use(applicationsLatest, claimByReference)
+
+  const { payload } = await server.inject({
+    url: '/vet-visits',
+    auth: {
+      credentials: {},
+      strategy: 'cookie'
+    }
+  })
+  globalJsdom(payload)
+
+  const banner = getByRole(document.body, 'region', { name: 'Important' })
+  expect(getByRole(banner, 'paragraph').textContent.trim())
+    .toBe('You can now claim for more than one species.')
+})
+
+test('get /vet-visits: old world application only', async () => {
+  const server = await createServer()
+  const timeOfTest = new Date('2025-01-02')
+
+  jest.useFakeTimers({ doNotFake: nunJucksInternalTimerMethods })
+    .setSystemTime(timeOfTest)
+
+  const state = {
+    customer: {
       attachedToMultipleBusinesses: false
-    })
-
-    getLatestApplicationsBySbi.mockReturnValueOnce([
-      {
-        reference: 'AHWR-2470-6BA9',
-        type: 'EE'
-      }
-    ])
-
-    const response = await global.__SERVER__.inject(options)
-    expect(response.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-  })
-  test('getClaimsByApplicationReference is called with the correct argument', async () => {
-    const options = {
-      method: 'GET',
-      url,
-      auth: false
-    }
-    const latestEndemicsApplication = {
-      reference: 'AHWR-B136-76A0'
-    }
-    getClaimsByApplicationReference.mockReturnValueOnce()
-    await global.__SERVER__.inject(options)
-
-    expect(getClaimsByApplicationReference)
-      .toHaveBeenCalledWith(latestEndemicsApplication.reference, expect.any(Object))
-  })
-
-  test('shows notification banner when enabled', async () => {
-    jest.resetAllMocks()
-    jest.replaceProperty(multiSpecies, 'releaseDate', '2024-12-04')
-    jest.replaceProperty(multiSpecies, 'enabled', true)
-
-    const application = {
-      type: 'EE',
-      createdAt: '2024-12-03'
-    }
-
-    const options = {
-      method: 'GET',
-      url,
-      auth: {
-        strategy: 'cookie',
-        credentials: { reference: 'AHWR-2470-6BA9', sbi: '112670111' }
+    },
+    endemicsClaim: {
+      organisation: {
+        sbi: '106354662',
+        name: 'PARTRIDGES',
+        farmerName: 'Janice Harrison'
       }
     }
+  }
 
-    getEndemicsClaim.mockReturnValueOnce({ organisation: {} })
-    getCustomer.mockReturnValueOnce({ attachedToMultipleBusinesses: false })
-    getLatestApplicationsBySbi.mockReturnValueOnce([application])
-    getClaimsByApplicationReference.mockReturnValueOnce([])
+  setServerState(server, state)
 
-    const response = await global.__SERVER__.inject(options)
-    const $ = cheerio.load(response.payload)
+  const sbi = '106354662'
+  const almostTenMonthsBefore = new Date('2024-03-03')
 
-    expect($('.govuk-notification-banner__heading').text().trim())
-      .toBe('You can now claim for more than one species.')
-  })
+  const oldWorldApplications = [{
+    sbi,
+    type: 'VV',
+    reference: 'AHWR-TEST-OLD1',
+    data: {
+      visitDate: almostTenMonthsBefore,
+      typeOfLivestock: 'dairy',
+      claimType: 'R'
+    },
+    statusId: '5'
+  }]
+  const applicationsLatest = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    () => HttpResponse.json(oldWorldApplications)
+  )
 
-  test('hides notification banner for old world applications', async () => {
-    jest.resetAllMocks()
-    jest.replaceProperty(multiSpecies, 'releaseDate', '2024-12-04')
-    jest.replaceProperty(multiSpecies, 'enabled', true)
+  mswServer.use(applicationsLatest)
 
-    const application = {
-      type: 'VV',
-      createdAt: '2024-12-03'
+  const { payload } = await server.inject({
+    url: '/vet-visits',
+    auth: {
+      credentials: {},
+      strategy: 'cookie'
     }
-
-    const options = {
-      method: 'GET',
-      url,
-      auth: {
-        strategy: 'cookie',
-        credentials: { reference: 'AHWR-2470-6BA9', sbi: '112670111' }
-      }
-    }
-
-    getEndemicsClaim.mockReturnValueOnce({ organisation: {} })
-    getCustomer.mockReturnValueOnce({ attachedToMultipleBusinesses: false })
-    getLatestApplicationsBySbi.mockReturnValueOnce([application])
-    getClaimsByApplicationReference.mockReturnValueOnce([])
-
-    const response = await global.__SERVER__.inject(options)
-    const $ = cheerio.load(response.payload)
-
-    expect($('.govuk-notification-banner__heading').length)
-      .toBe(0)
   })
+  jest.useRealTimers()
+  globalJsdom(payload)
+
+  expect(queryByRole(document.body, 'region', { name: 'Important' }))
+    .toBe(null)
+
+  expect(getTableCells(document.body)).toEqual([
+    ['Visit date', 'Species', 'Type', 'Claim number', 'Status'],
+    ['3 March 2024', 'Dairy cattle', 'Review', 'AHWR-TEST-OLD1', 'Submitted']
+  ])
 })

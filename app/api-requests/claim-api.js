@@ -11,9 +11,6 @@ async function getClaimsByApplicationReference (applicationReference, logger) {
 
     return payload
   } catch (err) {
-    if (err.output.statusCode === 404) {
-      return []
-    }
     logger.setBindings({ err })
     throw err
   }

@@ -38,7 +38,6 @@ describe('Cookie plugin', () => {
     let request
 
     beforeEach(() => {
-      jest.clearAllMocks()
       server.route([{
         method: 'GET',
         path: '/',

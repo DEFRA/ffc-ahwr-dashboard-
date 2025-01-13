@@ -15,10 +15,6 @@ const yarMock = {
 }
 
 describe('session', () => {
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
-
   describe('lacksAny', () => {
     test('correct entryKey and correct key', () => {
       const request = { yar: yarMock }
