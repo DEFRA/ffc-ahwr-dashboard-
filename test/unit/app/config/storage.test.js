@@ -1,3 +1,7 @@
+jest.mock('../../../../app/config/storage.js', () => ({
+  storageAccount: 'mockStorageAccount'
+}))
+
 describe('Config Validation', () => {
   const originalProcessEnv = process.env
 
@@ -13,7 +17,6 @@ describe('Config Validation', () => {
     // Mock environment variables
     process.env.AZURE_STORAGE_CONNECTION_STRING = 'connection-string'
     process.env.AZURE_STORAGE_ACCOUNT_NAME = '' // Invalid: required field is missing
-
     // Validate config
     expect(() => {
       jest.requireActual('../../../../app/config/storage.js')

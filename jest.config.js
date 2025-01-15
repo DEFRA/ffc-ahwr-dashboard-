@@ -32,11 +32,11 @@ module.exports = {
       }
     ]
   ],
+  restoreMocks: true,
   testEnvironment: 'node',
   testPathIgnorePatterns: [],
   verbose: true,
   setupFilesAfterEnv: [
-    '<rootDir>/test/setup.js',
-    '<rootDir>/test/teardown.js'
+    '<rootDir>/test/setup.js'
   ]
 }

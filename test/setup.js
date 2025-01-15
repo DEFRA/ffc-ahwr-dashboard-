@@ -1,14 +1,13 @@
+process.env.EVENT_QUEUE_ADDRESS = 'ffc-ahwr-test'
+process.env.APPLICATION_API_URI = 'http://localhost'
+process.env.CLAIM_SERVICE_URI = 'http://localhost:3004/claim'
+process.env.ENDEMICS_ENABLED = 'true'
+process.env.MESSAGE_QUEUE_HOST = 'test'
+process.env.AZURE_STORAGE_APPLICATION_CONTAINER = 'document'
+process.env.AZURE_STORAGE_USE_CONNECTION_STRING = 'true'
+process.env.AZURE_STORAGE_ACCOUNT_NAME = 'test'
+process.env.AZURE_STORAGE_CONNECTION_STRING = 'test'
+process.env.COOKIE_PASSWORD = 'test-55baf113-a8dc-4957-97e7-1f5340ace375'
+process.env.TERMS_AND_CONDITIONS_URL = 'test'
+
 require('dotenv').config()
-
-beforeEach(async () => {
-  // Set reference to server in order to close the server during teardown.
-  const createServer = require('../app/server')
-  jest.setTimeout(10000)
-  const server = await createServer()
-  await server.initialize()
-  global.__SERVER__ = server
-})
-
-jest.mock('../app/config/storage', () => ({
-  storageAccount: 'mockStorageAccount'
-}))

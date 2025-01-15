@@ -22,13 +22,10 @@ describe('App Insight', () => {
     trackException: jest.fn()
   }
 
-  const consoleLogSpy = jest.spyOn(console, 'log')
-
   const appInsightsKey = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING
 
   beforeEach(() => {
     delete process.env.APPLICATIONINSIGHTS_CONNECTION_STRING
-    jest.clearAllMocks()
   })
 
   afterAll(() => {
@@ -36,6 +33,7 @@ describe('App Insight', () => {
   })
 
   test('is started when env var exists', () => {
+    const consoleLogSpy = jest.spyOn(console, 'log')
     const appName = 'test-app'
     process.env.APPINSIGHTS_CLOUDROLE = appName
     process.env.APPLICATIONINSIGHTS_CONNECTION_STRING = 'something'
@@ -51,6 +49,7 @@ describe('App Insight', () => {
   })
 
   test('logs not running when env var does not exist', () => {
+    const consoleLogSpy = jest.spyOn(console, 'log')
     const insights = require('../../../app/insights')
 
     insights.setup()

@@ -1,82 +1,98 @@
-const session = require('../../../../app/session')
-const { getBlob } = require('../../../../app/storage')
+const globalJsdom = require('global-jsdom')
+const { getByRole } = require('@testing-library/dom')
+const config = require('../../../../app/config')
+const createServer = require('../../../../app/server')
+const { setServerState } = require('../../../helpers/set-server-state')
 
-jest.mock('../../../../app/storage')
-jest.mock('../../../../app/session')
-jest.mock('../../../../app/config', () => ({
-  ...jest.requireActual('../../../../app/config'),
-  authConfig: {
-    defraId: {
-      hostname: 'https://tenant.b2clogin.com/tenant.onmicrosoft.com',
-      oAuthAuthorisePath: '/oauth2/v2.0/authorize',
-      policy: 'b2c_1a_signupsigninsfi',
-      redirectUri: 'http://localhost:3003/signin-oidc',
-      clientId: 'dummy_client_id',
-      serviceId: 'dummy_service_id',
-      scope: 'openid dummy_client_id offline_access'
-    },
-    ruralPaymentsAgency: {
-      hostname: 'dummy-host-name',
-      getPersonSummaryUrl: 'dummy-get-person-summary-url',
-      getOrganisationPermissionsUrl: 'dummy-get-organisation-permissions-url',
-      getOrganisationUrl: 'dummy-get-organisation-url'
+test('get /download-application', async () => {
+  const server = await createServer()
+
+  jest.replaceProperty(config.storage, 'useConnectionString', false)
+
+  const sbi = '106354662'
+  const reference = 'RESH-A89F-7776'
+  const state = {
+    endemicsClaim: {
+      organisation: {
+        sbi
+      },
+      LatestEndemicsApplicationReference: reference
     }
-  },
-  endemics: {
-    enabled: true
   }
-}))
-jest.mock('../../../../app/auth')
 
-describe('Download Application Route', () => {
-  const auth = {
-    credentials: { reference: '1111', sbi: '111111111' },
-    strategy: 'cookie'
+  setServerState(server, state)
+
+  const res = await server.inject({
+    url: `/download-application/${sbi}/${reference}`,
+    auth: {
+      credentials: {},
+      strategy: 'cookie'
+    }
+  })
+
+  expect(res.payload).toBe('test pdf')
+})
+
+test('get /download-application, reference mismatch', async () => {
+  const server = await createServer()
+
+  const sbi = '106354662'
+  const LatestEndemicsApplicationReference = 'RESH-A101-1111'
+  const reference = 'RESH-A202-2222'
+  const state = {
+    endemicsClaim: {
+      organisation: {
+        sbi
+      },
+      LatestEndemicsApplicationReference
+    }
   }
-  beforeEach(() => {
-    session.getEndemicsClaim.mockReturnValue({
-      LatestEndemicsApplicationReference: 'TEST-REF-001',
-      organisation: { sbi: '123456789' }
-    })
-  })
 
-  test('returns PDF when SBI and reference match', async () => {
-    const mockPdfBuffer = Buffer.from('mock pdf content')
-    getBlob.mockReturnValue(mockPdfBuffer)
-    const options = {
-      auth,
-      method: 'GET',
-      url: '/download-application/123456789/TEST-REF-001'
+  setServerState(server, state)
+
+  const res = await server.inject({
+    url: `/download-application/${sbi}/${reference}`,
+    auth: {
+      credentials: {},
+      strategy: 'cookie'
     }
-
-    const response = await global.__SERVER__.inject(options)
-    expect(response.statusCode).toBe(200)
-    expect(response.headers['content-type']).toBe('application/pdf')
-    expect(getBlob).toHaveBeenCalled()
-    jest.resetAllMocks()
   })
 
-  test('returns 404 when reference does not match', async () => {
-    const options = {
-      auth,
-      method: 'GET',
-      url: '/download-application/123456789/TEST-REF-002'
+  globalJsdom(res.payload)
+
+  expect(res.statusCode).toBe(404)
+  expect(getByRole(document.body, 'heading', { level: 1, name: '404 - Not Found' }))
+    .toBeDefined()
+})
+
+test('get /download-application, sbi mismatch', async () => {
+  const server = await createServer()
+
+  const sbi = '123456789'
+  const organisationSbi = '111111111'
+  const reference = 'RESH-A303-3333'
+  const state = {
+    endemicsClaim: {
+      organisation: {
+        sbi: organisationSbi
+      },
+      LatestEndemicsApplicationReference: reference
     }
+  }
 
-    const response = await global.__SERVER__.inject(options)
-    expect(response.statusCode).toBe(404)
-    expect(getBlob).not.toHaveBeenCalled()
-  })
+  setServerState(server, state)
 
-  test('returns 404 when SBI does not match', async () => {
-    const options = {
-      auth,
-      method: 'GET',
-      url: '/download-application/123456786/TEST-REF-001'
+  const res = await server.inject({
+    url: `/download-application/${sbi}/${reference}`,
+    auth: {
+      credentials: {},
+      strategy: 'cookie'
     }
-
-    const response = await global.__SERVER__.inject(options)
-    expect(response.statusCode).toBe(404)
-    expect(getBlob).not.toHaveBeenCalled()
   })
+
+  globalJsdom(res.payload)
+
+  expect(res.statusCode).toBe(404)
+  expect(getByRole(document.body, 'heading', { level: 1, name: '404 - Not Found' }))
+    .toBeDefined()
 })

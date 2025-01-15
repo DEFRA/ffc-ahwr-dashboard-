@@ -4,10 +4,6 @@ const decodeJwt = require('../../../../../app/auth/token-verify/jwt-decode')
 describe('decodeJwt function', () => {
   const mockToken = 'mock.jwt.token'
 
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
   it('should decode a JWT token successfully', () => {
     // Mock jwt.decode to return a successful response
     const mockDecodedToken = { payload: 'decodedPayload' }

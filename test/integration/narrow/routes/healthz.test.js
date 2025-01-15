@@ -1,12 +1,10 @@
-const HttpStatus = require('http-status-codes')
-describe('Healthz test', () => {
-  test('GET /healthz route returns 200', async () => {
-    const options = {
-      method: 'GET',
-      url: '/healthz'
-    }
+const createServer = require('../../../../app/server')
 
-    const response = await global.__SERVER__.inject(options)
-    expect(response.statusCode).toBe(HttpStatus.StatusCodes.OK)
+test('get /healthz', async () => {
+  const server = await createServer()
+  const res = await server.inject({
+    url: '/healthz'
   })
+
+  expect(res.statusCode).toBe(200)
 })

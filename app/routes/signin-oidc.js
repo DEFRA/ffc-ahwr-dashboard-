@@ -10,7 +10,7 @@ const { farmerApply } = require('../constants/user-types')
 const { status, closedStatuses } = require('../constants/status')
 const applicationType = require('../constants/application-type')
 const loginSources = require('../constants/login-sources')
-const { InvalidPermissionsError, NoEndemicsAgreementError, NoEligibleCphError, InvalidStateError, OutstandingAgreementError, LockedBusinessError } = require('../exceptions')
+const { InvalidPermissionsError, NoEndemicsAgreementError, NoEligibleCphError, InvalidStateError, LockedBusinessError } = require('../exceptions')
 const { raiseIneligibilityEvent } = require('../event')
 const appInsights = require('applicationinsights')
 const HttpStatus = require('http-status-codes')
@@ -38,7 +38,10 @@ function setOrganisationSessionData (request, personSummary, org) {
     organisation
   )
 }
-function sendToApplyJourney (latestApplicationsForSbi, loginSource, h, endemicsApplyJourney, organisation) {
+
+function sendToApplyJourney (latestApplicationsForSbi, loginSource, organisation) {
+  const endemicsApplyJourney = `${config.applyServiceUri}/endemics/check-details`
+
   if (latestApplicationsForSbi.length === 0) {
     if (loginSource === loginSources.apply) {
       // send to endemics apply journey
@@ -54,7 +57,6 @@ function sendToApplyJourney (latestApplicationsForSbi, loginSource, h, endemicsA
     if (latestApplication.statusId === status.AGREED) {
       return '/check-details'
     } else {
-      // send to endemics apply journey
       return endemicsApplyJourney
     }
   }
@@ -85,7 +87,13 @@ module.exports = [{
       failAction (request, h, err) {
         request.logger.setBindings({ err })
         appInsights.defaultClient.trackException({ exception: err })
-        const loginSource = request?.query?.state ? JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source : undefined
+
+        let loginSource
+        try {
+          loginSource = JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source
+        } catch (_) {
+          request.logger.setBindings({ query: request.query })
+        }
 
         return h.view('verify-login-failed', {
           backLink: auth.requestAuthorizationCodeUrl(session, request, loginSource),
@@ -134,27 +142,20 @@ module.exports = [{
 
         await cphCheck.customerMustHaveAtLeastOneValidCph(request, apimAccessToken)
 
-        const endemicsApplyJourney = `${config.applyServiceUri}/endemics/check-details`
-        const oldClaimJourney = `${config.claimServiceUri}/signin-oidc?state=${request.query.state}&code=${request.query.code}`
         const latestApplicationsForSbi = await applicationApi.getLatestApplicationsBySbi(organisation.sbi, request.logger)
-        const applyRedirectionLink = sendToApplyJourney(latestApplicationsForSbi, loginSource, h, endemicsApplyJourney, organisation)
+        const redirectPath = sendToApplyJourney(latestApplicationsForSbi, loginSource, organisation)
 
-        if (typeof applyRedirectionLink === 'string') {
-          return h.redirect(applyRedirectionLink)
-        }
-
-        // they have an open old world application/claim
-        if (loginSource === loginSources.apply) {
-          // show the 'You have an outstanding claim' error page
-          throw new OutstandingAgreementError(`Business with SBI ${organisation.sbi} must claim or withdraw agreement before creating another`)
-        } else {
-          // send to old claim journey
-          return h.redirect(oldClaimJourney)
-        }
+        return h.redirect(redirectPath)
       } catch (err) {
         request.logger.setBindings({ err })
 
-        const loginSource = JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source
+        let loginSource
+        try {
+          loginSource = JSON.parse(Buffer.from(request.query.state, 'base64').toString('ascii')).source
+        } catch (queryStateError) {
+          request.logger.setBindings({ query: request.query, queryStateError })
+        }
+
         const attachedToMultipleBusinesses = session.getCustomer(request, sessionKeys.customer.attachedToMultipleBusinesses)
         const organisation = session.getEndemicsClaim(request, sessionKeys.endemicsClaim.organisation)
         const crn = session.getCustomer(request, sessionKeys.customer.crn)
@@ -167,8 +168,6 @@ module.exports = [{
           case err instanceof LockedBusinessError:
             break
           case err instanceof NoEligibleCphError:
-            break
-          case err instanceof OutstandingAgreementError:
             break
           case err instanceof NoEndemicsAgreementError:
             break
@@ -188,8 +187,8 @@ module.exports = [{
             organisation?.email,
             err.name
           )
-        } catch (err) {
-          request.logger.setBindings({ err })
+        } catch (ineligibilityEventError) {
+          request.logger.setBindings({ ineligibilityEventError })
         }
 
         return h.view('cannot-apply-exception', {
@@ -197,7 +196,6 @@ module.exports = [{
           permissionError: err instanceof InvalidPermissionsError,
           cphError: err instanceof NoEligibleCphError,
           lockedBusinessError: err instanceof LockedBusinessError,
-          outstandingAgreementError: err instanceof OutstandingAgreementError,
           noEndemicsAgreementError: err instanceof NoEndemicsAgreementError,
           hasMultipleBusinesses: attachedToMultipleBusinesses,
           backLink: auth.requestAuthorizationCodeUrl(session, request, loginSource),

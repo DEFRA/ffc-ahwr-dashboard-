@@ -1,547 +1,952 @@
-const cheerio = require('cheerio')
-const sessionMock = require('../../../../app/session')
-jest.mock('../../../../app/session')
-const authMock = require('../../../../app/auth')
-jest.mock('../../../../app/auth')
-const personMock = require('../../../../app/api-requests/rpa-api/person')
-jest.mock('../../../../app/api-requests/rpa-api/person')
-const organisationMock = require('../../../../app/api-requests/rpa-api/organisation')
-jest.mock('../../../../app/api-requests/rpa-api/organisation')
-const cphNumbersMock = require('../../../../app/api-requests/rpa-api/cph-numbers')
-jest.mock('../../../../app/api-requests/rpa-api/cph-numbers')
-const sendIneligibilityEventMock = require('../../../../app/event/raise-ineligibility-event')
-jest.mock('../../../../app/event/raise-ineligibility-event')
-const cphCheckMock = require('../../../../app/api-requests/rpa-api/cph-check').customerMustHaveAtLeastOneValidCph
-jest.mock('../../../../app/api-requests/rpa-api/cph-check')
-const getLatestApplicationsBySbiMock = require('../../../../app/api-requests/application-api').getLatestApplicationsBySbi
-jest.mock('../../../../app/api-requests/application-api')
-jest.mock('../../../../app/api-requests/contact-history-api')
+const { http, HttpResponse } = require('msw')
+const globalJsdom = require('global-jsdom')
+const { setupServer } = require('msw/node')
+const { getByRole } = require('@testing-library/dom')
+const jsonwebtoken = require('jsonwebtoken')
+const { generateKeys, generateJWK } = require('../../../helpers/generate-keys-and-jwk')
+const config = require('../../../../app/config')
+const createServer = require('../../../../app/server')
+const { setServerState } = require('../../../helpers/set-server-state')
+const { agreed, inCheck, notAgreed } = require('../../../../app/constants/application-status')
 
-const HttpStatus = require('http-status-codes')
-const { status } = require('../../../../app/constants/status')
+const mswServer = setupServer()
+mswServer.listen()
 
-const { InvalidStateError, NoEligibleCphError } = require('../../../../app/exceptions')
+afterEach(() => {
+  mswServer.resetHandlers()
+})
 
-const stateFromApply = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImFwcGx5In0='
-const stateFromClaim = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImNsYWltIn0='
-const stateFromDashboard = 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9'
-const YOU_CAN_NOT_APPLY = 'You cannot apply for reviews or follow-ups for this business'
-const NO_ENDEMICS_AGREEMENT = 'You do not have an agreement for this business'
+afterAll(() => {
+  mswServer.close()
+})
 
-describe('Defra ID redirection test', () => {
-  function assertLoginAuth ($, expectedMessage = 'Login failed') {
-    expect($('.govuk-heading-l').text()).toMatch(expectedMessage)
-    assertAuthorizationCodeUrlCalled()
-    assertAuthenticateCalled()
+jest.mock('form-data', () => class Formdata {
+  append () {}
+  getHeaders () {}
+})
+
+const commonAuthHandlers = (crn, organisationId, nonce) => {
+  const { defraId, apim } = config.authConfig
+  const accessToken = {
+    contactId: crn,
+    currentRelationshipId: organisationId,
+    enrolmentCount: 1,
+    roles: [],
+    iss: `https://${defraId.tenantName}.b2clogin.com/${defraId.jwtIssuerId}/v2.0/`
   }
-  function assertLoginFailed ($, expectedMessage = 'Login failed') {
-    expect($('.govuk-heading-l').text()).toMatch(expectedMessage)
+  const idToken = { nonce }
+
+  const { publicKey, privateKey } = generateKeys()
+  const signinKey = generateJWK(publicKey)
+
+  const jwt = jsonwebtoken.sign(accessToken, privateKey, { algorithm: 'RS256' })
+  const idTokenJWT = jsonwebtoken.sign(idToken, privateKey, { algorithm: 'RS256' })
+
+  const defraIdToken = http.post(
+    `${defraId.hostname}/${defraId.policy}/oauth2/v2.0/token`,
+    () => HttpResponse.json({
+      expires_in: 3600,
+      access_token: jwt,
+      id_token: idTokenJWT
+    })
+  )
+
+  const acquireSigningKey = http.get(
+    `${defraId.hostname}/discovery/v2.0/keys`,
+    () => HttpResponse.json({ keys: [signinKey] })
+  )
+
+  jest.replaceProperty(apim, 'hostname', 'http://apim.test')
+  jest.replaceProperty(apim, 'oAuthPath', '/test')
+  const apimAccessToken = http.post(
+    'http://apim.test/test',
+    () => HttpResponse.json({})
+  )
+
+  return {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
   }
-  function assertAuthorizationCodeUrlCalled () {
-    expect(authMock.requestAuthorizationCodeUrl).toBeCalledTimes(1)
-  }
-  function assertAuthenticateCalled () {
-    expect(authMock.authenticate).toBeCalledTimes(1)
-  }
-  function assertRetrieveApimAccessTokenCalled () {
-    expect(authMock.retrieveApimAccessToken).toBeCalledTimes(1)
-  }
-  function mockGetLatestApplicationsBySbiMock (type = 'VV', statusId = status.READY_TO_PAY) {
-    getLatestApplicationsBySbiMock.mockResolvedValueOnce([
-      {
-        id: 'bf93ec75-d3a4-434b-8443-511838410640',
-        reference: 'AHWR-BF93-EC75',
-        data: {
-          type,
-          reference: null,
-          declaration: true,
-          offerStatus: 'accepted',
-          organisation: [Object],
-          confirmCheckDetails: 'yes'
-        },
-        claimed: false,
-        createdAt: '2024-01-23T09:37:23.519Z',
-        updatedAt: '2024-01-23T09:37:23.583Z',
-        createdBy: 'admin',
-        updatedBy: null,
-        statusId,
-        type
+}
+
+const commonRPAHandlers = (personId, privilegeNames, organisation, cphNumbers) => {
+  const { ruralPaymentsAgency } = config.authConfig
+  const rpaHost = 'http://rpa.uk'
+  const getPersonSummaryUrl = '/person/3337243/summary'
+
+  jest.replaceProperty(ruralPaymentsAgency, 'hostname', rpaHost)
+  jest.replaceProperty(ruralPaymentsAgency, 'getPersonSummaryUrl', getPersonSummaryUrl)
+
+  const getPersonSummary = http.get(`${rpaHost}${getPersonSummaryUrl}`,
+    () => HttpResponse.json({
+      _data: {
+        id: personId,
+        email: 'farmer@farm.com'
       }
-    ])
-  }
-  jest.mock('../../../../app/config', () => ({
-    ...jest.requireActual('../../../../app/config'),
-    serviceUri: 'http://localhost:3003',
-    applyServiceUri: 'http://localhost:3000/apply',
-    claimServiceUri: 'http://localhost:3004/claim',
-    authConfig: {
-      defraId: {
-        enabled: true
-      },
-      ruralPaymentsAgency: {
-        hostname: 'dummy-host-name',
-        getPersonSummaryUrl: 'dummy-get-person-summary-url',
-        getOrganisationPermissionsUrl: 'dummy-get-organisation-permissions-url',
-        getOrganisationUrl: 'dummy-get-organisation-url'
+    })
+  )
+
+  jest.replaceProperty(ruralPaymentsAgency, 'getOrganisationPermissionsUrl', '/rpa/org/organisationId/auth')
+  const getOrganisationAuthorisation = http.get(
+    `${rpaHost}/rpa/org/${organisation.id}/auth`,
+    () => HttpResponse.json({
+      data: {
+        personPrivileges: [{
+          personId,
+          privilegeNames
+        }]
       }
+    })
+  )
+
+  jest.replaceProperty(ruralPaymentsAgency, 'getOrganisationUrl', '/rpa/vet-visits/organisationId')
+  const getOrganisation = http.get(
+    `${rpaHost}/rpa/vet-visits/${organisation.id}`,
+    () => HttpResponse.json({
+      _data: organisation
+    })
+  )
+
+  jest.replaceProperty(ruralPaymentsAgency, 'getCphNumbersUrl', '/cph/organisation/organisationId')
+  const getCphNumbers = http.get(
+    `${rpaHost}/cph/organisation/${organisation.id}`,
+    () => HttpResponse.json({
+      success: true,
+      data: cphNumbers
+    })
+  )
+
+  return {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    getCphNumbers
+  }
+}
+
+const commonApplicationHandlers = () => {
+  const updateContactHistory = http.put(
+    `${config.applicationApiUri}/application/contact-history`,
+    () => HttpResponse.json([])
+  )
+
+  return { updateContactHistory }
+}
+
+test('get /signin-oidc: approved application', async () => {
+  const server = await createServer()
+
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'dashboard'
+  }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
+
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
     },
-    endemics: {
-      enabled: true
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
     }
-  }))
+  }
+  setServerState(server, state)
 
-  jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
 
-  const url = '/signin-oidc'
+  const personId = '7357'
+  const privilegeNames = ['Full permission - business']
+  const organisation = {
+    id: organisationId,
+    sbi
+  }
+  const cphNumbers = [{ cphNumber: '29/004/0005' }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    getCphNumbers
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
 
-  beforeEach(async () => {
-    jest.clearAllMocks()
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  const getLatestApplicationsBySbi = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    ({ request }) => {
+      const url = new URL(request.url)
+
+      if (url.searchParams.get('sbi') !== sbi) {
+        return new HttpResponse(null, { status: 404 })
+      }
+
+      return HttpResponse.json([{
+        type: 'EE',
+        statusId: agreed
+      }])
+    }
+  )
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory,
+    getCphNumbers,
+    getLatestApplicationsBySbi
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
   })
 
-  const setupMock = function (organisationPermission = false, locked = false) {
-    authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-    authMock.retrieveApimAccessToken.mockResolvedValueOnce('Bearer 2323')
-    personMock.getPersonSummary.mockResolvedValueOnce({
-      firstName: 'Bill',
-      middleName: null,
-      lastName: 'Smith',
-      email: 'billsmith@testemail.com',
-      id: 1234567,
-      customerReferenceNumber: '1103452436'
-    })
-    organisationMock.organisationIsEligible.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com',
-        locked
-      },
-      organisationPermission
-    })
+  expect(res.statusCode).toBe(302)
+  expect(res.headers.location).toBe('/check-details')
+})
 
-    sessionMock.getCustomer.mockResolvedValueOnce({
-      attachedToMultipleBusinesses: false
-    })
+test('get /signin-oidc: application not approved', async () => {
+  const server = await createServer()
 
-    sessionMock.getEndemicsClaim.mockResolvedValueOnce({
-      organisation: {
-        id: 7654321,
-        name: 'Mrs Gill Black',
-        sbi: 101122201,
-        address: {
-          address1: 'The Test House',
-          address2: 'Test road',
-          address3: 'Wicklewood',
-          buildingNumberRange: '11',
-          buildingName: 'TestHouse',
-          street: 'Test ROAD',
-          city: 'Test City',
-          postalCode: 'TS1 1TS',
-          country: 'United Kingdom',
-          dependentLocality: 'Test Local'
-        },
-        email: 'org1@testemail.com'
-      }
-    })
-
-    cphNumbersMock.mockResolvedValueOnce([
-      '08/178/0064'
-    ])
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'dashboard'
   }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
 
-  function verifyResult (res, errorMessage = 'NoEligibleCphError', isLoginFailed = false) {
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    const $ = cheerio.load(res.payload)
-    if (isLoginFailed) {
-      assertLoginAuth($, YOU_CAN_NOT_APPLY)
-    } else {
-      assertLoginAuth($, errorMessage)
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
+    },
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
     }
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(sendIneligibilityEventMock).toBeCalledTimes(1)
   }
-  function verifyResultForNoEndemicsAgreement (res) {
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-    const $ = cheerio.load(res.payload)
-    assertLoginFailed($, NO_ENDEMICS_AGREEMENT)
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
+  setServerState(server, state)
+
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
+
+  const personId = '7357'
+  const privilegeNames = ['Full permission - business']
+  const organisation = {
+    id: organisationId,
+    sbi
   }
-  function verifyResult302 (res, locationUrl = '/check-details') {
-    expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-    assertAuthenticateCalled()
-    assertRetrieveApimAccessTokenCalled()
-    expect(personMock.getPersonSummary).toBeCalledTimes(1)
-    expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-    expect(res.headers.location).toEqual(locationUrl)
-  }
+  const cphNumbers = [{ cphNumber: '29/004/0005' }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    getCphNumbers
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
 
-  describe(`GET requests to '${url}'`, () => {
-    test.each([
-      { code: '', state: '' },
-      { code: 'sads', state: '' },
-      { code: '', state: 'eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9' }
-    ])('returns 400 and login failed view when empty required query parameters - %p', async ({ code, state }) => {
-      if (state !== '') {
-        sessionMock.getReturnRoute.mockResolvedValueOnce({ returnRoute: 'apply' })
-      }
-      const baseUrl = `${url}?code=${code}&state=${state}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  const getLatestApplicationsBySbi = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    ({ request }) => {
+      const url = new URL(request.url)
+
+      if (url.searchParams.get('sbi') !== sbi) {
+        return new HttpResponse(null, { status: 404 })
       }
 
-      const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      const $ = cheerio.load(res.payload)
-      assertAuthorizationCodeUrlCalled()
-      assertLoginFailed($)
-    })
-
-    test('returns 400 and login failed view when state missing', async () => {
-      const baseUrl = `${url}?code=343432`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      const $ = cheerio.load(res.payload)
-      assertAuthorizationCodeUrlCalled()
-      assertLoginFailed($)
-    })
-
-    test('returns 400 and login failed view when code missing', async () => {
-      const baseUrl = `${url}?state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      const $ = cheerio.load(res.payload)
-      assertAuthorizationCodeUrlCalled()
-      assertLoginFailed($)
-    })
-
-    test('redirects to defra id when state mismatch', async () => {
-      const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      authMock.authenticate.mockImplementation(() => {
-        throw new InvalidStateError('Invalid state')
-      })
-
-      const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.MOVED_TEMPORARILY)
-      assertAuthenticateCalled()
-      assertAuthorizationCodeUrlCalled()
-    })
-
-    test('returns 400 and login failed view when apim access token auth fails', async () => {
-      const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      authMock.authenticate.mockResolvedValueOnce({ accessToken: '2323' })
-      authMock.retrieveApimAccessToken.mockImplementation(() => {
-        throw new Error('APIM Access Token Retrieval Failed')
-      })
-
-      const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      const $ = cheerio.load(res.payload)
-      assertRetrieveApimAccessTokenCalled()
-      assertLoginAuth($)
-    })
-
-    test('returns 400 and exception view when permissions failed', async () => {
-      const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock()
-      const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      const $ = cheerio.load(res.payload)
-      assertLoginAuth($, YOU_CAN_NOT_APPLY)
-      assertRetrieveApimAccessTokenCalled()
-      expect(personMock.getPersonSummary).toBeCalledTimes(1)
-      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-      expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-    })
-
-    test('ineligibility event failure is tolerated', async () => {
-      const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      sendIneligibilityEventMock.mockRejectedValueOnce('ineligible event error')
-
-      setupMock()
-      const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-    })
-
-    test('returns 400 and exception view when no eligible cph', async () => {
-      const expectedError = new NoEligibleCphError('Customer must have at least one valid CPH')
-      const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      cphCheckMock.mockRejectedValueOnce(expectedError)
-      const res = await global.__SERVER__.inject(options)
-      verifyResult(res, 'NoEligibleCphError', true)
-    })
-    test('returns 400 and exception view when business is locked', async () => {
-      const baseUrl = `${url}?code=432432&state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true, true)
-
-      const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      const $ = cheerio.load(res.payload)
-      assertLoginAuth($, YOU_CAN_NOT_APPLY)
-      assertRetrieveApimAccessTokenCalled()
-      expect(personMock.getPersonSummary).toBeCalledTimes(1)
-      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-      expect(sendIneligibilityEventMock).toBeCalledTimes(1)
-    })
-
-    test('returns 400 and exception view when there is no agreement and user entered from claim journey', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res)
-    })
-
-    test('returns 400 and exception view when there is no agreement and user entered from dashboard directly', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res)
-    })
-
-    test('returns 302 and redirects user to apply journey if no previous applications and user entered from apply journey', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromApply}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      getLatestApplicationsBySbiMock.mockResolvedValueOnce([])
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResult302(res, 'http://localhost:3000/apply/endemics/check-details')
-    })
-
-    test('returns 302 and redirects user to old claim journey if open application/claim and user entered from claim journey', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      mockGetLatestApplicationsBySbiMock('VV', status.AGREED)
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResult302(res, 'http://localhost:3004/claim/signin-oidc?state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImNsYWltIn0=&code=432432')
-    })
-
-    test('returns 302 and redirects user to old claim journey if open application/claim and user entered from dashboard directly', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-      setupMock(true)
-
-      mockGetLatestApplicationsBySbiMock('VV', status.AGREED)
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResult302(res, 'http://localhost:3004/claim/signin-oidc?state=eyJpZCI6IjcwOWVkZDZlLWU1NGEtNDE1YS04NTExLWFiNWVkN2ZhZmNkMCIsInNvdXJjZSI6ImRhc2hib2FyZCJ9&code=432432')
-    })
-
-    test('returns 400 and exception view if open application/claim and user entered from apply journey', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromApply}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      mockGetLatestApplicationsBySbiMock('VV', status.AGREED)
-
-      const res = await global.__SERVER__.inject(options)
-      expect(res.statusCode).toBe(HttpStatus.StatusCodes.BAD_REQUEST)
-      assertAuthenticateCalled()
-      assertRetrieveApimAccessTokenCalled()
-      expect(personMock.getPersonSummary).toBeCalledTimes(1)
-      expect(organisationMock.organisationIsEligible).toBeCalledTimes(1)
-      const $ = cheerio.load(res.payload)
-      assertLoginFailed($, 'You have an existing agreement for this business')
-    })
-
-    test('returns 302 and redirects user to dashboard if endemics agreement and user entered from apply', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromApply}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      mockGetLatestApplicationsBySbiMock('EE', status.AGREED)
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResult302(res)
-    })
-
-    test('returns 302 and redirects user to old claim journey if open application/claim and user entered from dashboard directly', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-      setupMock(true)
-
-      mockGetLatestApplicationsBySbiMock('EE', status.NOT_AGREED)
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResult302(res, 'http://localhost:3000/apply/endemics/check-details')
-    })
-
-    test('returns 302 and redirects user to dashboard if endemics agreement and user entered from claim', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      mockGetLatestApplicationsBySbiMock('EE', status.AGREED)
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResult302(res)
-    })
-
-    test('returns 302 and redirects user to dashboard if endemics agreement and user entered from dashboard', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      mockGetLatestApplicationsBySbiMock('EE', status.AGREED)
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResult302(res)
-    })
-
-    test('returns 302 and redirects user to endemics apply if last application is a closed VV application and coming from apply', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromApply}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      mockGetLatestApplicationsBySbiMock('VV', status.READY_TO_PAY)
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResult302(res, 'http://localhost:3000/apply/endemics/check-details')
-    })
-
-    test('returns 400 and and exception view if last application is a closed VV application and coming from claim', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromClaim}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      mockGetLatestApplicationsBySbiMock('VV', status.READY_TO_PAY)
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res)
-    })
-
-    test('returns 400 and and exception view if last application is a closed VV application and coming from dashboard', async () => {
-      const baseUrl = `${url}?code=432432&state=${stateFromDashboard}`
-      const options = {
-        method: 'GET',
-        url: baseUrl
-      }
-
-      setupMock(true)
-
-      mockGetLatestApplicationsBySbiMock('VV', status.READY_TO_PAY)
-
-      const res = await global.__SERVER__.inject(options)
-      verifyResultForNoEndemicsAgreement(res)
-    })
+      return HttpResponse.json([{
+        type: 'EE',
+        statusId: inCheck
+      }])
+    }
+  )
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory,
+    getCphNumbers,
+    getLatestApplicationsBySbi
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
   })
+
+  expect(res.statusCode).toBe(302)
+  expect(res.headers.location).toBe(`${config.applyServiceUri}/endemics/check-details`)
+})
+
+test('get /signin-oidc: no eligible cph numbers', async () => {
+  const server = await createServer()
+
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'dashboard'
+  }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
+
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
+    },
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
+    }
+  }
+  setServerState(server, state)
+
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
+
+  const personId = '7357'
+  const privilegeNames = ['Full permission - business']
+  const organisation = {
+    id: organisationId,
+    sbi
+  }
+  const outsideEngland = 52
+  const cphNumbers = [{ cphNumber: `${outsideEngland}/004/0005` }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    getCphNumbers
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
+
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory,
+    getCphNumbers
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
+  })
+
+  globalJsdom(res.payload)
+  expect(res.statusCode).toBe(400)
+
+  expect(
+    getByRole(
+      document.body,
+      'heading',
+      { level: 1, name: 'You cannot apply for reviews or follow-ups for this business' }
+    )
+  ).toBeDefined()
+})
+
+test('get /signin-oidc: no application, came from apply', async () => {
+  const server = await createServer()
+
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'apply'
+  }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
+
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
+    },
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
+    }
+  }
+  setServerState(server, state)
+
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
+
+  const personId = '7357'
+  const privilegeNames = ['Full permission - business']
+  const organisation = {
+    id: organisationId,
+    sbi
+  }
+  const cphNumbers = [{ cphNumber: '29/004/0005' }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    getCphNumbers
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
+
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  const getLatestApplicationsBySbi = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    ({ request }) => {
+      const url = new URL(request.url)
+
+      if (url.searchParams.get('sbi') !== sbi) {
+        return new HttpResponse(null, { status: 404 })
+      }
+
+      return HttpResponse.json([])
+    }
+  )
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory,
+    getCphNumbers,
+    getLatestApplicationsBySbi
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
+  })
+
+  expect(res.statusCode).toBe(302)
+  expect(res.headers.location).toBe(`${config.applyServiceUri}/endemics/check-details`)
+})
+
+test('get /signin-oidc: no application, came from dashboard', async () => {
+  const server = await createServer()
+
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'dashboard'
+  }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
+
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
+    },
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
+    }
+  }
+  setServerState(server, state)
+
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
+
+  const personId = '7357'
+  const privilegeNames = ['Full permission - business']
+  const organisation = {
+    id: organisationId,
+    sbi
+  }
+  const cphNumbers = [{ cphNumber: '29/004/0005' }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    getCphNumbers
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
+
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  const getLatestApplicationsBySbi = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    ({ request }) => {
+      const url = new URL(request.url)
+
+      if (url.searchParams.get('sbi') !== sbi) {
+        return new HttpResponse(null, { status: 404 })
+      }
+
+      return HttpResponse.json([])
+    }
+  )
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory,
+    getCphNumbers,
+    getLatestApplicationsBySbi
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
+  })
+
+  globalJsdom(res.payload)
+  expect(res.statusCode).toBe(400)
+
+  expect(
+    getByRole(
+      document.body,
+      'heading',
+      { level: 1, name: 'You do not have an agreement for this business' }
+    )
+  ).toBeDefined()
+})
+
+test('get /signin-oidc: closed old world application, came from apply', async () => {
+  const server = await createServer()
+
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'apply'
+  }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
+
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
+    },
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
+    }
+  }
+  setServerState(server, state)
+
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
+
+  const personId = '7357'
+  const privilegeNames = ['Full permission - business']
+  const organisation = {
+    id: organisationId,
+    sbi
+  }
+  const cphNumbers = [{ cphNumber: '29/004/0005' }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    getCphNumbers
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
+
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  const getLatestApplicationsBySbi = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    ({ request }) => {
+      const url = new URL(request.url)
+
+      if (url.searchParams.get('sbi') !== sbi) {
+        return new HttpResponse(null, { status: 404 })
+      }
+
+      return HttpResponse.json([{
+        type: 'VV',
+        statusId: notAgreed
+      }])
+    }
+  )
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory,
+    getCphNumbers,
+    getLatestApplicationsBySbi
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
+  })
+
+  expect(res.statusCode).toBe(302)
+  expect(res.headers.location).toBe(`${config.applyServiceUri}/endemics/check-details`)
+})
+
+test('get /signin-oidc: closed old world application, came from dashboard', async () => {
+  const server = await createServer()
+
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'dashboard'
+  }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
+
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
+    },
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
+    }
+  }
+  setServerState(server, state)
+
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
+
+  const personId = '7357'
+  const privilegeNames = ['Full permission - business']
+  const organisation = {
+    id: organisationId,
+    sbi
+  }
+  const cphNumbers = [{ cphNumber: '29/004/0005' }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    getCphNumbers
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
+
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  const getLatestApplicationsBySbi = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    ({ request }) => {
+      const url = new URL(request.url)
+
+      if (url.searchParams.get('sbi') !== sbi) {
+        return new HttpResponse(null, { status: 404 })
+      }
+
+      return HttpResponse.json([{
+        type: 'VV',
+        statusId: notAgreed
+      }])
+    }
+  )
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory,
+    getCphNumbers,
+    getLatestApplicationsBySbi
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
+  })
+
+  globalJsdom(res.payload)
+  expect(res.statusCode).toBe(400)
+
+  expect(
+    getByRole(
+      document.body,
+      'heading',
+      { level: 1, name: 'You do not have an agreement for this business' }
+    )
+  ).toBeDefined()
+})
+
+test('get /signin-oidc: approved application, organisation locked', async () => {
+  const server = await createServer()
+
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'dashboard'
+  }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
+
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
+    },
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
+    }
+  }
+  setServerState(server, state)
+
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
+
+  const personId = '7357'
+  const privilegeNames = ['Full permission - business']
+  const organisation = {
+    id: organisationId,
+    sbi,
+    locked: true
+  }
+  const cphNumbers = [{ cphNumber: '29/004/0005' }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
+
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
+  })
+
+  globalJsdom(res.payload)
+  expect(res.statusCode).toBe(400)
+
+  expect(
+    getByRole(
+      document.body,
+      'heading',
+      { level: 1, name: 'You cannot apply for reviews or follow-ups for this business' }
+    )
+  ).toBeDefined()
+})
+
+test('get /signin-oidc: approved application, permission not available', async () => {
+  const server = await createServer()
+
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'dashboard'
+  }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
+
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
+    },
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
+    }
+  }
+  setServerState(server, state)
+
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
+
+  const personId = '7357'
+  const privilegeNames = ['NO PRIVELIGES']
+  const organisation = {
+    id: organisationId,
+    sbi
+  }
+  const cphNumbers = [{ cphNumber: '29/004/0005' }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
+
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
+  })
+
+  globalJsdom(res.payload)
+  expect(res.statusCode).toBe(400)
+
+  expect(
+    getByRole(
+      document.body,
+      'heading',
+      { level: 1, name: 'You cannot apply for reviews or follow-ups for this business' }
+    )
+  ).toBeDefined()
+})
+
+test('get /signin-oidc: mismatching state', async () => {
+  const { defraId } = config.authConfig
+  const server = await createServer()
+
+  const rawServerState = {
+    id: '6ec6125f-dcbc-45f2-b042-7db263ff89fd',
+    source: 'dashboard'
+  }
+  const encodedServerState = Buffer.from(JSON.stringify(rawServerState)).toString('base64')
+
+  const state = {
+    tokens: {
+      state: encodedServerState
+    }
+  }
+
+  const rawClientState = {
+    id: 'e994b116-e505-4fcd-a2ac-1810d9cc3db7',
+    source: 'dashboard'
+  }
+  const encodedClientState = Buffer.from(JSON.stringify(rawClientState)).toString('base64')
+  setServerState(server, state)
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedClientState}&code=0`
+  })
+
+  expect(res.statusCode).toBe(302)
+  expect(res.headers.location.href)
+    .toMatch(`${defraId.hostname}${defraId.oAuthAuthorisePath}`)
+})
+
+test('get /signin-oidc: missing query', async () => {
+  const server = await createServer()
+
+  const res = await server.inject({
+    url: '/signin-oidc'
+  })
+
+  globalJsdom(res.payload)
+  expect(res.statusCode).toBe(400)
+
+  expect(
+    getByRole(document.body, 'heading', { level: 1, name: 'Login failed' })
+  ).toBeDefined()
+})
+
+test('get /signin-oidc: unexpected error', async () => {
+  const server = await createServer()
+
+  const res = await server.inject({
+    url: '/signin-oidc?state=badState&code=000'
+  })
+
+  globalJsdom(res.payload)
+  expect(res.statusCode).toBe(400)
+
+  expect(
+    getByRole(document.body, 'heading', { level: 1, name: 'Login failed' })
+  ).toBeDefined()
 })

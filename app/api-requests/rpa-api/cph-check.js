@@ -24,15 +24,10 @@ const restrictedToCattlePigAndSheepLivestock = (cphNumber) => {
   return !between(cphNumber.slice(sliceNo), slaughterHousesOrPoultry.MIN, slaughterHousesOrPoultry.MAX)
 }
 
-const containAtLeastOneValidCph = (cphNumbers) => {
-  if (typeof cphNumbers === 'undefined' || !Array.isArray(cphNumbers)) {
-    return false
-  }
-  const isContainAtLeastOneValidCph = cphNumbers.some(
+const containAtLeastOneValidCph = (cphNumbers) => cphNumbers
+  .some(
     cphNumber => inEngland(cphNumber) && restrictedToCattlePigAndSheepLivestock(cphNumber)
   )
-  return isContainAtLeastOneValidCph
-}
 
 const customerMustHaveAtLeastOneValidCph = async (request, apimAccessToken) => {
   const cphNumbers = await getCphNumbers(request, apimAccessToken)

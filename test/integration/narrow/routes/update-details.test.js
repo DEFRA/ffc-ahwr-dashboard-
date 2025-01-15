@@ -1,27 +1,19 @@
-// Assume this is your route module being tested
-const routeConfig = require('../../../../app/routes/update-details')
+const createServer = require('../../../../app/server')
+const globalJsdom = require('global-jsdom')
+const { getByRole } = require('@testing-library/dom')
 
-// Mock the Hapi response toolkit
-const h = {
-  view: jest.fn().mockReturnValue('view response')
-}
+test('get /update-details', async () => {
+  const server = await createServer()
 
-describe('/update-details route', () => {
-  test('has the correct method and path', () => {
-    expect(routeConfig.method).toBe('GET')
-    expect(routeConfig.path).toBe('/update-details')
+  const { payload } = await server.inject({
+    url: '/update-details',
+    auth: {
+      credentials: {},
+      strategy: 'cookie'
+    }
   })
+  globalJsdom(payload)
 
-  test('does not require authentication', () => {
-    expect(routeConfig.options.auth).toBeFalsy()
-  })
-
-  test('handler returns the correct view', async () => {
-    // Call the handler directly with mocked request and response toolkit
-    const response = await routeConfig.options.handler({}, h)
-
-    // Check if the correct view is being returned
-    expect(h.view).toHaveBeenCalledWith('update-details')
-    expect(response).toBe('view response')
-  })
+  expect(getByRole(document.body, 'link', { name: 'Sign in to the Rural Payments service' }))
+    .toHaveProperty('href', 'https://www.gov.uk/claim-rural-payments')
 })
