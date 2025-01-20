@@ -1,9 +1,9 @@
-const { v4: uuidv4 } = require('uuid')
+const { randomUUID } = require('node:crypto')
 const session = require('../../session')
 const sessionKeys = require('../../session/keys')
 
 const generate = (request) => {
-  const nonce = uuidv4()
+  const nonce = randomUUID()
   session.setToken(request, sessionKeys.tokens.nonce, nonce)
   return nonce
 }
