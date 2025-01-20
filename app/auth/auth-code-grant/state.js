@@ -1,11 +1,11 @@
-const { v4: uuidv4 } = require('uuid')
+const { randomUUID } = require('node:crypto')
 const session = require('../../session')
 const { tokens } = require('../../session/keys')
 const config = require('../../config')
 
 const generate = (request, source = 'dashboard') => {
   const state = {
-    id: uuidv4(),
+    id: randomUUID(),
     namespace: config.namespace,
     source
   }

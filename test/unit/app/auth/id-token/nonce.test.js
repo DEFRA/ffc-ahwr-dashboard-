@@ -1,5 +1,5 @@
-jest.mock('uuid', () => ({
-  v4: jest.fn()
+jest.mock('node:crypto', () => ({
+  randomUUID: jest.fn()
 }))
 
 jest.mock('../../../../../app/session', () => ({
@@ -8,9 +8,9 @@ jest.mock('../../../../../app/session', () => ({
 }))
 
 const { generate, verify } = require('../../../../../app/auth/id-token/nonce')
-const uuid = require('uuid')
 const session = require('../../../../../app/session')
 const sessionKeys = require('../../../../../app/session/keys')
+const { randomUUID } = require('node:crypto')
 
 describe('Nonce handling', () => {
   const mockNonce = 'uuid-nonce'
@@ -18,7 +18,7 @@ describe('Nonce handling', () => {
   const idToken = { nonce: mockNonce }
 
   beforeEach(() => {
-    uuid.v4.mockReturnValue(mockNonce)
+    randomUUID.mockReturnValueOnce(mockNonce)
     session.setToken.mockClear()
     session.getToken.mockClear()
   })
@@ -27,7 +27,7 @@ describe('Nonce handling', () => {
     test('should generate a nonce and store it in the session', () => {
       const nonce = generate(request)
 
-      expect(uuid.v4).toHaveBeenCalled()
+      expect(randomUUID).toHaveBeenCalled()
       expect(session.setToken).toHaveBeenCalledWith(request, sessionKeys.tokens.nonce, mockNonce)
       expect(nonce).toBe(mockNonce)
     })
