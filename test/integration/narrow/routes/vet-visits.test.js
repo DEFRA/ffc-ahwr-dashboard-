@@ -182,8 +182,7 @@ test('get /vet-visits: old world application only', async () => {
     reference: 'AHWR-TEST-OLD1',
     data: {
       visitDate: almostTenMonthsBefore,
-      typeOfLivestock: 'dairy',
-      claimType: 'R'
+      whichReview: 'dairy',
     },
     statusId: '5'
   }]

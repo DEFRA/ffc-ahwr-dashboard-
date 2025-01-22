@@ -8,6 +8,7 @@ const { latestTermsAndConditionsUri, multiSpecies } = require('../config')
 const { getLatestApplicationsBySbi } = require('../api-requests/application-api')
 const { getClaimsByApplicationReference, isWithinLastTenMonths } = require('../api-requests/claim-api')
 const applicationType = require('../constants/application-type')
+const { claimType } = require('../constants/claim')
 const { userNeedsNotification } = require('./utils/user-needs-notification')
 
 const pageUrl = `/${vetVisits}`
@@ -56,8 +57,8 @@ module.exports = {
                 'data-sort-value': dateOfVisit.getTime()
               }
             },
-            { text: env.render('species.njk', { species: claim.data.typeOfLivestock }) },
-            { text: env.render('claim-type.njk', { claimType: claim.data.claimType }) },
+            { text: env.render('species.njk', { species: claim.data.typeOfLivestock ?? claim.data.whichReview }) },
+            { text: env.render('claim-type.njk', { claimType: claim.data.claimType ?? claimType.review }) },
             { text: claim.reference },
             { html: env.render('tag.njk', { status: claim.statusId }) }
           ]
