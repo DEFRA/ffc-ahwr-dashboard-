@@ -4,15 +4,18 @@ const { storage } = require('./config')
 const { streamToBuffer } = require('./lib/streamToBuffer')
 
 const {
-  connectionString,
-  useConnectionString,
-  applicationDocumentsContainer,
-  storageAccount
+  applicationDocumentsContainer
 } = storage
 
 let blobServiceClient
 function initialiseClient () {
   if (!blobServiceClient) {
+    const {
+      connectionString,
+      useConnectionString,
+      storageAccount
+    } = storage
+
     if (useConnectionString === true) {
       blobServiceClient = BlobServiceClient.fromConnectionString(connectionString)
     } else {
@@ -20,6 +23,10 @@ function initialiseClient () {
       blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential({ managedIdentityClientId: process.env.AZURE_CLIENT_ID }))
     }
   }
+}
+
+function resetClient () {
+  blobServiceClient = undefined
 }
 
 const getBlob = async (filename) => {
@@ -32,5 +39,6 @@ const getBlob = async (filename) => {
 }
 
 module.exports = {
-  getBlob
+  getBlob,
+  resetClient
 }
