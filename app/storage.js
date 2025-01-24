@@ -25,10 +25,6 @@ function initialiseClient () {
   }
 }
 
-function resetClient () {
-  blobServiceClient = undefined
-}
-
 const getBlob = async (filename) => {
   initialiseClient()
 
@@ -39,6 +35,5 @@ const getBlob = async (filename) => {
 }
 
 module.exports = {
-  getBlob,
-  resetClient
+  getBlob
 }

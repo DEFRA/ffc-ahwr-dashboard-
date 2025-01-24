@@ -1,10 +1,9 @@
 const { BlobServiceClient } = require('@azure/storage-blob')
-const { getBlob, resetClient } = require('../../../app/storage')
+const { getBlob } = require('../../../app/storage')
 const { storage } = require('../../../app/config')
 
 describe('Blob Storage Service', () => {
   afterEach(() => {
-    resetClient()
     jest.resetAllMocks()
   })
 
