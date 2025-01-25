@@ -12,15 +12,13 @@ else
   exit 1
 fi
 
-echo "Acceptance tests temporarily disabled as snd2 not hooked up correctly for this"
+cd "${projectRoot}"
 
-#cd "${projectRoot}"
-#
-#cd test/acceptance
-#
-#$compose_cmd down
-#
-#$compose_cmd \
-#  -f docker-compose.yaml \
-#  -f docker-compose.override.yaml \
-#  up $@
+cd test/acceptance
+
+$compose_cmd down
+
+$compose_cmd \
+  -f docker-compose.yaml \
+  -f docker-compose.override.yaml \
+  up $@
