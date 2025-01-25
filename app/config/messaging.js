@@ -5,7 +5,8 @@ const mqSchema = Joi.object({
     host: Joi.string().required(),
     username: Joi.string(),
     password: Joi.string(),
-    useCredentialChain: Joi.bool().default(false),
+    useCredentialChain: Joi.bool().required(),
+    managedIdentityClientId: Joi.string().optional(),
     appInsights: Joi.object()
   },
   eventQueue: {
@@ -20,6 +21,7 @@ const mqConfig = {
     username: process.env.MESSAGE_QUEUE_USER,
     password: process.env.MESSAGE_QUEUE_PASSWORD,
     useCredentialChain: process.env.NODE_ENV === 'production',
+    managedIdentityClientId: process.env.AZURE_CLIENT_ID,
     appInsights: process.env.NODE_ENV === 'production' ? require('applicationinsights') : undefined
   },
   eventQueue: {
