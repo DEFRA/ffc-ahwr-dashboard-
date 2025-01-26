@@ -1,6 +1,6 @@
-const { Readable } = require('node:stream')
+import { Readable } from 'node:stream'
 
-class BlobClient {
+export class BlobClient {
   constructor (file) {
     this.file = file
   }
@@ -32,5 +32,3 @@ BlobServiceClient.fromConnectionString = jest.fn()
   .mockImplementation(() => {
     return new BlobServiceClient()
   })
-
-module.exports = { BlobServiceClient }
