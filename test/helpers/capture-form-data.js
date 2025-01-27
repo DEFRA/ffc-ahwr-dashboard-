@@ -9,4 +9,3 @@ export const captureFormData = (name) => {
 
   return { formdata: () => formdata }
 }
-

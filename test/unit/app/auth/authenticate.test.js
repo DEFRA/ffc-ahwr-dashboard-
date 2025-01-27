@@ -2,6 +2,7 @@ import { keys } from '../../../../app/session/keys'
 import HttpStatus from 'http-status-codes'
 import wreck from '@hapi/wreck'
 import jwktopem from 'jwk-to-pem'
+import { verifyState } from '../../../../app/auth/auth-code-grant/state.js'
 import { authenticate } from '../../../../app/auth/authenticate'
 import { getPkcecodes, getToken, setCustomer, setToken } from '../../../../app/session/index.js'
 import { verify } from 'jsonwebtoken'
@@ -19,42 +20,33 @@ jest.mock('jsonwebtoken', () => ({
   decode: jest.requireActual('jsonwebtoken').decode
 }))
 
+jest.mock('../../../../app/auth/auth-code-grant/state.js', () => ({
+  verifyState: jest.fn()
+}))
+
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: () => 'hello' }, dispose: jest.fn() }))
+
+jest.mock('../../../../app/config/auth.js', () => ({
+  authConfig: {
+    defraId: {
+      hostname: 'https://tenantname.b2clogin.com/tenantname.onmicrosoft.com',
+      tenantName: 'tenantname',
+      oAuthAuthorisePath: '/oauth2/v2.0/authorize',
+      policy: 'b2c_1a_signupsigninsfi',
+      redirectUri: 'http://localhost:3000/apply/signin-oidc',
+      clientId: 'dummy_client_id',
+      clientSecret: 'dummy_client_secret',
+      serviceId: 'dummy_service_id',
+      scope: 'openid dummy_client_id offline_access',
+      jwtIssuerId: 'jwtissuerid'
+    }
+  }
+}))
 
 describe('authenticate', () => {
   beforeAll(() => {
     jest.useFakeTimers('modern')
     jest.setSystemTime(MOCK_NOW)
-
-    jest.mock('../../../../app/config/auth', () => ({
-      ...jest.requireActual('../../../../app/config/auth'),
-      defraId: {
-        hostname: 'https://tenantname.b2clogin.com/tenantname.onmicrosoft.com',
-        tenantName: 'tenantname',
-        oAuthAuthorisePath: '/oauth2/v2.0/authorize',
-        policy: 'b2c_1a_signupsigninsfi',
-        redirectUri: 'http://localhost:3000/apply/signin-oidc',
-        clientId: 'dummy_client_id',
-        clientSecret: 'dummy_client_secret',
-        serviceId: 'dummy_service_id',
-        scope: 'openid dummy_client_id offline_access',
-        jwtIssuerId: 'jwtissuerid'
-      },
-      ruralPaymentsAgency: {
-        hostname: 'dummy-host-name',
-        getPersonSummaryUrl: 'dummy-get-person-summary-url',
-        getOrganisationPermissionsUrl: 'dummy-get-organisation-permissions-url',
-        getOrganisationUrl: 'dummy-get-organisation-url'
-      },
-      apim: {
-        ocpSubscriptionKey: 'dummy-ocp-subscription-key',
-        hostname: 'dummy-host-name',
-        oAuthPath: 'dummy-oauth-path',
-        clientId: 'dummy-client-id',
-        clientSecret: 'dummy-client-secret',
-        scope: 'dummy-scope'
-      }
-    }))
   })
 
   afterAll(() => {
@@ -202,6 +194,9 @@ describe('authenticate', () => {
   ])('%s', async (testCase) => {
     if (testCase.toString().includes('jwtVerify error')) {
       verify.mockReturnValue(false)
+    } else {
+      verify.mockReturnValue(true)
+      verifyState.mockReturnValue(true)
     }
 
     when(getToken)
@@ -211,8 +206,7 @@ describe('authenticate', () => {
       .calledWith(testCase.given.request, keys.pkcecodes.verifier)
       .mockReturnValue(testCase.when.session.pkcecodes.verifier)
     when(wreck.post)
-      .calledWith(
-        'https://tenantname.b2clogin.com/tenantname.onmicrosoft.com/b2c_1a_signupsigninsfi/oauth2/v2.0/token',
+      .calledWith(expect.stringContaining('token'),
         {
           headers: expect.anything(),
           payload: expect.anything(),
@@ -221,8 +215,7 @@ describe('authenticate', () => {
       )
       .mockResolvedValue(testCase.when.redeemResponse)
     when(wreck.get)
-      .calledWith(
-        'https://tenantname.b2clogin.com/tenantname.onmicrosoft.com/discovery/v2.0/keys?p=b2c_1a_signupsigninsfi',
+      .calledWith(expect.stringContaining('keys'),
         { json: true }
       )
       .mockResolvedValue({

@@ -14,8 +14,8 @@ export const cookiePlugin = {
         const statusCode = request.response.statusCode
         if (
           request.response.variety === 'view' &&
-          statusCode !== HttpStatus.StatusCodes.NOT_FOUND &&
-          statusCode !== HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR &&
+          statusCode !== HttpStatus.NOT_FOUND &&
+          statusCode !== HttpStatus.INTERNAL_SERVER_ERROR &&
           request.response.source.manager._context
         ) {
           request.response.source.manager._context.cookiesPolicy =

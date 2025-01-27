@@ -10,4 +10,3 @@ export const setServerState = async (server, state) => {
     await server.stop()
   })
 }
-

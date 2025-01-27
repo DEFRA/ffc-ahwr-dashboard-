@@ -29,7 +29,7 @@ describe('acquireSigningKey error scenario', () => {
     }
     wreck.get.mockRejectedValueOnce(response)
 
-    expect(async () => {
+    await expect(async () => {
       await acquireSigningKey()
     }).rejects.toEqual(response)
   })

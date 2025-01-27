@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream'
 
-export class BlobClient {
+class BlobClient {
   constructor (file) {
     this.file = file
   }
@@ -20,7 +20,7 @@ class Container {
   }
 }
 
-class BlobServiceClient {
+export class BlobServiceClient {
   getContainerClient () {
     return new Container()
   }

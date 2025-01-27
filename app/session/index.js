@@ -1,6 +1,6 @@
 import { sendSessionEvent } from '../event/send-session-event.js'
 
-const entries = {
+export const entries = {
   application: 'application',
   endemicsClaim: 'endemicsClaim',
   farmerApplyData: 'farmerApplyData',

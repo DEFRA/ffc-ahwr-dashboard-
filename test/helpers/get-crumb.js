@@ -19,4 +19,3 @@ export const getCrumb = async (server, url) => {
 
   return getCrumbFromSetCookie(res.headers['set-cookie'])
 }
-

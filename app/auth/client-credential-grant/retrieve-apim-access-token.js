@@ -22,7 +22,7 @@ export const retrieveApimAccessToken = async (request) => {
         timeout: config.wreckHttp.timeoutMilliseconds
       }
     )
-    console.log(payload)
+
     return `${payload.token_type} ${payload.access_token}`
   } catch (err) {
     request.logger.setBindings({ err, endpoint })

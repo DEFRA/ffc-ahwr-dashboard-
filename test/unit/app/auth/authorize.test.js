@@ -4,10 +4,6 @@ import { verifyState } from '../../../../app/auth/auth-code-grant/state.js'
 
 jest.mock('../../../../app/session')
 jest.mock('../../../../app/auth/auth-code-grant/state')
-// jest.mock('../../../../app/auth/auth-code-grant/state', () => ({
-//   verifyState: jest.fn(),
-//   generate: jest.fn()
-// }))
 
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn() }, dispose: jest.fn() }))
 

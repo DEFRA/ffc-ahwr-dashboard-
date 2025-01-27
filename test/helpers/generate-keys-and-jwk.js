@@ -37,4 +37,3 @@ export const generateJWK = (pem) => {
 
   return jwk
 }
-
