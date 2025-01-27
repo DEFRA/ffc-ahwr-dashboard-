@@ -66,9 +66,6 @@ export const getConfig = () => {
     wreckHttp: {
       timeoutMilliseconds: joi.number().default(10000)
     },
-    endemics: joi.object({
-      enabled: joi.boolean().default(false)
-    }),
     multiSpecies: joi.object({
       enabled: joi.boolean().required(),
       releaseDate: joi.string().required()
@@ -131,9 +128,6 @@ export const getConfig = () => {
     },
     wreckHttp: {
       timeoutMilliseconds: process.env.WRECK_HTTP_TIMEOUT_MILLISECONDS
-    },
-    endemics: {
-      enabled: process.env.ENDEMICS_ENABLED
     },
     multiSpecies: {
       enabled: process.env.MULTI_SPECIES_ENABLED === 'true',
