@@ -11,4 +11,3 @@ export function setup () {
     console.log('App Insights Not Running!')
   }
 }
-

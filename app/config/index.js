@@ -1,5 +1,6 @@
 import joi from 'joi'
-import { config as applicationApiConfig } from '../api-requests/application-api.config.js'
+import appInsights from 'applicationinsights'
+import { applicationApiConfig, applicationApiConfigSchema } from '../api-requests/application-api.config.js'
 
 export const getConfig = () => {
   const schema = joi.object({
@@ -34,7 +35,7 @@ export const getConfig = () => {
       ttl: joi.number().default(1000 * 60 * 60 * 24 * 365) // 1 year
     },
     env: joi.string().valid('development', 'test', 'production').default(
-        'development'
+      'development'
     ),
     displayPageSize: joi.number().default(20),
     googleTagManagerKey: joi.string().allow(null, ''),
@@ -61,7 +62,7 @@ export const getConfig = () => {
     tenMonthRule: {
       enabled: joi.bool().default(false)
     },
-    applicationApi: require('../api-requests/application-api.config.schema'),
+    applicationApi: applicationApiConfigSchema,
     wreckHttp: {
       timeoutMilliseconds: joi.number().default(10000)
     },
@@ -77,7 +78,7 @@ export const getConfig = () => {
   })
 
   const config = {
-    appInsights: require('applicationinsights'),
+    appInsights: appInsights,
     namespace: process.env.NAMESPACE,
     cache: {
       options: {
@@ -121,7 +122,7 @@ export const getConfig = () => {
     customerSurvey: {
       uri: 'https://defragroup.eu.qualtrics.com/jfe/form/SV_4IsQyL0cOUbFDQG'
     },
-    applicationApi: require('../api-requests/application-api.config'),
+    applicationApi: applicationApiConfig,
     dateOfTesting: {
       enabled: process.env.DATE_OF_TESTING_ENABLED
     },
@@ -149,7 +150,7 @@ export const getConfig = () => {
   if (result.error) {
     throw new Error(`The server config is invalid. ${result.error.message}`)
   }
-  
+
   return config
 }
 

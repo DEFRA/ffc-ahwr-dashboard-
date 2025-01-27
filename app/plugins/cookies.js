@@ -1,8 +1,10 @@
-const { cookie: { cookieNameCookiePolicy }, cookiePolicy } = require('../config')
-const { getCurrentPolicy } = require('../cookies')
-const HttpStatus = require('http-status-codes')
+import { config } from '../config/index.js'
+import { getCurrentPolicy } from '../cookies.js'
+import HttpStatus from 'http-status-codes'
 
-module.exports = {
+const { cookie: { cookieNameCookiePolicy }, cookiePolicy } = config
+
+export const cookiePlugin = {
   plugin: {
     name: 'cookies',
     register: (server, _) => {
@@ -16,9 +18,8 @@ module.exports = {
           statusCode !== HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR &&
           request.response.source.manager._context
         ) {
-          const cookiesPolicy = getCurrentPolicy(request, h)
           request.response.source.manager._context.cookiesPolicy =
-            cookiesPolicy
+            getCurrentPolicy(request, h)
         }
         return h.continue
       })

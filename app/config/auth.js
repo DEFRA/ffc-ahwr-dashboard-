@@ -1,7 +1,6 @@
 import joi from 'joi'
 
 export const getAuthConfig = () => {
-
   const authSchema = joi.object({
     defraId: {
       hostname: joi.string().uri(),
@@ -71,7 +70,6 @@ export const getAuthConfig = () => {
   }
 
   return authConfig
-
 }
 
 export const authConfig = getAuthConfig()
