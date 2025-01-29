@@ -9,6 +9,10 @@ import { requestAuthorizationCodeUrl } from '../auth/auth-code-grant/request-aut
 import { claimServiceUri, vetVisits } from '../config/routes.js'
 import { config } from '../config/index.js'
 import { userNeedsNotification } from './utils/user-needs-notification.js'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const { latestTermsAndConditionsUri, multiSpecies } = config
 
