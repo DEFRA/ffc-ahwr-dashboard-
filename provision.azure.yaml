@@ -1,6 +1,6 @@
 resources:
   identity: ahwr-dashboard
   queues:
-    - name: event
+    - name: ffc-ahwr-event
       role: sender
       session: false
