@@ -3,16 +3,11 @@ import { getLatestApplicationsBySbi } from '../api-requests/application-api.js'
 import { getClaimsByApplicationReference, isWithinLastTenMonths } from '../api-requests/claim-api.js'
 import nunjucks from 'nunjucks'
 import { applicationType, claimType } from '../constants/constants.js'
-import path from 'path'
 import { keys } from '../session/keys.js'
 import { requestAuthorizationCodeUrl } from '../auth/auth-code-grant/request-authorization-code-url.js'
 import { claimServiceUri, vetVisits } from '../config/routes.js'
 import { config } from '../config/index.js'
 import { userNeedsNotification } from './utils/user-needs-notification.js'
-import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 const { latestTermsAndConditionsUri, multiSpecies } = config
 
@@ -39,7 +34,7 @@ export const vetVisitsHandlers = [{
       const allClaims = [...claims, ...vetVisitApplicationsWithinLastTenMonths]
 
       const env = nunjucks.configure([
-        path.join(__dirname, '../views/snippets'),
+        'app/views/snippets',
         'node_modules/govuk-frontend/dist'
       ])
 
