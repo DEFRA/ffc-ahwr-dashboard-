@@ -44,5 +44,4 @@ export const getMessageQueueConfig = () => {
 }
 
 const allConfig = getMessageQueueConfig()
-export const eventQueue = allConfig.eventQueue
-export const messageQueue = allConfig.messageQueue
+export const eventQueue = { ...allConfig.messageQueue, ...allConfig.eventQueue }
