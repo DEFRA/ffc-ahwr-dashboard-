@@ -30,7 +30,7 @@ test('get /download-application', async () => {
     }
   })
 
-  expect(res.payload).toBe('test pdf')
+  expect(res.payload).toBe(`${sbi}/${reference}.pdf`)
 })
 
 test('get /download-application, reference mismatch', async () => {
