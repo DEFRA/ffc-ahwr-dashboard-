@@ -4,7 +4,7 @@ class BlobClient {
   constructor (file) {
     this.file = file
   }
-  
+
   download () {
     const pdf = Buffer.from(this.file, 'ascii')
     const stream = new Readable()
