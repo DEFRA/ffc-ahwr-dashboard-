@@ -1,13 +1,12 @@
-import { get } from './base.js'
-import { getToken } from '../../session/index.js'
-import { keys } from '../../session/keys.js'
-import { decodeJwt } from '../../auth/token-verify/jwt-decode.js'
-import { authConfig } from '../../config/auth.js'
-
+const { get } = require('./base')
+const config = require('../../config')
+const session = require('../../session')
+const { tokens } = require('../../session/keys')
+const jwtDecode = require('../../auth/token-verify/jwt-decode')
 const validPermissions = ['Submit - bps', 'Full permission - business']
 let apimToken
 
-export function getOrganisationAddress (address) {
+function getOrganisationAddress (address) {
   return [
     address?.address1,
     address?.address2,
@@ -27,12 +26,12 @@ export function getOrganisationAddress (address) {
 }
 
 function parsedAccessToken (request) {
-  const accessToken = getToken(request, keys.tokens.accessToken)
-  return decodeJwt(accessToken)
+  const accessToken = session.getToken(request, tokens.accessToken)
+  return jwtDecode(accessToken)
 }
 
 const getOrganisationAuthorisation = async (request, organisationId) => {
-  const { hostname, getOrganisationPermissionsUrl } = authConfig.ruralPaymentsAgency
+  const { hostname, getOrganisationPermissionsUrl } = config.authConfig.ruralPaymentsAgency
 
   const response = await get(hostname, getOrganisationPermissionsUrl.replace('organisationId', organisationId), request, { Authorization: apimToken })
   return response?.data
@@ -45,16 +44,17 @@ const permissionMatcher = (permissions, permissionToMatch) => {
 const organisationHasPermission = async (request, permissions, personId, organisationId) => {
   const organisationAuthorisation = await getOrganisationAuthorisation(request, organisationId)
   const personPrivileges = organisationAuthorisation.personPrivileges.filter(privilege => privilege.personId === personId)
-  return personPrivileges.some(privilege => permissionMatcher(privilege.privilegeNames, permissions))
+  const hasPermission = personPrivileges.some(privilege => permissionMatcher(privilege.privilegeNames, permissions))
+  return hasPermission
 }
 
 const getOrganisation = async (request, organisationId) => {
-  const { hostname, getOrganisationUrl } = authConfig.ruralPaymentsAgency
+  const { hostname, getOrganisationUrl } = config.authConfig.ruralPaymentsAgency
   const response = await get(hostname, getOrganisationUrl.replace('organisationId', organisationId), request, { Authorization: apimToken })
   return response?._data
 }
 
-export const organisationIsEligible = async (request, personId, apimAccessToken) => {
+const organisationIsEligible = async (request, personId, apimAccessToken) => {
   apimToken = apimAccessToken
   const organisationId = parsedAccessToken(request).currentRelationshipId
   const organisationPermission = await organisationHasPermission(request, validPermissions, personId, organisationId)
@@ -64,4 +64,9 @@ export const organisationIsEligible = async (request, personId, apimAccessToken)
     organisationPermission,
     organisation
   }
+}
+
+module.exports = {
+  organisationIsEligible,
+  getOrganisationAddress
 }

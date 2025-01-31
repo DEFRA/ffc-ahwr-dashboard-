@@ -1,4 +1,4 @@
-export const updateDetailsHandlers = [{
+module.exports = {
   method: 'GET',
   path: '/update-details',
   options: {
@@ -7,4 +7,4 @@ export const updateDetailsHandlers = [{
       return h.view('update-details')
     }
   }
-}]
+}

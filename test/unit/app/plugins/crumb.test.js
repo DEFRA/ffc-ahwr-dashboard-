@@ -1,5 +1,5 @@
-import Hapi from '@hapi/hapi'
-import { crumbPlugin } from '../../../../app/plugins/crumb.js'
+const Hapi = require('@hapi/hapi')
+const crumbPlugin = require('../../../../app/plugins/crumb')
 
 jest.mock('../../../../app/config', () => ({
   ...jest.requireActual('../../../../app/config'),

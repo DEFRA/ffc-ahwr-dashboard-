@@ -1,11 +1,9 @@
-import { config } from '../config/index.js'
-import { requestAuthorizationCodeUrl } from '../auth/auth-code-grant/request-authorization-code-url.js'
-import { keys } from '../session/keys.js'
-import { getEndemicsClaim } from '../session/index.js'
+const config = require('../config')
+const auth = require('../auth')
+const session = require('../session')
+const { endemicsClaim: { organisation: organisationKey } } = require('../session/keys')
 
-const { endemicsClaim: { organisation: organisationKey } } = keys
-
-export const authPlugin = {
+module.exports = {
   plugin: {
     name: 'auth',
     register: async (server, _) => {
@@ -20,12 +18,12 @@ export const authPlugin = {
         },
         keepAlive: true,
         redirectTo: (request) => {
-          return requestAuthorizationCodeUrl(request)
+          return auth.requestAuthorizationCodeUrl(session, request)
         },
         validateFunc: async (request, s) => {
           const result = { valid: false }
 
-          if (getEndemicsClaim(request, organisationKey)) {
+          if (session.getEndemicsClaim(request, organisationKey)) {
             result.valid = true
           }
 

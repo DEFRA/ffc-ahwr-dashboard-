@@ -1,12 +1,7 @@
-import pino from 'hapi-pino'
+const pino = require('hapi-pino')
+const { name } = require('../../package.json')
 
-const transport = {
-  target: 'pino-pretty',
-  options: {
-    singleLine: true,
-    colorize: true
-  }
-}
+const transport = { target: 'pino-pretty' }
 const testLevel = { level: 'silent' }
 
 const req = (req) => ({
@@ -33,16 +28,14 @@ const err = (err) => ({
   }
 })
 
-export const loggingPlugin = {
+module.exports = {
   plugin: pino,
   options: {
-    name: 'ffc-ahwr-dashboard',
+    name,
     ...(process.env.NODE_ENV === 'test' && testLevel),
     formatters: {
       level: (level) => ({ level })
     },
-    ignorePaths: ['/healthy', '/healthz'],
-    ignoreTags: ['assets'],
     serializers: {
       req,
       res,

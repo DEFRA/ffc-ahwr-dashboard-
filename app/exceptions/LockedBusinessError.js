@@ -1,6 +1,8 @@
-export class LockedBusinessError extends Error {
+class LockedBusinessError extends Error {
   constructor (message) {
     super(message)
     this.name = 'LockedBusinessError'
   }
 }
+
+module.exports = LockedBusinessError

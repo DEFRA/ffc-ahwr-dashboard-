@@ -1,9 +1,11 @@
-import jwt from 'jsonwebtoken'
+const jwt = require('jsonwebtoken')
 
-export const decodeJwt = (token) => {
+const decodeJwt = (token) => {
   const decodedJWT = jwt.decode(token, { complete: true })
   if (decodedJWT === null) {
     throw new Error('The token has not been decoded')
   }
   return decodedJWT.payload
 }
+
+module.exports = decodeJwt

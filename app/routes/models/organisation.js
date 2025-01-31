@@ -1,9 +1,7 @@
-import { getYesNoRadios } from './form-component/yes-no-radios.js'
-import { getCustomer, getEndemicsClaim, getReturnRoute } from '../../session/index.js'
-import { keys } from '../../session/keys.js'
-import { requestAuthorizationCodeUrl } from '../../auth/auth-code-grant/request-authorization-code-url.js'
-
-const { confirmCheckDetails } = keys.endemicsClaim
+const session = require('../../session')
+const auth = require('../../auth')
+const { confirmCheckDetails } = require('../../session/keys').endemicsClaim
+const { getYesNoRadios } = require('./form-component/yes-no-radios')
 
 const labelText = 'Are these details correct?'
 
@@ -11,11 +9,11 @@ const formatAddressForDisplay = (organisation) => {
   return organisation?.address?.replaceAll(',', '<br>')
 }
 
-export const getOrganisation = (request, organisation, errorText) => {
-  const returnRoute = getReturnRoute(request)
+const getOrganisation = (request, organisation, errorText) => {
+  const returnRoute = session.getReturnRoute(request)
   request.logger.setBindings({ returnRoute })
-  const prevAnswer = getEndemicsClaim(request, confirmCheckDetails)
-  const { crn } = getCustomer(request)
+  const prevAnswer = session.getEndemicsClaim(request, confirmCheckDetails)
+  const { crn } = session.getCustomer(request)
   request.logger.setBindings({ crn })
 
   const rows = [
@@ -32,7 +30,7 @@ export const getOrganisation = (request, organisation, errorText) => {
   ]
   return {
     backLink: {
-      href: requestAuthorizationCodeUrl(request, returnRoute?.returnRoute)
+      href: auth.requestAuthorizationCodeUrl(session, request, returnRoute?.returnRoute)
     },
     organisation,
     listData: { rows },
@@ -43,3 +41,5 @@ export const getOrganisation = (request, organisation, errorText) => {
     })
   }
 }
+
+module.exports = getOrganisation

@@ -1,5 +1,3 @@
-import { createServer } from '../../../../app/server.js'
-
 describe('routes plugin test', () => {
   jest.mock('../../../../app/config', () => ({
     ...jest.requireActual('../../../../app/config'),
@@ -13,6 +11,18 @@ describe('routes plugin test', () => {
   })
 
   test('routes included', async () => {
+    const createServer = require('../../../../app/server')
+    const server = await createServer()
+    const routePaths = []
+    server.table().forEach((element) => {
+      routePaths.push(element.path)
+    })
+    expect(routePaths).toEqual([
+      '/healthy', '/healthz'
+    ])
+  })
+
+  test('routes included - endemics enabled', async () => {
     jest.mock('../../../../app/config', () => ({
       ...jest.requireActual('../../../../app/config'),
       endemics: {
@@ -20,6 +30,7 @@ describe('routes plugin test', () => {
       }
     }))
 
+    const createServer = require('../../../../app/server')
     const server = await createServer()
     const routePaths = []
     server.table().forEach((element) => {

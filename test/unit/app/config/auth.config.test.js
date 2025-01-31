@@ -1,5 +1,3 @@
-import { getAuthConfig } from '../../../../app/config/auth.js'
-
 describe('Auth config', () => {
   const env = process.env
 
@@ -80,7 +78,7 @@ describe('Auth config', () => {
     process.env.APIM_CLIENT_SECRET = testCase.processEnv.apimClientSecret
     process.env.APIM_SCOPE = testCase.processEnv.apimScope
 
-    const config = getAuthConfig()
+    const config = require('../../../../app/config/auth')
 
     expect(config).toEqual(testCase.config)
   })
@@ -95,7 +93,7 @@ describe('Auth config', () => {
   ])('GIVEN $processEnv EXPECT $errorMessage', (testCase) => {
     process.env.DEFRA_ID_REDIRECT_URI = testCase.processEnv.redirectUri
     expect(
-      () => getAuthConfig()
+      () => require('../../../../app/config/auth')
     ).toThrow(testCase.errorMessage)
   })
 

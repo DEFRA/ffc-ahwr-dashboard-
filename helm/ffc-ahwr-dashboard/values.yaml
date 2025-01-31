@@ -6,7 +6,7 @@ image: ffc-ahwr-dashboard
 
 labels: {}
 
-workloadIdentity: true
+aadPodIdentity: true
 
 appInsights:
   connectionString:
@@ -70,6 +70,7 @@ container:
   apimClientId:
   apimClientSecret:
   apimScope:
+  endemicsEnabled:
   azureStorageConnectionString:
   azureStorageAccountName:
   azureStorageApplicationDocumentsContainerName:

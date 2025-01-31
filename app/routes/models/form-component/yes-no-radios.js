@@ -1,4 +1,4 @@
-export function getYesNoRadios (legendText, id, previousAnswer, errorText = undefined, options = {}) {
+function getYesNoRadios (legendText, id, previousAnswer, errorText = undefined, options = {}) {
   const { isPageHeading = true, legendClasses = 'govuk-fieldset__legend--l', inline = false, hintText = '' } = options
   return {
     radios: {
@@ -30,4 +30,8 @@ export function getYesNoRadios (legendText, id, previousAnswer, errorText = unde
       ...(errorText ? { errorMessage: { text: errorText } } : {})
     }
   }
+}
+
+module.exports = {
+  getYesNoRadios
 }

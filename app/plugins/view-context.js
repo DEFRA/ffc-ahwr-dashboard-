@@ -1,8 +1,6 @@
-import { config } from '../config/index.js'
+const { serviceName, claimServiceUri, serviceUri } = require('../config')
 
-const { serviceName, claimServiceUri, serviceUri } = config
-
-export const viewContextPlugin = {
+module.exports = {
   plugin: {
     name: 'view-context',
     register: (server, _) => {

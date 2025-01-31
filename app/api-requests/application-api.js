@@ -1,10 +1,10 @@
-import Wreck from '@hapi/wreck'
-import { config } from '../config/index.js'
+const wreck = require('@hapi/wreck')
+const config = require('../config')
 
-export async function getLatestApplicationsBySbi (sbi, logger) {
+async function getLatestApplicationsBySbi (sbi, logger) {
   const endpoint = `${config.applicationApi.uri}/applications/latest?sbi=${sbi}`
   try {
-    const { payload } = await Wreck.get(
+    const { payload } = await wreck.get(
       endpoint,
       { json: true }
     )
@@ -14,4 +14,8 @@ export async function getLatestApplicationsBySbi (sbi, logger) {
     logger.setBindings({ err })
     throw err
   }
+}
+
+module.exports = {
+  getLatestApplicationsBySbi
 }

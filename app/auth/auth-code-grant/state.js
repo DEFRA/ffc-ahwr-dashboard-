@@ -1,9 +1,9 @@
-import { randomUUID } from 'node:crypto'
-import { getToken, setToken } from '../../session/index.js'
-import { keys } from '../../session/keys.js'
-import { config } from '../../config/index.js'
+const { randomUUID } = require('node:crypto')
+const session = require('../../session')
+const { tokens } = require('../../session/keys')
+const config = require('../../config')
 
-export const generate = (request, source = 'dashboard') => {
+const generate = (request, source = 'dashboard') => {
   const state = {
     id: randomUUID(),
     namespace: config.namespace,
@@ -11,18 +11,18 @@ export const generate = (request, source = 'dashboard') => {
   }
 
   const base64EncodedState = Buffer.from(JSON.stringify(state)).toString('base64')
-  setToken(request, keys.tokens.state, base64EncodedState)
+  session.setToken(request, tokens.state, base64EncodedState)
   return base64EncodedState
 }
 
-export const verifyState = (request) => {
+const verify = (request) => {
   if (!request.query.error) {
     const state = request.query.state
     if (!state) {
       return false
     }
     const decodedState = JSON.parse(Buffer.from(state, 'base64').toString('ascii'))
-    const sessionState = getToken(request, keys.tokens.state)
+    const sessionState = session.getToken(request, tokens.state)
     if (sessionState === undefined) {
       return false
     }
@@ -32,4 +32,9 @@ export const verifyState = (request) => {
     request.logger.setBindings({ err: request.query.error })
     return false
   }
+}
+
+module.exports = {
+  generate,
+  verify
 }

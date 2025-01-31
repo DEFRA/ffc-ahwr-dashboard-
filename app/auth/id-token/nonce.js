@@ -1,22 +1,27 @@
-import { randomUUID } from 'node:crypto'
-import { getToken, setToken } from '../../session/index.js'
-import { keys } from '../../session/keys.js'
+const { randomUUID } = require('node:crypto')
+const session = require('../../session')
+const sessionKeys = require('../../session/keys')
 
-export const generate = (request) => {
+const generate = (request) => {
   const nonce = randomUUID()
-  setToken(request, keys.tokens.nonce, nonce)
+  session.setToken(request, sessionKeys.tokens.nonce, nonce)
   return nonce
 }
 
-export const verify = (request, idToken) => {
+const verify = (request, idToken) => {
   if (typeof idToken === 'undefined') {
     throw new Error('Empty id_token')
   }
-  const nonce = getToken(request, keys.tokens.nonce)
+  const nonce = session.getToken(request, sessionKeys.tokens.nonce)
   if (!nonce) {
     throw new Error('HTTP Session contains no nonce')
   }
   if (nonce !== idToken.nonce) {
     throw new Error('Nonce mismatch')
   }
+}
+
+module.exports = {
+  generate,
+  verify
 }

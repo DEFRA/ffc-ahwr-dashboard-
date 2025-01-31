@@ -1,6 +1,6 @@
-import { createServer } from '../../../../app/server.js'
-import { getByRole } from '@testing-library/dom'
-import globalJsdom from 'global-jsdom'
+const createServer = require('../../../../app/server')
+const globalJsdom = require('global-jsdom')
+const { getByRole } = require('@testing-library/dom')
 
 test('get /update-details', async () => {
   const server = await createServer()

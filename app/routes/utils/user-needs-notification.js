@@ -1,7 +1,7 @@
-import { config } from '../../config/index.js'
+const { multiSpecies } = require('../../config')
 
-export const userNeedsNotification = (applications, claims) => {
-  const releaseDate = new Date(config.multiSpecies.releaseDate).getTime()
+const userNeedsNotification = (applications, claims) => {
+  const releaseDate = new Date(multiSpecies.releaseDate).getTime()
 
   const [latestApplication] = applications
   const appliedBeforeMultipleSpecies =
@@ -19,3 +19,5 @@ export const userNeedsNotification = (applications, claims) => {
 
   return appliedBeforeMultipleSpecies && hasNotClaimedSinceMultipleSpecies
 }
+
+module.exports = { userNeedsNotification }

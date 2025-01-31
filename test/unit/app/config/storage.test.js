@@ -1,8 +1,6 @@
-import { getStorageConfig } from '../../../../app/config/storage.js'
-
-// jest.mock('../../../../app/config/storage', () => ({
-//   storageAccount: 'mockStorageAccount'
-// }))
+jest.mock('../../../../app/config/storage.js', () => ({
+  storageAccount: 'mockStorageAccount'
+}))
 
 describe('Config Validation', () => {
   const originalProcessEnv = process.env
@@ -21,7 +19,7 @@ describe('Config Validation', () => {
     process.env.AZURE_STORAGE_ACCOUNT_NAME = '' // Invalid: required field is missing
     // Validate config
     expect(() => {
-      getStorageConfig()
+      jest.requireActual('../../../../app/config/storage.js')
     }).toThrow('The blob storage config is invalid.')
   })
 
@@ -33,9 +31,9 @@ describe('Config Validation', () => {
     process.env.AZURE_STORAGE_USE_CONNECTION_STRING = 'true'
     process.env.AZURE_STORAGE_CREATE_CONTAINERS = 'false'
 
-    const amendedConfig = getStorageConfig()
+    const storageConfig = jest.requireActual('../../../../app/config/storage.js')
 
-    expect(amendedConfig).toEqual({
+    expect(storageConfig).toEqual({
       connectionString: 'connection-string',
       applicationDocumentsContainer: 'documents',
       storageAccount: 'storage-account',

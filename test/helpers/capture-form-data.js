@@ -1,4 +1,4 @@
-export const captureFormData = (name) => {
+const captureFormData = (name) => {
   let formdata = null
 
   document.addEventListener('submit', function (event) {
@@ -9,3 +9,5 @@ export const captureFormData = (name) => {
 
   return { formdata: () => formdata }
 }
+
+module.exports = { captureFormData }

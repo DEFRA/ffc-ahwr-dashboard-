@@ -1,29 +1,29 @@
-import { getCustomer, getEndemicsClaim, setEndemicsClaim } from '../session/index.js'
-import { getLatestApplicationsBySbi } from '../api-requests/application-api.js'
-import { getClaimsByApplicationReference, isWithinLastTenMonths } from '../api-requests/claim-api.js'
-import nunjucks from 'nunjucks'
-import { applicationType, claimType } from '../constants/constants.js'
-import { keys } from '../session/keys.js'
-import { requestAuthorizationCodeUrl } from '../auth/auth-code-grant/request-authorization-code-url.js'
-import { claimServiceUri, vetVisits } from '../config/routes.js'
-import { config } from '../config/index.js'
-import { userNeedsNotification } from './utils/user-needs-notification.js'
-
-const { latestTermsAndConditionsUri, multiSpecies } = config
+const path = require('path')
+const nunjucks = require('nunjucks')
+const auth = require('../auth')
+const session = require('../session')
+const sessionKeys = require('../session/keys')
+const { vetVisits, claimServiceUri } = require('../config/routes')
+const { latestTermsAndConditionsUri, multiSpecies } = require('../config')
+const { getLatestApplicationsBySbi } = require('../api-requests/application-api')
+const { getClaimsByApplicationReference, isWithinLastTenMonths } = require('../api-requests/claim-api')
+const applicationType = require('../constants/application-type')
+const { claimType } = require('../constants/claim')
+const { userNeedsNotification } = require('./utils/user-needs-notification')
 
 const pageUrl = `/${vetVisits}`
 const claimServiceRedirectUri = `${claimServiceUri}/endemics?from=dashboard`
 
-export const vetVisitsHandlers = [{
+module.exports = {
   method: 'GET',
   path: pageUrl,
   options: {
     handler: async (request, h) => {
-      const { organisation } = getEndemicsClaim(request)
+      const { organisation } = session.getEndemicsClaim(request)
 
       request.logger.setBindings({ sbi: organisation.sbi })
 
-      const { attachedToMultipleBusinesses } = getCustomer(request)
+      const { attachedToMultipleBusinesses } = session.getCustomer(request)
       const applications = await getLatestApplicationsBySbi(organisation.sbi, request.logger)
 
       const vetVisitApplications = applications?.filter((application) => application.type === applicationType.VET_VISITS)
@@ -34,7 +34,7 @@ export const vetVisitsHandlers = [{
       const allClaims = [...claims, ...vetVisitApplicationsWithinLastTenMonths]
 
       const env = nunjucks.configure([
-        'app/views/snippets',
+        path.join(__dirname, '../views/snippets'),
         'node_modules/govuk-frontend/dist'
       ])
 
@@ -64,7 +64,7 @@ export const vetVisitsHandlers = [{
           ]
         })
 
-      setEndemicsClaim(request, keys.endemicsClaim.LatestEndemicsApplicationReference, latestEndemicsApplication?.reference)
+      session.setEndemicsClaim(request, sessionKeys.endemicsClaim.LatestEndemicsApplicationReference, latestEndemicsApplication?.reference)
       const downloadedDocument = `/download-application/${organisation.sbi}/${latestEndemicsApplication?.reference}`
 
       const showNotificationBanner =
@@ -80,9 +80,9 @@ export const vetVisitsHandlers = [{
         ...organisation,
         ...(latestEndemicsApplication?.reference && { reference: latestEndemicsApplication?.reference }),
         ...(latestEndemicsApplication?.reference && { downloadedDocument }),
-        ...(attachedToMultipleBusinesses && { hostname: requestAuthorizationCodeUrl(request) }),
+        ...(attachedToMultipleBusinesses && { hostname: auth.requestAuthorizationCodeUrl(session, request) }),
         latestTermsAndConditionsUri
       })
     }
   }
-}]
+}

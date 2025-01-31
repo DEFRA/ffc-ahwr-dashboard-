@@ -1,5 +1,5 @@
-import { createServer } from '../../../../app/server.js'
-import { authConfig } from '../../../../app/config/auth.js'
+const createServer = require('../../../../app/server')
+const { authConfig } = require('../../../../app/config')
 
 test('get /', async () => {
   const server = await createServer()

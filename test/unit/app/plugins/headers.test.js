@@ -1,4 +1,4 @@
-import { createServer } from '../../../../app/server.js'
+const createServer = require('../../../../app/server')
 
 test('sets predefined headers', async () => {
   const server = await createServer()

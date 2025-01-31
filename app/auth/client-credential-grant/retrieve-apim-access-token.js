@@ -1,19 +1,18 @@
-import Wreck from '@hapi/wreck'
-import { config } from '../../config/index.js'
-import { authConfig } from '../../config/auth.js'
-import FormData from 'form-data'
+const wreck = require('@hapi/wreck')
+const FormData = require('form-data')
+const config = require('../../config')
 
-export const retrieveApimAccessToken = async (request) => {
-  const endpoint = `${authConfig.apim.hostname}${authConfig.apim.oAuthPath}`
+const retrieveApimAccessToken = async (request) => {
+  const endpoint = `${config.authConfig.apim.hostname}${config.authConfig.apim.oAuthPath}`
 
   try {
     const data = new FormData()
-    data.append('client_id', `${authConfig.apim.clientId}`)
-    data.append('client_secret', `${authConfig.apim.clientSecret}`)
-    data.append('scope', `${authConfig.apim.scope}`)
+    data.append('client_id', `${config.authConfig.apim.clientId}`)
+    data.append('client_secret', `${config.authConfig.apim.clientSecret}`)
+    data.append('scope', `${config.authConfig.apim.scope}`)
     data.append('grant_type', 'client_credentials')
 
-    const { payload } = await Wreck.post(
+    const { payload } = await wreck.post(
       endpoint,
       {
         headers: data.getHeaders(),
@@ -29,3 +28,5 @@ export const retrieveApimAccessToken = async (request) => {
     throw err
   }
 }
+
+module.exports = retrieveApimAccessToken

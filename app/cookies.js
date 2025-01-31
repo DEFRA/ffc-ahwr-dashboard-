@@ -1,8 +1,6 @@
-import { config } from './config/index.js'
+const { cookie: { cookieNameCookiePolicy } } = require('./config')
 
-const { cookie: { cookieNameCookiePolicy } } = config
-
-export function getCurrentPolicy (request, h) {
+function getCurrentPolicy (request, h) {
   let cookiesPolicy = request.state[cookieNameCookiePolicy]
   if (!cookiesPolicy) {
     cookiesPolicy = createDefaultPolicy(h)
@@ -16,7 +14,7 @@ function createDefaultPolicy (h) {
   return cookiesPolicy
 }
 
-export function updatePolicy (request, h, analytics) {
+function updatePolicy (request, h, analytics) {
   const cookiesPolicy = getCurrentPolicy(request, h)
 
   cookiesPolicy.analytics = analytics
@@ -36,4 +34,9 @@ function removeAnalytics (request, h) {
       h.unstate(cookieName)
     }
   })
+}
+
+module.exports = {
+  getCurrentPolicy,
+  updatePolicy
 }

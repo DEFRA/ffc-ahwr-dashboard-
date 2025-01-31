@@ -1,4 +1,4 @@
-export const setServerState = async (server, state) => {
+const setServerState = async (server, state) => {
   server.ext('onPostAuth', (request, h) => {
     request.yar.set(state)
     return h.continue
@@ -10,3 +10,5 @@ export const setServerState = async (server, state) => {
     await server.stop()
   })
 }
+
+module.exports = { setServerState }

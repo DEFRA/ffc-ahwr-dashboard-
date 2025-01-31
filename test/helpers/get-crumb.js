@@ -1,4 +1,4 @@
-export const getCrumbFromSetCookie = (setCookie) => {
+const getCrumbFromSetCookie = (setCookie) => {
   const crumbCookie = setCookie
     .find((cookie) => cookie.startsWith('crumb='))
 
@@ -8,7 +8,7 @@ export const getCrumbFromSetCookie = (setCookie) => {
   return { crumb }
 }
 
-export const getCrumb = async (server, url) => {
+const getCrumb = async (server, url) => {
   const res = await server.inject({
     url,
     auth: {
@@ -19,3 +19,5 @@ export const getCrumb = async (server, url) => {
 
   return getCrumbFromSetCookie(res.headers['set-cookie'])
 }
+
+module.exports = { getCrumb, getCrumbFromSetCookie }

@@ -1,6 +1,8 @@
-export class InvalidStateError extends Error {
+class InvalidStateError extends Error {
   constructor (message) {
     super(message)
     this.name = 'InvalidStateError'
   }
 }
+
+module.exports = InvalidStateError

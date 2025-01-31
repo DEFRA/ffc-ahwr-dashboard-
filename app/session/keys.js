@@ -1,4 +1,4 @@
-export const keys = {
+module.exports = {
   answers: {
     cattle: 'cattle',
     cattleType: 'cattleType',

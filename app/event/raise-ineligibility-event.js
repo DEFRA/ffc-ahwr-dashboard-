@@ -1,6 +1,6 @@
-import { raiseEvent } from './raise-event.js'
+const raiseEvent = require('./raise-event')
 
-export const raiseIneligibilityEvent = async (sessionId, sbi, crn, email, exception, status = 'alert') => {
+const raiseIneligibilityEvent = async (sessionId, sbi, crn, email, exception, status = 'alert') => {
   if (sessionId && exception) {
     const event = {
       id: sessionId,
@@ -22,3 +22,5 @@ export const raiseIneligibilityEvent = async (sessionId, sbi, crn, email, except
     await raiseEvent(event, status)
   }
 }
+
+module.exports = raiseIneligibilityEvent

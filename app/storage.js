@@ -1,31 +1,32 @@
-import { BlobServiceClient } from '@azure/storage-blob'
-import { DefaultAzureCredential } from '@azure/identity'
-import { storageConfig } from './config/storage.js'
-import { streamToBuffer } from './lib/streamToBuffer.js'
+const { BlobServiceClient } = require('@azure/storage-blob')
+const { DefaultAzureCredential } = require('@azure/identity')
+const { storage } = require('./config')
+const { streamToBuffer } = require('./lib/streamToBuffer')
 
-let blobServiceClient
-function initialiseClient () {
-  if (!blobServiceClient) {
-    const {
-      connectionString,
-      useConnectionString,
-      storageAccount
-    } = storageConfig
+const getBlob = async (filename) => {
+  const {
+    connectionString,
+    useConnectionString,
+    applicationDocumentsContainer,
+    storageAccount
+  } = storage
 
-    if (useConnectionString === true) {
-      blobServiceClient = BlobServiceClient.fromConnectionString(connectionString)
-    } else {
-      const uri = `https://${storageAccount}.blob.core.windows.net`
-      blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential({ managedIdentityClientId: process.env.AZURE_CLIENT_ID }))
-    }
+  let blobServiceClient
+
+  if (useConnectionString === true) {
+    blobServiceClient = BlobServiceClient.fromConnectionString(connectionString)
+  } else {
+    const uri = `https://${storageAccount}.blob.core.windows.net`
+    blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential())
   }
-}
 
-export const getBlob = async (filename) => {
-  initialiseClient()
-
-  const container = blobServiceClient.getContainerClient(storageConfig.applicationDocumentsContainer)
+  const container = blobServiceClient.getContainerClient(applicationDocumentsContainer)
   const blobClient = container.getBlobClient(filename)
   const downloadResponse = await blobClient.download()
-  return await streamToBuffer(downloadResponse.readableStreamBody)
+  const downloaded = await streamToBuffer(downloadResponse.readableStreamBody)
+  return downloaded
+}
+
+module.exports = {
+  getBlob
 }

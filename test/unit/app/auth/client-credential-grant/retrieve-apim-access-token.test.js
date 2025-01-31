@@ -1,8 +1,7 @@
-import wreck from '@hapi/wreck'
-import HttpStatus from 'http-status-codes'
-import { retrieveApimAccessToken } from '../../../../../app/auth/client-credential-grant/retrieve-apim-access-token.js'
-
+const retrieveApimAccessToken = require('../../../../../app/auth/client-credential-grant/retrieve-apim-access-token')
+const wreck = require('@hapi/wreck')
 jest.mock('@hapi/wreck')
+const HttpStatus = require('http-status-codes')
 
 describe('Retrieve apim access token', () => {
   test('when retrieveApimAccessToken called - returns valid access token', async () => {
@@ -14,7 +13,7 @@ describe('Retrieve apim access token', () => {
         access_token: token
       },
       res: {
-        statusCode: HttpStatus.OK
+        statusCode: HttpStatus.StatusCodes.OK
       }
     }
 
@@ -37,7 +36,7 @@ describe('Retrieve apim access token', () => {
     wreck.post = jest.fn().mockRejectedValueOnce(wreckResponse)
 
     const request = { logger: { setBindings: jest.fn() } }
-    await expect(async () =>
+    expect(async () =>
       await retrieveApimAccessToken(request)
     ).rejects.toEqual(wreckResponse)
   })

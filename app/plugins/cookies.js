@@ -1,10 +1,8 @@
-import { config } from '../config/index.js'
-import { getCurrentPolicy } from '../cookies.js'
-import HttpStatus from 'http-status-codes'
+const { cookie: { cookieNameCookiePolicy }, cookiePolicy } = require('../config')
+const { getCurrentPolicy } = require('../cookies')
+const HttpStatus = require('http-status-codes')
 
-const { cookie: { cookieNameCookiePolicy }, cookiePolicy } = config
-
-export const cookiePlugin = {
+module.exports = {
   plugin: {
     name: 'cookies',
     register: (server, _) => {
@@ -14,12 +12,13 @@ export const cookiePlugin = {
         const statusCode = request.response.statusCode
         if (
           request.response.variety === 'view' &&
-          statusCode !== HttpStatus.NOT_FOUND &&
-          statusCode !== HttpStatus.INTERNAL_SERVER_ERROR &&
+          statusCode !== HttpStatus.StatusCodes.NOT_FOUND &&
+          statusCode !== HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR &&
           request.response.source.manager._context
         ) {
+          const cookiesPolicy = getCurrentPolicy(request, h)
           request.response.source.manager._context.cookiesPolicy =
-            getCurrentPolicy(request, h)
+            cookiesPolicy
         }
         return h.continue
       })

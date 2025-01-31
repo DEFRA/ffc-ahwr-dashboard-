@@ -1,14 +1,13 @@
-import { config } from '../../../../app/config/index.js'
-import { authConfig } from '../../../../app/config/auth.js'
-import { setupServer } from 'msw/node'
-import { generateJWK, generateKeys } from '../../../helpers/generate-keys-and-jwk.js'
-import { createServer } from '../../../../app/server.js'
-import jsonwebtoken from 'jsonwebtoken'
-import { http, HttpResponse } from 'msw'
-import { setServerState } from '../../../helpers/set-server-state.js'
-import globalJsdom from 'global-jsdom'
-import { getByRole } from '@testing-library/dom'
-import { applicationStatus } from '../../../../app/constants/constants.js'
+const { http, HttpResponse } = require('msw')
+const globalJsdom = require('global-jsdom')
+const { setupServer } = require('msw/node')
+const { getByRole } = require('@testing-library/dom')
+const jsonwebtoken = require('jsonwebtoken')
+const { generateKeys, generateJWK } = require('../../../helpers/generate-keys-and-jwk')
+const config = require('../../../../app/config')
+const createServer = require('../../../../app/server')
+const { setServerState } = require('../../../helpers/set-server-state')
+const { agreed, inCheck, notAgreed } = require('../../../../app/constants/application-status')
 
 const mswServer = setupServer()
 mswServer.listen()
@@ -26,13 +25,8 @@ jest.mock('form-data', () => class Formdata {
   getHeaders () {}
 })
 
-jest.mock('applicationinsights', () => ({
-  defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() },
-  dispose: jest.fn()
-}))
-
 const commonAuthHandlers = (crn, organisationId, nonce) => {
-  const { defraId, apim } = authConfig
+  const { defraId, apim } = config.authConfig
   const accessToken = {
     contactId: crn,
     currentRelationshipId: organisationId,
@@ -77,7 +71,7 @@ const commonAuthHandlers = (crn, organisationId, nonce) => {
 }
 
 const commonRPAHandlers = (personId, privilegeNames, organisation, cphNumbers) => {
-  const { ruralPaymentsAgency } = authConfig
+  const { ruralPaymentsAgency } = config.authConfig
   const rpaHost = 'http://rpa.uk'
   const getPersonSummaryUrl = '/person/3337243/summary'
 
@@ -166,7 +160,7 @@ test('get /signin-oidc: approved application', async () => {
       crn
     }
   }
-  await setServerState(server, state)
+  setServerState(server, state)
 
   const {
     defraIdToken,
@@ -201,7 +195,7 @@ test('get /signin-oidc: approved application', async () => {
 
       return HttpResponse.json([{
         type: 'EE',
-        statusId: applicationStatus.AGREED
+        statusId: agreed
       }])
     }
   )
@@ -252,7 +246,7 @@ test('get /signin-oidc: application not approved', async () => {
       crn
     }
   }
-  await setServerState(server, state)
+  setServerState(server, state)
 
   const {
     defraIdToken,
@@ -287,7 +281,7 @@ test('get /signin-oidc: application not approved', async () => {
 
       return HttpResponse.json([{
         type: 'EE',
-        statusId: applicationStatus.IN_CHECK
+        statusId: inCheck
       }])
     }
   )
@@ -338,7 +332,7 @@ test('get /signin-oidc: no eligible cph numbers', async () => {
       crn
     }
   }
-  await setServerState(server, state)
+  setServerState(server, state)
 
   const {
     defraIdToken,
@@ -416,7 +410,7 @@ test('get /signin-oidc: no application, came from apply', async () => {
       crn
     }
   }
-  await setServerState(server, state)
+  setServerState(server, state)
 
   const {
     defraIdToken,
@@ -499,7 +493,7 @@ test('get /signin-oidc: no application, came from dashboard', async () => {
       crn
     }
   }
-  await setServerState(server, state)
+  setServerState(server, state)
 
   const {
     defraIdToken,
@@ -590,7 +584,7 @@ test('get /signin-oidc: closed old world application, came from apply', async ()
       crn
     }
   }
-  await setServerState(server, state)
+  setServerState(server, state)
 
   const {
     defraIdToken,
@@ -625,7 +619,7 @@ test('get /signin-oidc: closed old world application, came from apply', async ()
 
       return HttpResponse.json([{
         type: 'VV',
-        statusId: applicationStatus.NOT_AGREED
+        statusId: notAgreed
       }])
     }
   )
@@ -676,7 +670,7 @@ test('get /signin-oidc: closed old world application, came from dashboard', asyn
       crn
     }
   }
-  await setServerState(server, state)
+  setServerState(server, state)
 
   const {
     defraIdToken,
@@ -711,7 +705,7 @@ test('get /signin-oidc: closed old world application, came from dashboard', asyn
 
       return HttpResponse.json([{
         type: 'VV',
-        statusId: applicationStatus.NOT_AGREED
+        statusId: notAgreed
       }])
     }
   )
@@ -770,7 +764,7 @@ test('get /signin-oidc: approved application, organisation locked', async () => 
       crn
     }
   }
-  await setServerState(server, state)
+  setServerState(server, state)
 
   const {
     defraIdToken,
@@ -846,7 +840,7 @@ test('get /signin-oidc: approved application, permission not available', async (
       crn
     }
   }
-  await setServerState(server, state)
+  setServerState(server, state)
 
   const {
     defraIdToken,
@@ -896,7 +890,7 @@ test('get /signin-oidc: approved application, permission not available', async (
 })
 
 test('get /signin-oidc: mismatching state', async () => {
-  const { defraId } = authConfig
+  const { defraId } = config.authConfig
   const server = await createServer()
 
   const rawServerState = {
@@ -916,7 +910,7 @@ test('get /signin-oidc: mismatching state', async () => {
     source: 'dashboard'
   }
   const encodedClientState = Buffer.from(JSON.stringify(rawClientState)).toString('base64')
-  await setServerState(server, state)
+  setServerState(server, state)
 
   const res = await server.inject({
     url: `/signin-oidc?state=${encodedClientState}&code=0`

@@ -1,19 +1,18 @@
-import { get } from './base.js'
-import { getCustomer } from '../../session/index.js'
-import { keys } from '../../session/keys.js'
+const { get } = require('./base')
+const session = require('../../session')
+const sessionKeys = require('../../session/keys')
+const config = require('../../config')
 
-import { authConfig } from '../../config/auth.js'
-
-export const getCphNumbers = async (request, apimAccessToken) => {
+const getCphNumbers = async (request, apimAccessToken) => {
   const response = await get(
-    authConfig.ruralPaymentsAgency.hostname,
-    authConfig.ruralPaymentsAgency.getCphNumbersUrl.replace(
+    config.authConfig.ruralPaymentsAgency.hostname,
+    config.authConfig.ruralPaymentsAgency.getCphNumbersUrl.replace(
       'organisationId',
-      getCustomer(request, keys.customer.organisationId)
+      session.getCustomer(request, sessionKeys.customer.organisationId)
     ),
     request,
     {
-      crn: getCustomer(request, keys.customer.crn),
+      crn: session.getCustomer(request, sessionKeys.customer.crn),
       Authorization: apimAccessToken
     }
   )
@@ -23,3 +22,5 @@ export const getCphNumbers = async (request, apimAccessToken) => {
   }
   return response.data.map(cph => cph.cphNumber)
 }
+
+module.exports = getCphNumbers

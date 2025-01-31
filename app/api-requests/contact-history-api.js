@@ -1,13 +1,12 @@
-import Wreck from '@hapi/wreck'
-import appInsights from 'applicationinsights'
-import { config } from '../config/index.js'
-import { getOrganisationAddress } from './rpa-api/organisation.js'
-import { getPersonName } from './rpa-api/person.js'
+const wreck = require('@hapi/wreck')
+const appInsights = require('applicationinsights')
+const config = require('../config')
+const { getOrganisationAddress, getPersonName } = require('./rpa-api/index')
 
-export async function updateContactHistory (data, logger) {
+async function updateContactHistory (data, logger) {
   const endpoint = `${config.applicationApiUri}/application/contact-history`
   try {
-    const { payload } = await Wreck.put(endpoint, {
+    const { payload } = await wreck.put(endpoint, {
       payload: data,
       json: true
     })
@@ -20,7 +19,7 @@ export async function updateContactHistory (data, logger) {
   }
 }
 
-export const changeContactHistory = async (personSummary, organisationSummary, logger) => {
+const changeContactHistory = async (personSummary, organisationSummary, logger) => {
   const currentAddress = getOrganisationAddress(organisationSummary.address)
   await updateContactHistory({
     farmerName: getPersonName(personSummary),
@@ -30,4 +29,9 @@ export const changeContactHistory = async (personSummary, organisationSummary, l
     address: currentAddress,
     user: 'admin'
   }, logger)
+}
+
+module.exports = {
+  changeContactHistory,
+  updateContactHistory
 }
