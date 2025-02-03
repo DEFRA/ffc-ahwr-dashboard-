@@ -2,17 +2,20 @@ import joi from 'joi'
 import appInsights from 'applicationinsights'
 import { applicationApiConfig, applicationApiConfigSchema } from '../api-requests/application-api.config.js'
 
+const threeDaysInMs = 1000 * 3600 * 24 * 3
+const oneYearInMs = 1000 * 60 * 60 * 24 * 365
+
 export const getConfig = () => {
   const schema = joi.object({
     appInsights: joi.object(),
     namespace: joi.string().optional(),
     cache: {
-      expiresIn: joi.number().default(1000 * 3600 * 24 * 3), // 3 days
+      expiresIn: joi.number().required(),
       options: {
         host: joi.string().default('redis-hostname.default'),
         partition: joi.string().default('ffc-ahwr-frontend'),
         password: joi.string().allow(''),
-        port: joi.number().default(6379),
+        port: joi.number().required(),
         tls: joi.object()
       }
     },
@@ -23,7 +26,7 @@ export const getConfig = () => {
       isSameSite: joi.string().default('Lax'),
       isSecure: joi.boolean().default(true),
       password: joi.string().min(32).required(),
-      ttl: joi.number().default(1000 * 3600 * 24 * 3) // 3 days
+      ttl: joi.number().required()
     },
     cookiePolicy: {
       clearInvalid: joi.bool().default(false),
@@ -32,16 +35,16 @@ export const getConfig = () => {
       isSecure: joi.bool().default(true),
       password: joi.string().min(32).required(),
       path: joi.string().default('/'),
-      ttl: joi.number().default(1000 * 60 * 60 * 24 * 365) // 1 year
+      ttl: joi.number().required()
     },
     env: joi.string().valid('development', 'test', 'production').default(
       'development'
     ),
-    displayPageSize: joi.number().default(20),
+    displayPageSize: joi.number().required(),
     googleTagManagerKey: joi.string().allow(null, ''),
-    isDev: joi.boolean().default(false),
+    isDev: joi.boolean(),
     applicationApiUri: joi.string().uri(),
-    port: joi.number().default(3000),
+    port: joi.number().required(),
     serviceUri: joi.string().uri(),
     claimServiceUri: joi.string().uri(),
     applyServiceUri: joi.string().uri(),
@@ -78,10 +81,11 @@ export const getConfig = () => {
     appInsights: appInsights,
     namespace: process.env.NAMESPACE,
     cache: {
+      expiresIn: threeDaysInMs,
       options: {
         host: process.env.REDIS_HOSTNAME,
         password: process.env.REDIS_PASSWORD,
-        port: process.env.REDIS_PORT,
+        port: Number.parseInt(process.env.REDIS_PORT ?? '6379', 10),
         tls: process.env.NODE_ENV === 'production' ? {} : undefined
       }
     },
@@ -91,21 +95,23 @@ export const getConfig = () => {
       cookieNameSession: 'ffc_ahwr_session',
       isSameSite: 'Lax',
       isSecure: process.env.NODE_ENV === 'production',
-      password: process.env.COOKIE_PASSWORD
+      password: process.env.COOKIE_PASSWORD,
+      ttl: threeDaysInMs
     },
     cookiePolicy: {
       clearInvalid: false,
       encoding: 'base64json',
       isSameSite: 'Lax',
       isSecure: process.env.NODE_ENV === 'production',
-      password: process.env.COOKIE_PASSWORD
+      password: process.env.COOKIE_PASSWORD,
+      ttl: oneYearInMs
     },
     env: process.env.NODE_ENV,
-    displayPageSize: process.env.DISPLAY_PAGE_SIZE,
+    displayPageSize: Number.parseInt(process.env.DISPLAY_PAGE_SIZE ?? '20', 10),
     googleTagManagerKey: process.env.GOOGLE_TAG_MANAGER_KEY,
     isDev: process.env.NODE_ENV === 'development',
     applicationApiUri: process.env.APPLICATION_API_URI,
-    port: process.env.PORT,
+    port: Number.parseInt(process.env.PORT ?? '3000', 10),
     serviceUri: process.env.SERVICE_URI,
     claimServiceUri: process.env.CLAIM_SERVICE_URI,
     applyServiceUri: process.env.APPLY_SERVICE_URI,
@@ -127,7 +133,7 @@ export const getConfig = () => {
       enabled: process.env.TEN_MONTH_RULE_ENABLED
     },
     wreckHttp: {
-      timeoutMilliseconds: Number.parseInt(process.env.WRECK_HTTP_TIMEOUT_MILLISECONDS ?? '10000')
+      timeoutMilliseconds: Number.parseInt(process.env.WRECK_HTTP_TIMEOUT_MILLISECONDS ?? '10000', 10)
     },
     multiSpecies: {
       enabled: process.env.MULTI_SPECIES_ENABLED === 'true',
