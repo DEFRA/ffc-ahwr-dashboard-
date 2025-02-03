@@ -43,6 +43,7 @@ module.exports = {
       level: (level) => ({ level })
     },
     ignorePaths: ['/healthy', '/healthz'],
+    ignoreTags: ['assets'],
     serializers: {
       req,
       res,
