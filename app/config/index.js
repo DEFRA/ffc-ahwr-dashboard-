@@ -66,9 +66,6 @@ const schema = Joi.object({
   wreckHttp: {
     timeoutMilliseconds: Joi.number().default(10000)
   },
-  endemics: Joi.object({
-    enabled: Joi.boolean().default(false)
-  }),
   multiSpecies: Joi.object({
     enabled: Joi.boolean().required(),
     releaseDate: Joi.string().required()
@@ -131,9 +128,6 @@ const config = {
   },
   wreckHttp: {
     timeoutMilliseconds: process.env.WRECK_HTTP_TIMEOUT_MILLISECONDS
-  },
-  endemics: {
-    enabled: process.env.ENDEMICS_ENABLED
   },
   multiSpecies: {
     enabled: process.env.MULTI_SPECIES_ENABLED === 'true',
