@@ -4,8 +4,6 @@ describe('Generate authentication url test', () => {
   const MOCK_VERIFY = jest.fn()
 
   beforeAll(() => {
-    jest.resetModules()
-
     sessionMock = require('../../../../app/session')
     jest.mock('../../../../app/session')
 
@@ -15,10 +13,6 @@ describe('Generate authentication url test', () => {
     }))
 
     auth = require('../../../../app/auth')
-  })
-
-  beforeEach(() => {
-    jest.resetAllMocks()
   })
 
   test('when requestAuthorizationCodeUrl with pkce true challenge parameter added', async () => {
@@ -53,10 +47,12 @@ describe('Generate authentication url test', () => {
 
   test('when invalid state error is thrown', async () => {
     MOCK_VERIFY.mockReturnValueOnce(false)
-    try {
-      await auth.authenticate({ yar: { id: '33' } }, sessionMock)
-    } catch (e) {
-      expect(e.message).toBe('Invalid state')
+    const request = {
+      yar: { id: '33' },
+      logger: { setBindings: jest.fn() }
     }
+
+    await expect(() => auth.authenticate(request, sessionMock))
+      .rejects.toThrow('Invalid state')
   })
 })

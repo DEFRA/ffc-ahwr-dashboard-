@@ -71,7 +71,6 @@ describe('authenticate', () => {
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
     resetAllWhenMocks()
   })
 

@@ -1,15 +1,6 @@
 const HttpStatus = require('http-status-codes')
 describe('App Insight', () => {
   const appInsights = require('applicationinsights')
-  jest.mock('applicationinsights')
-
-  const startMock = jest.fn()
-  const setupMock = jest.fn(() => {
-    return {
-      start: startMock
-    }
-  })
-  appInsights.setup = setupMock
   const cloudRoleTag = 'cloudRoleTag'
   const tags = {}
   appInsights.defaultClient = {
@@ -41,8 +32,7 @@ describe('App Insight', () => {
 
     insights.setup()
 
-    expect(setupMock).toHaveBeenCalledTimes(1)
-    expect(startMock).toHaveBeenCalledTimes(1)
+    expect(appInsights.start).toHaveBeenCalledTimes(1)
     expect(tags[cloudRoleTag]).toEqual(appName)
     expect(consoleLogSpy).toHaveBeenCalledTimes(1)
     expect(consoleLogSpy).toHaveBeenCalledWith('App Insights Running')

@@ -3,11 +3,9 @@ const { getBlob } = require('../../../app/storage')
 const { storage } = require('../../../app/config')
 
 describe('Blob Storage Service', () => {
-  afterEach(() => {
-    jest.resetAllMocks()
-  })
-
   it('should initialize client with connection string and return buffer content', async () => {
+    jest.spyOn(BlobServiceClient, 'fromConnectionString')
+
     storage.connectionString = 'fakeConnectionString'
     storage.useConnectionString = true
 
@@ -18,6 +16,8 @@ describe('Blob Storage Service', () => {
   })
 
   it('should initialize client with managed identity', async () => {
+    jest.spyOn(BlobServiceClient, 'fromConnectionString')
+
     storage.useConnectionString = false
     const blobContent = await getBlob('fakeFile.txt')
 

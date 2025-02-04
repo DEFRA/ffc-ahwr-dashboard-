@@ -2,9 +2,6 @@ const { userNeedsNotification } = require('../../../../../app/routes/utils/user-
 const { multiSpecies } = require('../../../../../app/config/index')
 
 jest.mock('../../../../../app/config/index')
-beforeEach(() => {
-  jest.resetAllMocks()
-})
 
 test('no applications', () => {
   const applications = []
