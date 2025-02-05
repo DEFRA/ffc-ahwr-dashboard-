@@ -15,12 +15,13 @@ import { InvalidPermissionsError } from '../exceptions/InvalidPermissionsError.j
 import { InvalidStateError } from '../exceptions/InvalidStateError.js'
 import { NoEligibleCphError } from '../exceptions/NoEligibleCphError.js'
 import { NoEndemicsAgreementError } from '../exceptions/NoEndemicsAgreementError.js'
+import { OutstandingAgreementError } from '../exceptions/OutstandingAgreementError.js'
 import { raiseIneligibilityEvent } from '../event/raise-ineligibility-event.js'
 import { getPersonName, getPersonSummary } from '../api-requests/rpa-api/person.js'
 import { getOrganisationAddress, organisationIsEligible } from '../api-requests/rpa-api/organisation.js'
 import { changeContactHistory } from '../api-requests/contact-history-api.js'
-import { getLatestApplicationsBySbi } from '../api-requests/application-api.js'
 import { customerMustHaveAtLeastOneValidCph } from '../api-requests/rpa-api/cph-check.js'
+import { getLatestApplicationsBySbi } from '../api-requests/application-api'
 
 function setOrganisationSessionData (request, personSummary, org) {
   const organisation = {
@@ -45,7 +46,7 @@ function setOrganisationSessionData (request, personSummary, org) {
   )
 }
 
-function sendToApplyJourney (latestApplicationsForSbi, loginSource, organisation) {
+function getRedirectPath (latestApplicationsForSbi, loginSource, organisation, query) {
   const endemicsApplyJourney = `${config.applyServiceUri}/endemics/check-details`
 
   if (latestApplicationsForSbi.length === 0) {
@@ -75,6 +76,12 @@ function sendToApplyJourney (latestApplicationsForSbi, loginSource, organisation
       // show the 'You need to complete an endemics application' error page
       throw new NoEndemicsAgreementError(`Business with SBI ${organisation.sbi} must complete an endemics agreement`)
     }
+  }
+
+  if (loginSource === loginSources.apply) {
+    throw new OutstandingAgreementError(`Business with SBI ${organisation.sbi} must claim or withdraw agreement before creating another`)
+  } else {
+    return `${config.claimServiceUri}/signin-oidc?state=${query.state}&code=${query.code}`
   }
 }
 
@@ -149,7 +156,7 @@ export const signinRouteHandlers = [{
         await customerMustHaveAtLeastOneValidCph(request, apimAccessToken)
 
         const latestApplicationsForSbi = await getLatestApplicationsBySbi(organisation.sbi, request.logger)
-        const redirectPath = sendToApplyJourney(latestApplicationsForSbi, loginSource, organisation)
+        const redirectPath = getRedirectPath(latestApplicationsForSbi, loginSource, organisation, request.query)
 
         return h.redirect(redirectPath)
       } catch (err) {
@@ -174,6 +181,8 @@ export const signinRouteHandlers = [{
           case err instanceof LockedBusinessError:
             break
           case err instanceof NoEligibleCphError:
+            break
+          case err instanceof OutstandingAgreementError:
             break
           case err instanceof NoEndemicsAgreementError:
             break
