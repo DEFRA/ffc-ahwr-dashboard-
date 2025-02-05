@@ -711,7 +711,7 @@ test('get /signin-oidc: open old world application, came from apply', async () =
 
       return HttpResponse.json([{
         type: 'VV',
-        statusId: agreed
+        statusId: applicationStatus.AGREED
       }])
     }
   )
@@ -803,7 +803,7 @@ test('get /signin-oidc: open old world application, did not from apply', async (
 
       return HttpResponse.json([{
         type: 'VV',
-        statusId: agreed
+        statusId: applicationStatus.AGREED
       }])
     }
   )
