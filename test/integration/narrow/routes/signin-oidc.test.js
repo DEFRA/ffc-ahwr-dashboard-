@@ -644,6 +644,185 @@ test('get /signin-oidc: closed old world application, came from apply', async ()
   expect(res.headers.location).toBe(`${config.applyServiceUri}/endemics/check-details`)
 })
 
+test('get /signin-oidc: open old world application, came from apply', async () => {
+  const server = await createServer()
+
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'apply'
+  }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
+
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
+    },
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
+    }
+  }
+  setServerState(server, state)
+
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
+
+  const personId = '7357'
+  const privilegeNames = ['Full permission - business']
+  const organisation = {
+    id: organisationId,
+    sbi
+  }
+  const cphNumbers = [{ cphNumber: '29/004/0005' }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    getCphNumbers
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
+
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  const getLatestApplicationsBySbi = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    ({ request }) => {
+      const url = new URL(request.url)
+
+      if (url.searchParams.get('sbi') !== sbi) {
+        return new HttpResponse(null, { status: 404 })
+      }
+
+      return HttpResponse.json([{
+        type: 'VV',
+        statusId: agreed
+      }])
+    }
+  )
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory,
+    getCphNumbers,
+    getLatestApplicationsBySbi
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
+  })
+
+  expect(res.statusCode).toBe(400)
+  expect(
+    getByRole(
+      document.body,
+      'heading',
+      { level: 1, name: 'You do not have an agreement for this business' }
+    )
+  ).toBeDefined()
+})
+
+test('get /signin-oidc: open old world application, did not from apply', async () => {
+  const server = await createServer()
+
+  const rawState = {
+    id: '344875ca-02ab-4a4e-a136-77b576569318',
+    source: 'dashboard'
+  }
+  const encodedState = Buffer.from(JSON.stringify(rawState)).toString('base64')
+
+  const crn = '1100021396'
+  const sbi = '106354662'
+  const organisationId = '5501559'
+  const nonce = 'f0b70cd8-12a6-4e4e-a664-64bd7888b0d9'
+
+  const state = {
+    tokens: {
+      nonce,
+      state: encodedState
+    },
+    pkcecodes: {
+      verifier: 'wsfnhWoz2TP5eg9n7-qLgr83XB4IJWUdZ9e6RZrlOTI'
+    },
+    customer: {
+      crn
+    }
+  }
+  setServerState(server, state)
+
+  const {
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken
+  } = commonAuthHandlers(crn, organisationId, nonce)
+
+  const personId = '7357'
+  const privilegeNames = ['Full permission - business']
+  const organisation = {
+    id: organisationId,
+    sbi
+  }
+  const cphNumbers = [{ cphNumber: '29/004/0005' }]
+  const {
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    getCphNumbers
+  } = commonRPAHandlers(personId, privilegeNames, organisation, cphNumbers)
+
+  const { updateContactHistory } = commonApplicationHandlers()
+
+  const getLatestApplicationsBySbi = http.get(
+    `${config.applicationApi.uri}/applications/latest`,
+    ({ request }) => {
+      const url = new URL(request.url)
+
+      if (url.searchParams.get('sbi') !== sbi) {
+        return new HttpResponse(null, { status: 404 })
+      }
+
+      return HttpResponse.json([{
+        type: 'VV',
+        statusId: agreed
+      }])
+    }
+  )
+
+  mswServer.use(
+    defraIdToken,
+    acquireSigningKey,
+    apimAccessToken,
+    getPersonSummary,
+    getOrganisationAuthorisation,
+    getOrganisation,
+    updateContactHistory,
+    getCphNumbers,
+    getLatestApplicationsBySbi
+  )
+
+  const res = await server.inject({
+    url: `/signin-oidc?state=${encodedState}&code=123`
+  })
+
+  expect(res.statusCode).toBe(302)
+  expect(res.headers.location)
+    .toMatch(`${config.claimServiceUri}/signin-oidc?state=${encodedState}&code=123`)
+})
+
 test('get /signin-oidc: closed old world application, came from dashboard', async () => {
   const server = await createServer()
 

@@ -10,7 +10,7 @@ const { farmerApply } = require('../constants/user-types')
 const { status, closedStatuses } = require('../constants/status')
 const applicationType = require('../constants/application-type')
 const loginSources = require('../constants/login-sources')
-const { InvalidPermissionsError, NoEndemicsAgreementError, NoEligibleCphError, InvalidStateError, LockedBusinessError } = require('../exceptions')
+const { InvalidPermissionsError, NoEndemicsAgreementError, NoEligibleCphError, OutstandingAgreementError, InvalidStateError, LockedBusinessError } = require('../exceptions')
 const { raiseIneligibilityEvent } = require('../event')
 const appInsights = require('applicationinsights')
 const HttpStatus = require('http-status-codes')
@@ -39,7 +39,7 @@ function setOrganisationSessionData (request, personSummary, org) {
   )
 }
 
-function sendToApplyJourney (latestApplicationsForSbi, loginSource, organisation) {
+function getRedirectPath (latestApplicationsForSbi, loginSource, organisation, query) {
   const endemicsApplyJourney = `${config.applyServiceUri}/endemics/check-details`
 
   if (latestApplicationsForSbi.length === 0) {
@@ -69,6 +69,13 @@ function sendToApplyJourney (latestApplicationsForSbi, loginSource, organisation
       // show the 'You need to complete an endemics application' error page
       throw new NoEndemicsAgreementError(`Business with SBI ${organisation.sbi} must complete an endemics agreement`)
     }
+  }
+
+  if (loginSource === loginSources.apply) {
+    throw new OutstandingAgreementError(`Business with SBI ${organisation.sbi} must claim or withdraw agreement before creating another`)
+  } else {
+    const oldClaimJourney = `${config.claimServiceUri}/signin-oidc?state=${query.state}&code=${query.code}`
+    return oldClaimJourney
   }
 }
 
@@ -143,7 +150,7 @@ module.exports = [{
         await cphCheck.customerMustHaveAtLeastOneValidCph(request, apimAccessToken)
 
         const latestApplicationsForSbi = await applicationApi.getLatestApplicationsBySbi(organisation.sbi, request.logger)
-        const redirectPath = sendToApplyJourney(latestApplicationsForSbi, loginSource, organisation)
+        const redirectPath = getRedirectPath(latestApplicationsForSbi, loginSource, organisation, request.query)
 
         return h.redirect(redirectPath)
       } catch (err) {
@@ -168,6 +175,8 @@ module.exports = [{
           case err instanceof LockedBusinessError:
             break
           case err instanceof NoEligibleCphError:
+            break
+          case err instanceof OutstandingAgreementError:
             break
           case err instanceof NoEndemicsAgreementError:
             break
