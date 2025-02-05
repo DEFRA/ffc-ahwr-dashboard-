@@ -205,6 +205,7 @@ module.exports = [{
           permissionError: err instanceof InvalidPermissionsError,
           cphError: err instanceof NoEligibleCphError,
           lockedBusinessError: err instanceof LockedBusinessError,
+          outstandingAgreementError: err instanceof OutstandingAgreementError,
           noEndemicsAgreementError: err instanceof NoEndemicsAgreementError,
           hasMultipleBusinesses: attachedToMultipleBusinesses,
           backLink: auth.requestAuthorizationCodeUrl(session, request, loginSource),
