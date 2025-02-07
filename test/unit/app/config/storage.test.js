@@ -1,9 +1,5 @@
 import { getStorageConfig } from '../../../../app/config/storage.js'
 
-// jest.mock('../../../../app/config/storage', () => ({
-//   storageAccount: 'mockStorageAccount'
-// }))
-
 describe('Config Validation', () => {
   const originalProcessEnv = process.env
 
