@@ -12,27 +12,27 @@ export const getConfig = () => {
     cache: {
       expiresIn: joi.number().required(),
       options: {
-        host: joi.string().default('redis-hostname.default'),
-        partition: joi.string().default('ffc-ahwr-frontend'),
+        host: joi.string(),
+        partition: joi.string(),
         password: joi.string().allow(''),
         port: joi.number().required(),
         tls: joi.object()
       }
     },
     cookie: {
-      cookieNameCookiePolicy: joi.string().default('ffc_ahwr_cookie_policy'),
-      cookieNameAuth: joi.string().default('ffc_ahwr_auth'),
-      cookieNameSession: joi.string().default('ffc_ahwr_session'),
-      isSameSite: joi.string().default('Lax'),
-      isSecure: joi.boolean().default(true),
+      cookieNameCookiePolicy: joi.string(),
+      cookieNameAuth: joi.string(),
+      cookieNameSession: joi.string(),
+      isSameSite: joi.string(),
+      isSecure: joi.boolean(),
       password: joi.string().min(32).required(),
       ttl: joi.number().required()
     },
     cookiePolicy: {
-      clearInvalid: joi.bool().default(false),
-      encoding: joi.string().valid('base64json').default('base64json'),
-      isSameSite: joi.string().default('Lax'),
-      isSecure: joi.bool().default(true),
+      clearInvalid: joi.bool(),
+      encoding: joi.string().valid('base64json'),
+      isSameSite: joi.string(),
+      isSecure: joi.bool(),
       password: joi.string().min(32).required(),
       path: joi.string().default('/'),
       ttl: joi.number().required()
@@ -48,13 +48,13 @@ export const getConfig = () => {
     serviceUri: joi.string().uri(),
     claimServiceUri: joi.string().uri(),
     applyServiceUri: joi.string().uri(),
-    serviceName: joi.string().default('Get funding to improve animal health and welfare'),
-    useRedis: joi.boolean().default(false),
+    serviceName: joi.string(),
+    useRedis: joi.boolean(),
     ruralPaymentsAgency: {
-      loginUri: joi.string().uri().default('https://www.ruralpayments.service.gov.uk'),
-      callChargesUri: joi.string().uri().default('https://www.gov.uk/call-charges'),
-      email: joi.string().email().default('ruralpayments@defra.gov.uk'),
-      telephone: joi.string().default('03000 200 301')
+      loginUri: joi.string().uri(),
+      callChargesUri: joi.string().uri(),
+      email: joi.string().email(),
+      telephone: joi.string()
     },
     customerSurvey: {
       uri: joi.string().uri().optional()
@@ -78,12 +78,13 @@ export const getConfig = () => {
   })
 
   const config = {
-    appInsights: appInsights,
+    appInsights,
     namespace: process.env.NAMESPACE,
     cache: {
       expiresIn: threeDaysInMs,
       options: {
-        host: process.env.REDIS_HOSTNAME,
+        host: process.env.REDIS_HOSTNAME ?? 'redis-hostname.default',
+        partition: 'ffc-ahwr-frontend',
         password: process.env.REDIS_PASSWORD,
         port: Number.parseInt(process.env.REDIS_PORT ?? '6379', 10),
         tls: process.env.NODE_ENV === 'production' ? {} : undefined
@@ -116,6 +117,7 @@ export const getConfig = () => {
     claimServiceUri: process.env.CLAIM_SERVICE_URI,
     applyServiceUri: process.env.APPLY_SERVICE_URI,
     useRedis: process.env.NODE_ENV !== 'test',
+    serviceName: 'Get funding to improve animal health and welfare',
     ruralPaymentsAgency: {
       loginUri: 'https://www.ruralpayments.service.gov.uk',
       callChargesUri: 'https://www.gov.uk/call-charges',
@@ -127,10 +129,11 @@ export const getConfig = () => {
     },
     applicationApi: applicationApiConfig,
     dateOfTesting: {
-      enabled: process.env.DATE_OF_TESTING_ENABLED
+      // Note that this and the tenMonthRule below are not actually used, but I won;t update in this PR as trying to resolve login redirect issue
+      enabled: process.env.DATE_OF_TESTING_ENABLED === 'true'
     },
     tenMonthRule: {
-      enabled: process.env.TEN_MONTH_RULE_ENABLED
+      enabled: process.env.TEN_MONTH_RULE_ENABLED === 'true'
     },
     wreckHttp: {
       timeoutMilliseconds: Number.parseInt(process.env.WRECK_HTTP_TIMEOUT_MILLISECONDS ?? '10000', 10)
@@ -143,12 +146,12 @@ export const getConfig = () => {
     reapplyTimeLimitMonths: 10
   }
 
-  const result = schema.validate(config, {
+  const { error } = schema.validate(config, {
     abortEarly: false
   })
 
-  if (result.error) {
-    throw new Error(`The server config is invalid. ${result.error.message}`)
+  if (error) {
+    throw new Error(`The server config is invalid. ${error.message}`)
   }
 
   return config
