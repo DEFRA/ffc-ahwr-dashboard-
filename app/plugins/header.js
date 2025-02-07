@@ -1,4 +1,4 @@
-const config = require('../config')
+import { config } from '../config/index.js'
 
 const getSecurityPolicy = () => "default-src 'self';" +
   "object-src 'none';" +
@@ -9,7 +9,7 @@ const getSecurityPolicy = () => "default-src 'self';" +
   "style-src 'self' 'unsafe-inline' tagmanager.google.com *.googleapis.com;" +
   "img-src 'self' *.google-analytics.com *.googletagmanager.com;"
 
-module.exports = {
+export const headerPlugin = {
   plugin: {
     name: 'header',
     register: (server, options) => {

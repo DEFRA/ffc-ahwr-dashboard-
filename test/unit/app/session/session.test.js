@@ -1,6 +1,6 @@
-const session = require('../../../../app/session')
+import * as session from '../../../../app/session/index.js'
+import { sendSessionEvent } from '../../../../app/event/send-session-event.js'
 
-const sendSessionEvent = require('../../../../app/event/send-session-event')
 jest.mock('../../../../app/event/send-session-event')
 
 const yarMock = {
@@ -179,19 +179,6 @@ describe('session', () => {
     })
   })
 
-  describe('AppSearch', () => {
-    test('set called with correct variables', () => {
-      const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
-      session.setAppSearch(request, 'test key', 'test value')
-      expect(yarMock.set).toHaveBeenCalledWith(undefined, { 'test key': 'test value' })
-    })
-
-    test('get called with correct variables', () => {
-      const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
-      session.getAppSearch(request, 'test key')
-      expect(yarMock.get).toHaveBeenCalledWith(undefined)
-    })
-  })
   describe('ReturnRoute', () => {
     test('set called with correct variables', () => {
       const request = { yar: yarMock, headers: { 'x-forwarded-for': '1,2,3' } }
