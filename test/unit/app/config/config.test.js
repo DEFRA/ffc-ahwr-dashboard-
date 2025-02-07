@@ -1,11 +1,7 @@
 import { getConfig } from '../../../../app/config/index.js'
 
-describe('Auth config', () => {
+describe('Base config', () => {
   const env = process.env
-
-  beforeEach(() => {
-    process.env = { ...env }
-  })
 
   afterEach(() => {
     process.env = env
