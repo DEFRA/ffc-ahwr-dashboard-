@@ -21,7 +21,7 @@ import { getPersonName, getPersonSummary } from '../api-requests/rpa-api/person.
 import { getOrganisationAddress, organisationIsEligible } from '../api-requests/rpa-api/organisation.js'
 import { changeContactHistory } from '../api-requests/contact-history-api.js'
 import { customerMustHaveAtLeastOneValidCph } from '../api-requests/rpa-api/cph-check.js'
-import { getLatestApplicationsBySbi } from '../api-requests/application-api'
+import { getLatestApplicationsBySbi } from '../api-requests/application-api.js'
 
 function setOrganisationSessionData (request, personSummary, org) {
   const organisation = {
