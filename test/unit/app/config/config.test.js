@@ -13,11 +13,13 @@ describe('Auth config', () => {
 
   test('defaults used for missing values where applicable', () => {
     delete process.env.REDIS_PORT
+    delete process.env.REDIS_HOSTNAME
     delete process.env.PORT
 
     const config = getConfig()
 
     expect(config.cache.options.port).toBe(6379)
+    expect(config.cache.options.host).toBe('redis-hostname.default')
     expect(config.port).toBe(3000)
   })
 
